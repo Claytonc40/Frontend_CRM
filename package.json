@@ -67,9 +67,9 @@
     "vcard-parser": "^1.0.0",
     "yup": "^0.32.8"
   },
-  "scripts": {
+ "scripts": {
     "start": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider GENERATE_SOURCEMAP=false react-scripts build",
     "builddev": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
