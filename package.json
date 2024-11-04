@@ -1,8 +1,8 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "versionSystem": "10.7.0",
-  "nomeEmpresa": "Whaticket Saas",
+  "versionSystem": "11.2.0",
+  "nomeEmpresa": "ChatFlex",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "^2.14.0",
@@ -67,7 +67,7 @@
     "vcard-parser": "^1.0.0",
     "yup": "^0.32.8"
   },
- "scripts": {
+  "scripts": {
     "start": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
     "build": "NODE_OPTIONS=--openssl-legacy-provider GENERATE_SOURCEMAP=false react-scripts build",
     "builddev": "react-scripts build",
