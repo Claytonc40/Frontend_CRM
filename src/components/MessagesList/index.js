@@ -13,20 +13,21 @@ import {
 } from "@material-ui/core";
 
 import {
-  AccessTime,
-  Block,
-  Done,
-  DoneAll,
-  ExpandMore,
-  GetApp,
-} from "@material-ui/icons";
+  Clock,
+  Ban,
+  Check,
+  CheckCheck,
+  ChevronDown,
+  Download,
+  PhoneMissed
+} from "lucide-react";
 
 import MarkdownWrapper from "../MarkdownWrapper";
 import ModalImageCors from "../ModalImageCors";
 import MessageOptionsMenu from "../MessageOptionsMenu";
 import whatsBackground from "../../assets/wa-background.png";
 import LocationPreview from "../LocationPreview";
-import whatsBackgroundDark from "../../assets/wa-background-dark.png"; //DARK MODE PLW DESIGN//
+import whatsBackgroundDark from "../../assets/wa-background-dark.png";
 import VCardPreview from "../VCardPreview";
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
@@ -529,7 +530,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
         <>
           <div className={classes.downloadMedia}>
             <Button
-              startIcon={<GetApp />}
+              startIcon={<Download size={16} />}
               color="primary"
               variant="outlined"
               target="_blank"
@@ -563,19 +564,19 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
 
     const renderMessageAck = (message) => {
       if (message.ack === 0) {
-        return <AccessTime fontSize="small" className={classes.ackIcons} />;
+        return <Clock size={16} className={classes.ackIcons} />;
       }
       if (message.ack === 1) {
-        return <Done fontSize="small" className={classes.ackIcons} />;
+        return <Check size={16} className={classes.ackIcons} />;
       }
       if (message.ack === 2) {
-        return <Done fontSize="small" className={classes.ackIcons} />;
+        return <Check size={16} className={classes.ackIcons} />;
       }
       if (message.ack === 3) {
-        return <DoneAll fontSize="small" className={classes.ackIcons} />;
+        return <CheckCheck size={16} className={classes.ackIcons} />;
       }
       if (message.ack === 4 || message.ack === 5) {
-        return <DoneAll fontSize="small" className={classes.ackDoneAllIcon} style={{color:'#0377FC'}} />;
+        return <CheckCheck size={16} className={classes.ackDoneAllIcon} />;
       }
     };
 
@@ -697,7 +698,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
             && (
               <div className={classes.downloadMedia}>
                 <Button
-                  startIcon={<GetApp />}
+                  startIcon={<Download size={16} />}
                   color="primary"
                   variant="outlined"
                   target="_blank"
@@ -738,7 +739,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
                   className={classes.messageActionsButton}
                   onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
                 >
-                  <ExpandMore />
+                  <ChevronDown size={20} />
                 </IconButton>
                 {isGroup && (
                   <span className={classes.messageContactName}>
@@ -746,9 +747,8 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
                   </span>
                 )}
                 <div>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 17" width="20" height="17">
-                    <path fill="#df3333" d="M18.2 12.1c-1.5-1.8-5-2.7-8.2-2.7s-6.7 1-8.2 2.7c-.7.8-.3 2.3.2 2.8.2.2.3.3.5.3 1.4 0 3.6-.7 3.6-.7.5-.2.8-.5.8-1v-1.3c.7-1.2 5.4-1.2 6.4-.1l.1.1v1.3c0 .2.1.4.2.6.1.2.3.3.5.4 0 0 2.2.7 3.6.7.2 0 1.4-2 .5-3.1zM5.4 3.2l4.7 4.6 5.8-5.7-.9-.8L10.1 6 6.4 2.3h2.5V1H4.1v4.8h1.3V3.2z"></path>
-                  </svg> <span>Chamada de voz/vídeo perdida às {format(parseISO(message.createdAt), "HH:mm")}</span>
+                  <PhoneMissed size={16} color="#df3333" />
+                  <span>Chamada de voz/vídeo perdida às {format(parseISO(message.createdAt), "HH:mm")}</span>
                 </div>
               </div>
             </React.Fragment>
@@ -770,7 +770,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
                   className={classes.messageActionsButton}
                   onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
                 >
-                  <ExpandMore />
+                  <ChevronDown size={20} />
                 </IconButton>
                 {isGroup && (
                   <span className={classes.messageContactName}>
@@ -783,11 +783,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
                   <div>
                     <span className={"message-deleted"}
                     >Essa mensagem foi apagada pelo contato &nbsp;
-                      <Block
-                        color="error"
-                        fontSize="small"
-                        className={classes.deletedIcon}
-                      />
+                      <Ban size={16} className={classes.deletedIcon} />
                     </span>
                   </div>
                 )}
@@ -822,7 +818,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
                   className={classes.messageActionsButton}
                   onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
                 >
-                  <ExpandMore />
+                  <ChevronDown size={20} />
                 </IconButton>
                 {(message.mediaUrl || message.mediaType === "locationMessage" || message.mediaType === "vcard" || message.mediaType === "contactMessage"
                   //|| message.mediaType === "multi_vcard" 
@@ -833,11 +829,12 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
                   })}
                 >
                   {message.isDeleted && (
-                    <Block
-                      color="disabled"
-                      fontSize="small"
-                      className={classes.deletedIcon}
-                    />
+                    <div>
+                      <span className={"message-deleted"}>
+                        Essa mensagem foi apagada pelo contato &nbsp;
+                        <Ban size={16} className={classes.deletedIcon} />
+                      </span>
+                    </div>
                   )}
                   {message.quotedMsg && renderQuotedMessage(message)}
                   <MarkdownWrapper>{message.body}</MarkdownWrapper>

@@ -13,8 +13,13 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { Colorize } from "@material-ui/icons";
+import { Colorize, LocalOffer } from "@material-ui/icons";
 import { ColorBox } from 'material-ui-color';
+import Slide from "@material-ui/core/Slide";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
+import Tooltip from "@material-ui/core/Tooltip";
 
 import { i18n } from "../../translate/i18n";
 
@@ -23,10 +28,11 @@ import toastError from "../../errors/toastError";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { IconButton, InputAdornment } from "@material-ui/core";
 import { FormControlLabel, Switch } from '@material-ui/core';
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import InputLabel from "@material-ui/core/InputLabel";
 import Checkbox from '@material-ui/core/Checkbox';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+	return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -35,15 +41,29 @@ const useStyles = makeStyles(theme => ({
 	},
 	multFieldLine: {
 		display: "flex",
+		marginBottom: theme.spacing(2),
 		"& > *:not(:last-child)": {
 			marginRight: theme.spacing(1),
 		},
 	},
-
+	textField: {
+		marginBottom: theme.spacing(2),
+		"& .MuiOutlinedInput-root": {
+			borderRadius: 10,
+		},
+		"& .MuiOutlinedInput-notchedOutline": {
+			borderColor: "rgba(93, 63, 211, 0.2)",
+		},
+		"&:hover .MuiOutlinedInput-notchedOutline": {
+			borderColor: "rgba(93, 63, 211, 0.5)",
+		},
+		"& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+			borderColor: "#5D3FD3",
+		},
+	},
 	btnWrapper: {
 		position: "relative",
 	},
-
 	buttonProgress: {
 		color: green[500],
 		position: "absolute",
@@ -59,6 +79,112 @@ const useStyles = makeStyles(theme => ({
 	colorAdorment: {
 		width: 20,
 		height: 20,
+		borderRadius: 4,
+	},
+	colorPickerContainer: {
+		padding: theme.spacing(2),
+		marginTop: theme.spacing(2),
+		marginBottom: theme.spacing(2),
+		borderRadius: 10,
+		backgroundColor: theme.palette.background.default,
+		border: '1px solid rgba(93, 63, 211, 0.1)',
+		boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+	},
+	dialogTitle: {
+		display: "flex",
+		alignItems: "center",
+		background: 'linear-gradient(145deg, #5D3FD3 0%, #7058e6 100%)',
+		color: '#FFFFFF',
+		"& h2": {
+			display: "flex",
+			alignItems: "center",
+			color: '#FFFFFF',
+		},
+	},
+	titleIcon: {
+		marginRight: theme.spacing(1),
+		color: '#FFFFFF',
+	},
+	previewContainer: {
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "center",
+		justifyContent: "center",
+		marginTop: theme.spacing(2),
+		marginBottom: theme.spacing(2),
+		padding: theme.spacing(2),
+		borderRadius: 10,
+		backgroundColor: theme.palette.background.default,
+		border: '1px solid rgba(93, 63, 211, 0.1)',
+		boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+	},
+	previewTitle: {
+		marginBottom: theme.spacing(1),
+		fontSize: "0.8rem",
+		color: theme.palette.text.secondary,
+	},
+	previewTag: {
+		padding: theme.spacing(1, 2),
+		borderRadius: 20,
+		color: "white",
+		textShadow: "1px 1px 1px #000",
+		fontWeight: "bold",
+		display: "flex",
+		alignItems: "center",
+		"& svg": {
+			marginRight: theme.spacing(1),
+		},
+	},
+	checkboxContainer: {
+		display: "flex",
+		alignItems: "center",
+	},
+	colorOptions: {
+		display: "flex",
+		flexWrap: "wrap",
+		marginTop: theme.spacing(1),
+		gap: theme.spacing(1),
+		justifyContent: "center",
+	},
+	colorOption: {
+		width: 36,
+		height: 36,
+		borderRadius: 4,
+		cursor: "pointer",
+		border: "2px solid transparent",
+		transition: "all 0.2s",
+		"&:hover": {
+			transform: "scale(1.1)",
+			boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+		},
+	},
+	selectedColor: {
+		border: `2px solid #5D3FD3`,
+		transform: "scale(1.1)",
+		boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+	},
+	dialogActions: {
+		padding: theme.spacing(2),
+		justifyContent: "space-between",
+		borderTop: '1px solid rgba(0,0,0,0.08)',
+	},
+	cancelButton: {
+		color: "#333",
+		borderRadius: 10,
+		borderColor: 'rgba(0,0,0,0.12)',
+		padding: theme.spacing(1, 2),
+		'&:hover': {
+			backgroundColor: 'rgba(0,0,0,0.04)',
+		}
+	},
+	saveButton: {
+		backgroundColor: "#5D3FD3",
+		color: "#FFF",
+		borderRadius: 10,
+		padding: theme.spacing(1, 3),
+		'&:hover': {
+			backgroundColor: "#4930A8",
+		}
 	},
 }));
 
@@ -68,6 +194,13 @@ const TagSchema = Yup.object().shape({
 		.required("Obrigatório")
 });
 
+// Cores pré-definidas para rápida seleção
+const predefinedColors = [
+	"#2DDD7F", "#5D3FD3", "#FF5733", "#1E88E5", 
+	"#8E24AA", "#F4511E", "#43A047", "#3949AB", 
+	"#00ACC1", "#E53935", "#607D8B", "#F9A825"
+];
+
 const TagModal = ({ open, onClose, tagId, reload }) => {
 	const classes = useStyles();
 	const { user } = useContext(AuthContext);
@@ -75,12 +208,12 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 
 	const initialState = {
 		name: "",
-		color: "",
+		color: "#5D3FD3",
 		kanban: 0
 	};
 
 	const [tag, setTag] = useState(initialState);
-	const [ kanban, setKanban] = useState(0);
+	const [kanban, setKanban] = useState(0);
 
 	useEffect(() => {
 		try {
@@ -105,7 +238,7 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 	};
 
 	const handleKanbanChange = (e) => {
-		setKanban( e.target.checked ? 1 : 0);
+		setKanban(e.target.checked ? 1 : 0);
 	};
 
 	const handleSaveTag = async values => {
@@ -134,8 +267,10 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 				maxWidth="xs"
 				fullWidth
 				scroll="paper"
+				TransitionComponent={Transition}
 			>
-				<DialogTitle id="form-dialog-title">
+				<DialogTitle id="form-dialog-title" className={classes.dialogTitle}>
+					<LocalOffer className={classes.titleIcon} />
 					{(tagId ? `${i18n.t("tagModal.title.edit")}` : `${i18n.t("tagModal.title.add")}`)}
 				</DialogTitle>
 				<Formik
@@ -157,86 +292,105 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 										as={TextField}
 										label={i18n.t("tagModal.form.name")}
 										name="name"
+										autoFocus
 										error={touched.name && Boolean(errors.name)}
 										helperText={touched.name && errors.name}
 										variant="outlined"
 										margin="dense"
-										onChange={(e) => setTag(prev => ({ ...prev, name: e.target.value }))}
+										className={classes.textField}
 										fullWidth
 									/>
 								</div>
-								<br />
-								<div className={classes.multFieldLine}>
+								
+								{/* Preview da tag */}
+								<Paper elevation={0} className={classes.previewContainer}>
+									<Typography className={classes.previewTitle}>
+										{i18n.t("tagModal.preview")}
+									</Typography>
+									<div 
+										className={classes.previewTag}
+										style={{
+											backgroundColor: values.color || "#5D3FD3",
+										}}
+									>
+										<LocalOffer fontSize="small" />
+										{values.name || i18n.t("tagModal.form.name")}
+									</div>
+								</Paper>
+
+								{/* Seletor de cores */}
+								<Paper elevation={0} className={classes.colorPickerContainer}>
+									<Typography variant="subtitle2" gutterBottom style={{ marginBottom: 12, color: '#555' }}>
+										{i18n.t("tagModal.form.color")}
+								</Typography>
+								
+								<div className={classes.colorOptions}>
+									{predefinedColors.map(color => (
+											<Tooltip title={color} key={color} arrow>
+											<div 
+												className={`${classes.colorOption} ${values.color === color ? classes.selectedColor : ''}`}
+												style={{ backgroundColor: color }}
+													onClick={() => {
+														setTag({ ...values, color });
+													}}
+											/>
+										</Tooltip>
+									))}
+								</div>
+								
+								<div className={classes.multFieldLine} style={{ marginTop: 16 }}>
 									<Field
 										as={TextField}
+											label={i18n.t("tagModal.form.colorCode")}
+											name="color"
+											variant="outlined"
+											margin="dense"
 										fullWidth
-										label={i18n.t("tagModal.form.color")}
-										name="color"
-										id="color"
-										error={touched.color && Boolean(errors.color)}
-										helperText={touched.color && errors.color}
+										className={classes.textField}
 										InputProps={{
 											startAdornment: (
 												<InputAdornment position="start">
 													<div
+															className={classes.colorAdorment}
 														style={{ backgroundColor: values.color }}
-														className={classes.colorAdorment}
-													></div>
+														/>
 												</InputAdornment>
 											),
 											endAdornment: (
-												<IconButton
-													size="small"
-													color="default"
-													onClick={() => setColorPickerModalOpen(!colorPickerModalOpen)}
-												>
-													<Colorize />
-												</IconButton>
-											),
-										}}
-										variant="outlined"
-										margin="dense"
-									/>
-								</div>
-								{(user.profile === "admin" || user.profile === "supervisor") && (
-                                <>
-								<div className={classes.multFieldLine}>
-        							<FormControlLabel
-          								control={
-            								<Checkbox
-             									checked={kanban === 1}
-             									onChange={handleKanbanChange}
-              									value={kanban}
-              									color="primary"
-            								/>
-          								}
-          								label="Kanban"
-          								labelPlacement="start"
-        							/>
-      							</div>
-      							<br />
-                                </>
-								)}
-								{colorPickerModalOpen && (
-									<div>
-										<ColorBox
-											disableAlpha={true}
-											hslGradient={false}
-											style={{ margin: '20px auto 0' }}
-											value={tag.color}
-											onChange={val => {
-												setTag(prev => ({ ...prev, color: `#${val.hex}` }));
+													<InputAdornment position="end">
+													<IconButton
+														size="small"
+															onClick={() => setColorPickerModalOpen(true)}
+													>
+														<Colorize />
+													</IconButton>
+													</InputAdornment>
+												),
 											}}
 										/>
 									</div>
-								)}
+								</Paper>
+								
+								{/* Opção Kanban */}
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={kanban === 1}
+												onChange={handleKanbanChange}
+												color="primary"
+											/>
+										}
+										label={i18n.t("tagModal.form.kanban")}
+									className={classes.checkboxContainer}
+									/>
 							</DialogContent>
-							<DialogActions>
+							<DialogActions className={classes.dialogActions}>
 								<Button
 									onClick={handleClose}
 									color="secondary"
 									disabled={isSubmitting}
 									variant="outlined"
+									className={classes.cancelButton}
 								>
 									{i18n.t("tagModal.buttons.cancel")}
 								</Button>
@@ -245,7 +399,7 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 									color="primary"
 									disabled={isSubmitting}
 									variant="contained"
-									className={classes.btnWrapper}
+									className={classes.saveButton}
 								>
 									{tagId
 										? `${i18n.t("tagModal.buttons.okEdit")}`

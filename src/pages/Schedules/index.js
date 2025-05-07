@@ -23,10 +23,12 @@ import { Calendar, momentLocalizer } from "react-big-calendar";
 import "moment/locale/pt-br";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import SearchIcon from "@material-ui/icons/Search";
-import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import EditIcon from "@material-ui/icons/Edit";
-
-import "./Schedules.css"; // Importe o arquivo CSS
+import { Edit3, Trash2, PlusCircle, CalendarDays } from 'lucide-react';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+import "./Schedules.css";
+import "./SchedulesCalendar.css";
 
 // Defina a função getUrlParam antes de usá-la
 function getUrlParam(paramName) {
@@ -35,10 +37,15 @@ function getUrlParam(paramName) {
 }
 
 const eventTitleStyle = {
-  fontSize: "14px", // Defina um tamanho de fonte menor
-  overflow: "hidden", // Oculte qualquer conteúdo excedente
-  whiteSpace: "nowrap", // Evite a quebra de linha do texto
-  textOverflow: "ellipsis", // Exiba "..." se o texto for muito longo
+  fontSize: "15px",
+  fontWeight: 600,
+  overflow: "hidden",
+  whiteSpace: "nowrap",
+  textOverflow: "ellipsis",
+  color: '#222',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
 };
 
 const localizer = momentLocalizer(moment);
@@ -98,6 +105,46 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     overflowY: "scroll",
     ...theme.scrollbarStyles,
+    background: '#faf9fd',
+    borderRadius: 16,
+    boxShadow: '0 2px 12px rgba(93,63,211,0.07)',
+    marginTop: theme.spacing(2),
+  },
+  emptyBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 320,
+    color: '#888',
+    gap: 12,
+    background: '#fff',
+    borderRadius: 12,
+    margin: theme.spacing(4, 0),
+    boxShadow: '0 1px 6px rgba(93,63,211,0.06)',
+  },
+  addButton: {
+    borderRadius: 10,
+    fontWeight: 600,
+    fontSize: 16,
+    padding: '10px 24px',
+    textTransform: 'none',
+    background: '#5D3FD3',
+    color: '#fff',
+    boxShadow: '0 2px 8px rgba(93, 63, 211, 0.15)',
+    transition: 'all 0.2s',
+    '&:hover': {
+      background: '#4930A8',
+      boxShadow: '0 4px 12px rgba(93, 63, 211, 0.2)',
+    },
+    marginLeft: theme.spacing(2),
+  },
+  searchInput: {
+    borderRadius: 10,
+    background: '#fff',
+    fontSize: 15,
+    minWidth: 220,
+    marginRight: theme.spacing(2),
   },
 }));
 
@@ -274,48 +321,81 @@ const Schedules = () => {
                 </InputAdornment>
               ),
             }}
+            className={classes.searchInput}
+            variant="outlined"
+            size="small"
+            aria-label="Buscar agendamento"
           />
           <Button
             variant="contained"
             color="primary"
             onClick={handleOpenScheduleModal}
+            className={classes.addButton}
+            startIcon={<PlusCircle size={22} />}
+            aria-label="Adicionar agendamento"
           >
             {i18n.t("schedules.buttons.add")}
           </Button>
         </MainHeaderButtonsWrapper>
       </MainHeader>
       <Paper className={classes.mainPaper} variant="outlined" onScroll={handleScroll}>
-        <Calendar
-          messages={defaultMessages}
-          formats={{
-          agendaDateFormat: "DD/MM ddd",
-          weekdayFormat: "dddd"
-      }}
-          localizer={localizer}
-          events={schedules.map((schedule) => ({
-            title: (
-              <div className="event-container">
-                <div style={eventTitleStyle}>{schedule.contact.name}</div>
-                <DeleteOutlineIcon
-                  onClick={() => handleDeleteSchedule(schedule.id)}
-                  className="delete-icon"
-                />
-                <EditIcon
-                  onClick={() => {
-                    handleEditSchedule(schedule);
-                    setScheduleModalOpen(true);
-                  }}
-                  className="edit-icon"
-                />
-              </div>
-            ),
-            start: new Date(schedule.sendAt),
-            end: new Date(schedule.sendAt),
-          }))}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: 500 }}
-        />
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height={400}>
+            <CircularProgress color="primary" />
+          </Box>
+        ) : schedules.length === 0 ? (
+          <Box className={classes.emptyBox}>
+            <CalendarDays size={48} />
+            <Typography variant="h6" style={{ color: '#5D3FD3', fontWeight: 600 }}>
+              Nenhum agendamento encontrado
+            </Typography>
+            <Typography variant="body2">
+              Clique em "Adicionar" para criar um novo agendamento.
+            </Typography>
+          </Box>
+        ) : (
+          <Calendar
+            messages={defaultMessages}
+            formats={{
+              agendaDateFormat: "DD/MM ddd",
+              weekdayFormat: "dddd"
+            }}
+            localizer={localizer}
+            events={schedules.map((schedule) => ({
+              title: (
+                <div className="event-container">
+                  <span style={eventTitleStyle}>{schedule.contact.name}</span>
+                  <span className="event-icons">
+                    <span
+                      className="edit-icon"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleEditSchedule(schedule);
+                        setScheduleModalOpen(true);
+                      }}
+                    >
+                      <Edit3 size={18} />
+                    </span>
+                    <span
+                      className="delete-icon"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDeleteSchedule(schedule.id);
+                      }}
+                    >
+                      <Trash2 size={18} />
+                    </span>
+                  </span>
+                </div>
+              ),
+              start: new Date(schedule.sendAt),
+              end: new Date(schedule.sendAt),
+            }))}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 500 }}
+          />
+        )}
       </Paper>
     </MainContainer>
   );

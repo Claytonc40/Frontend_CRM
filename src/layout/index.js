@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import clsx from "clsx";
 import moment from "moment";
+import { useLocation } from "react-router-dom";
 import {
   makeStyles,
   Drawer,
@@ -42,7 +43,8 @@ import ColorModeContext from "../layout/themeContext";
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
 
-const drawerWidth = 240;
+const drawerWidth = 280;
+const closedDrawerWidth = 80;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,21 +55,30 @@ const useStyles = makeStyles((theme) => ({
     },
     backgroundColor: theme.palette.fancyBackground,
     '& .MuiButton-outlinedPrimary': {
-      color: theme.mode === 'light' ? '#FFF' : '#FFF',
-	  backgroundColor: theme.mode === 'light' ? '#2DDD7F' : '#1c1c1c',
-      //border: theme.mode === 'light' ? '1px solid rgba(0 124 102)' : '1px solid rgba(255, 255, 255, 0.5)',
+      color: theme.palette.type === 'light' ? '#FFF' : '#FFF',
+	  backgroundColor: theme.palette.type === 'light' ? '#5D3FD3' : '#1c1c1c',
+      //border: theme.palette.type === 'light' ? '1px solid rgba(0 124 102)' : '1px solid rgba(255, 255, 255, 0.5)',
     },
     '& .MuiTab-textColorPrimary.Mui-selected': {
-      color: theme.mode === 'light' ? '#2DDD7F' : '#FFF',
+      color: theme.palette.type === 'light' ? '#5D3FD3' : '#FFF',
     }
   },
   avatar: {
     width: "100%",
   },
   toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
+    paddingRight: 24,
     color: theme.palette.dark.main,
-    background: theme.palette.barraSuperior,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 64,
+    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(0, 1),
+      minHeight: 56,
+      height: 56,
+    },
   },
   toolbarIcon: {
     display: "flex",
@@ -85,6 +96,10 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.fancyBackground : '#FFFFFF',
+    color: theme.palette.type === 'dark' ? '#FFFFFF' : '#5D3FD3',
+    boxShadow: theme.palette.type === 'dark' ? '0 1px 3px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.08)',
+    borderBottom: theme.palette.type === 'dark' ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.06)',
   },
   appBarShift: {
     marginLeft: drawerWidth,
@@ -105,8 +120,14 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
-    fontSize: 14,
-    color: "white",
+    fontSize: 15,
+    color: theme.palette.type === 'dark' ? '#FFFFFF' : '#333',
+    fontWeight: 500,
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 13,
+      whiteSpace: "normal",
+      lineHeight: 1.2,
+    },
   },
   drawerPaper: {
     position: "relative",
@@ -117,9 +138,24 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     [theme.breakpoints.down("sm")]: {
-      width: "100%"
+      width: "100%",
+      position: "fixed",
+      height: "100%",
+      zIndex: theme.zIndex.drawer + 2,
     },
-    ...theme.scrollbarStylesSoft
+    "&::-webkit-scrollbar": {
+      width: "6px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "#5D3FD3",
+      borderRadius: "4px",
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor: "rgba(93, 63, 211, 0.05)",
+    },
+    backgroundColor: theme.palette.background.paper,
+    borderRight: `1px solid ${theme.palette.divider}`,
+    boxShadow: '2px 0 8px rgba(0,0,0,0.04)',
   },
   drawerPaperClose: {
     overflowX: "hidden",
@@ -127,9 +163,9 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    width: theme.spacing(7),
+    width: closedDrawerWidth,
     [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9),
+      width: closedDrawerWidth,
     },
     [theme.breakpoints.down("sm")]: {
       width: "100%"
@@ -156,22 +192,167 @@ const useStyles = makeStyles((theme) => ({
   containerWithScroll: {
     flex: 1,
     padding: theme.spacing(1),
-    overflowY: "scroll",
-    ...theme.scrollbarStyles,
+    overflowY: "auto",
+    "&::-webkit-scrollbar": {
+      width: "6px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "#5D3FD3",
+      borderRadius: "4px",
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor: "rgba(93, 63, 211, 0.05)",
+    },
   },
   NotificationsPopOver: {
     // color: theme.barraSuperior.secondary.main,
   },
   logo: {
-    width: "80%",
-    height: "auto",
-    maxWidth: 180,
+    width: "auto",
+    height: "32px",
+    maxWidth: 120,
     [theme.breakpoints.down("sm")]: {
       width: "auto",
-      height: "80%",
-      maxWidth: 180,
+      height: "32px",
+      maxWidth: 120,
     },
-    logo: theme.logo
+  },
+  drawerHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: theme.spacing(2, 2.5),
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.fancyBackground : '#FFFFFF',
+    minHeight: 70,
+    boxShadow: theme.palette.type === 'dark' ? '0 2px 4px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.03)',
+  },
+  drawerLogoBox: {
+    display: "flex",
+    alignItems: "center",
+    padding: theme.spacing(0, 1),
+  },
+  logoText: {
+    fontWeight: 600,
+    fontSize: '26px',
+    color: theme.palette.type === 'dark' ? '#FFFFFF' : '#5D3FD3',
+    letterSpacing: '-0.5px',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      color: theme.palette.type === 'dark' ? '#e0e0e0' : '#4930A8',
+      transform: 'scale(1.02)',
+    },
+  },
+  drawerToggleIcon: {
+    color: "#757575",
+    padding: 6,
+    transition: 'all 0.2s ease',
+    borderRadius: '50%',
+    '&:hover': {
+      backgroundColor: 'rgba(0,0,0,0.04)',
+      transform: 'rotate(-180deg)',
+    },
+  },
+  appBarButton: {
+    color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3',
+    margin: theme.spacing(0, 0.5),
+    padding: theme.spacing(1),
+    borderRadius: theme.spacing(1),
+    transition: 'all 0.2s ease',
+    [theme.breakpoints.down("xs")]: {
+      margin: theme.spacing(0, 0.2),
+      padding: theme.spacing(0.7),
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.type === 'dark' ? 'rgba(93, 63, 211, 0.12)' : 'rgba(93, 63, 211, 0.08)',
+      transform: 'translateY(-1px)',
+    },
+  },
+  userButton: {
+    color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3',
+    borderRadius: theme.spacing(1),
+    padding: theme.spacing(0.5),
+    marginLeft: theme.spacing(1),
+    transition: 'all 0.2s ease',
+    [theme.breakpoints.down("xs")]: {
+      marginLeft: theme.spacing(0.3),
+      padding: theme.spacing(0.4),
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.type === 'dark' ? 'rgba(93, 63, 211, 0.12)' : 'rgba(93, 63, 211, 0.08)',
+      transform: 'scale(1.05)',
+    },
+  },
+  greetingText: {
+    fontSize: 15,
+    fontWeight: 500,
+    color: theme.palette.type === 'dark' ? '#FFFFFF' : '#333',
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 13,
+    },
+  },
+  companyText: {
+    fontWeight: 600,
+    color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3',
+    transition: 'color 0.2s ease',
+    '&:hover': {
+      color: theme.palette.type === 'dark' ? '#7058e6' : '#4930A8',
+    },
+  },
+  dueDateText: {
+    fontSize: 13,
+    opacity: 0.8,
+    color: theme.palette.type === 'dark' ? '#CCCCCC' : '#666',
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 11,
+    },
+  },
+  menuIconOnly: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: theme.spacing(1.2),
+    width: '100%',
+    color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3',
+    '& svg': {
+      fontSize: 28,
+    },
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      backgroundColor: theme.palette.type === 'dark' ? 'rgba(93, 63, 211, 0.12)' : 'rgba(93, 63, 211, 0.04)',
+    },
+  },
+  headerSection: {
+    display: 'flex',
+    alignItems: 'center',
+    '& > *': {
+      transition: 'all 0.2s ease',
+    },
+    [theme.breakpoints.down("xs")]: {
+      '& > *:not(:last-child)': {
+        marginRight: -6,
+      },
+    },
+  },
+  mobileHeaderSection: {
+    [theme.breakpoints.down("xs")]: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      width: '100%',
+    },
+  },
+  rightIconsSection: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: 'auto',
+    '& > *': {
+      transition: 'all 0.2s ease',
+    },
+    [theme.breakpoints.down("xs")]: {
+      '& > *:not(:last-child)': {
+        marginRight: -6,
+      },
+    },
   },
 }));
 
@@ -183,8 +364,8 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   const { handleLogout, loading } = useContext(AuthContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerVariant, setDrawerVariant] = useState("permanent");
-  // const [dueDate, setDueDate] = useState("");
   const { user } = useContext(AuthContext);
+  const location = useLocation();
 
   const theme = useTheme();
   const { colorMode } = useContext(ColorModeContext);
@@ -194,53 +375,49 @@ const LoggedInLayout = ({ children, themeToggle }) => {
 
   const { dateToClient } = useDate();
 
-
-  //################### CODIGOS DE TESTE #########################################
-  // useEffect(() => {
-  //   navigator.getBattery().then((battery) => {
-  //     console.log(`Battery Charging: ${battery.charging}`);
-  //     console.log(`Battery Level: ${battery.level * 100}%`);
-  //     console.log(`Charging Time: ${battery.chargingTime}`);
-  //     console.log(`Discharging Time: ${battery.dischargingTime}`);
-  //   })
-  // }, []);
-
-  // useEffect(() => {
-  //   const geoLocation = navigator.geolocation
-
-  //   geoLocation.getCurrentPosition((position) => {
-  //     let lat = position.coords.latitude;
-  //     let long = position.coords.longitude;
-
-  //     console.log('latitude: ', lat)
-  //     console.log('longitude: ', long)
-  //   })
-  // }, []);
-
-  // useEffect(() => {
-  //   const nucleos = window.navigator.hardwareConcurrency;
-
-  //   console.log('Nucleos: ', nucleos)
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log('userAgent', navigator.userAgent)
-  //   if (
-  //     navigator.userAgent.match(/Android/i)
-  //     || navigator.userAgent.match(/webOS/i)
-  //     || navigator.userAgent.match(/iPhone/i)
-  //     || navigator.userAgent.match(/iPad/i)
-  //     || navigator.userAgent.match(/iPod/i)
-  //     || navigator.userAgent.match(/BlackBerry/i)
-  //     || navigator.userAgent.match(/Windows Phone/i)
-  //   ) {
-  //     console.log('é mobile ', true) //celular
-  //   }
-  //   else {
-  //     console.log('não é mobile: ', false) //nao é celular
-  //   }
-  // }, []);
-  //##############################################################################
+  // Função para obter o título da página com base na rota atual
+  const getPageTitle = () => {
+    const path = location.pathname;
+    
+    // Mapeamento de rotas para títulos
+    const routeTitles = {
+      "/": i18n.t("mainDrawer.listItems.dashboard"),
+      "/tickets": i18n.t("mainDrawer.listItems.tickets"),
+      "/contacts": i18n.t("mainDrawer.listItems.contacts"),
+      "/connections": i18n.t("mainDrawer.listItems.connections"),
+      "/quick-messages": i18n.t("mainDrawer.listItems.quickMessages"),
+      "/tags": i18n.t("mainDrawer.listItems.tags"),
+      "/kanban": i18n.t("mainDrawer.listItems.kanban"),
+      "/todolist": i18n.t("tickets.toDoList"),
+      "/schedules": i18n.t("mainDrawer.listItems.schedules"),
+      "/helps": i18n.t("mainDrawer.listItems.helps"),
+      "/users": i18n.t("mainDrawer.listItems.users"),
+      "/messages-api": i18n.t("mainDrawer.listItems.messagesAPI"),
+      "/settings": i18n.t("mainDrawer.listItems.settings"),
+      "/queues": i18n.t("mainDrawer.listItems.queues"),
+      "/campaigns": i18n.t("mainDrawer.listItems.campaigns"),
+      "/announcements": i18n.t("mainDrawer.listItems.annoucements"),
+      "/chats": i18n.t("mainDrawer.listItems.chats"),
+      "/financeiro": i18n.t("mainDrawer.listItems.financeiro"),
+      "/files": i18n.t("mainDrawer.listItems.files"),
+      "/prompts": i18n.t("mainDrawer.listItems.prompts"),
+      "/queue-integration": i18n.t("mainDrawer.listItems.queueIntegration"),
+    };
+    
+    // Verifica se a rota existe no mapeamento
+    const exactMatch = routeTitles[path];
+    if (exactMatch) return exactMatch;
+    
+    // Para rotas que possuem parâmetros, verificamos parcialmente
+    for (const route in routeTitles) {
+      if (path.startsWith(route) && route !== "/") {
+        return routeTitles[route];
+      }
+    }
+    
+    // Se não encontrou nenhum título, retorna o padrão
+    return i18n.t("mainDrawer.appBar.pageTitle");
+  };
 
   const socketManager = useContext(SocketContext);
 
@@ -343,17 +520,33 @@ const LoggedInLayout = ({ children, themeToggle }) => {
         }}
         open={drawerOpen}
       >
-        <div className={classes.toolbarIcon}>
-          <img src={logo} className={classes.logo} alt="logo" />
-          <IconButton onClick={() => setDrawerOpen(!drawerOpen)}>
-            <ChevronLeftIcon />
+        <div className={classes.drawerHeader}>
+          {drawerOpen ? (
+            <>
+              <Typography variant="h6" className={classes.logoText}>
+                CRMPro
+              </Typography>
+              <IconButton 
+                size="small"
+                onClick={() => setDrawerOpen(!drawerOpen)} 
+                className={classes.drawerToggleIcon}
+              >
+                <ChevronLeftIcon fontSize="small" />
+              </IconButton>
+            </>
+          ) : (
+            <IconButton 
+              className={classes.menuIconOnly}
+              onClick={() => setDrawerOpen(!drawerOpen)} 
+            >
+              <MenuIcon style={{ color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3' }} />
           </IconButton>
+          )}
         </div>
         <Divider />
         <List className={classes.containerWithScroll}>
           <MainListItems drawerClose={drawerClose} collapsed={!drawerOpen} />
         </List>
-        <Divider />
       </Drawer>
       <UserModal
         open={userModalOpen}
@@ -363,15 +556,17 @@ const LoggedInLayout = ({ children, themeToggle }) => {
       <AppBar
         position="absolute"
         className={clsx(classes.appBar, drawerOpen && classes.appBarShift)}
-        color="primary"
+        color="default"
       >
         <Toolbar variant="dense" className={classes.toolbar}>
+          <div className={classes.headerSection}>
           <IconButton
             edge="start"
             variant="contained"
             aria-label="open drawer"
             onClick={() => setDrawerOpen(!drawerOpen)}
             className={clsx(
+                classes.appBarButton,
               classes.menuButton,
               drawerOpen && classes.menuButtonHidden
             )}
@@ -379,47 +574,38 @@ const LoggedInLayout = ({ children, themeToggle }) => {
             <MenuIcon />
           </IconButton>
 
-          <Typography
-            component="h2"
-            variant="h6"
-            color="inherit"
-            noWrap
-            className={classes.title}
-          >
-            {/* {greaterThenSm && user?.profile === "admin" && getDateAndDifDays(user?.company?.dueDate).difData < 7 ? ( */}
-            {greaterThenSm && user?.profile === "admin" && user?.company?.dueDate ? (
-              <>
-                Olá <b>{user.name}</b>, Bem vindo a <b>{user?.company?.name}</b>! (Ativo até {dateToClient(user?.company?.dueDate)})
-              </>
-            ) : (
-              <>
-                Olá  <b>{user.name}</b>, Bem vindo a <b>{user?.company?.name}</b>!
-              </>
-            )}
-          </Typography>
+          </div>
+          
+          <div className={classes.rightIconsSection}>
+            <IconButton 
+              onClick={toggleColorMode}
+              className={classes.appBarButton}
+              size="medium"
+            >
+              {theme.palette.type === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
 
-          <IconButton edge="start" onClick={toggleColorMode}>
-            {theme.mode === 'dark' ? <Brightness7Icon style={{ color: "white" }} /> : <Brightness4Icon style={{ color: "white" }} />}
+            <IconButton
+              onClick={handleRefreshPage}
+              aria-label={i18n.t("mainDrawer.appBar.refresh")}
+              className={classes.appBarButton}
+              size="medium"
+            >
+              <CachedIcon />
           </IconButton>
 
+            {!greaterThenSm ? null : (
           <NotificationsVolume
             setVolume={setVolume}
             volume={volume}
           />
-
-          <IconButton
-            onClick={handleRefreshPage}
-            aria-label={i18n.t("mainDrawer.appBar.refresh")}
-            color="inherit"
-          >
-            <CachedIcon style={{ color: "white" }} />
-          </IconButton>
+            )}
 
           {user.id && <NotificationsPopOver volume={volume} />}
 
           <AnnouncementsPopover />
 
-          <ChatPopover />
+            {!greaterThenSm ? null : <ChatPopover />}
 
           <div>
             <IconButton
@@ -428,7 +614,8 @@ const LoggedInLayout = ({ children, themeToggle }) => {
               aria-haspopup="true"
               onClick={handleMenu}
               variant="contained"
-              style={{ color: "white" }}
+                className={classes.userButton}
+                size="medium"
             >
               <AccountCircle />
             </IconButton>
@@ -446,14 +633,45 @@ const LoggedInLayout = ({ children, themeToggle }) => {
               }}
               open={menuOpen}
               onClose={handleCloseMenu}
-            >
-              <MenuItem onClick={handleOpenUserModal}>
+                PaperProps={{
+                  style: {
+                    borderRadius: 8,
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+                    marginTop: 8,
+                    border: '1px solid rgba(93, 63, 211, 0.1)'
+                  }
+                }}
+                MenuListProps={{
+                  style: {
+                    padding: '8px 4px'
+                  }
+                }}
+              >
+                <MenuItem 
+                  onClick={handleOpenUserModal}
+                  style={{
+                    margin: '0 4px',
+                    padding: '8px 16px',
+                    borderRadius: 4,
+                    transition: 'all 0.2s ease',
+                  }}
+                >
                 {i18n.t("mainDrawer.appBar.user.profile")}
               </MenuItem>
-              <MenuItem onClick={handleClickLogout}>
+                <MenuItem 
+                  onClick={handleClickLogout}
+                  style={{
+                    margin: '0 4px',
+                    padding: '8px 16px',
+                    borderRadius: 4,
+                    transition: 'all 0.2s ease',
+                    color: '#F44336'
+                  }}
+                >
                 {i18n.t("mainDrawer.appBar.user.logout")}
               </MenuItem>
             </Menu>
+            </div>
           </div>
         </Toolbar>
       </AppBar>

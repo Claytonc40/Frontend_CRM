@@ -14,66 +14,122 @@ import useSettings from "../../hooks/useSettings";
 import { ToastContainer, toast } from 'react-toastify';
 import { makeStyles } from "@material-ui/core/styles";
 import { grey, blue } from "@material-ui/core/colors";
-import { Tabs, Tab } from "@material-ui/core";
+import { Tabs, Tab, Tooltip, Box } from "@material-ui/core";
+import { Settings as SettingsIcon, SlidersHorizontal, Plug, UserCheck, MessageCircle, Phone, Bot, ArrowRightLeft, Smile, Server, KeyRound, Lock, Link2 } from 'lucide-react';
 
 //import 'react-toastify/dist/ReactToastify.css';
  
 const useStyles = makeStyles((theme) => ({
-  container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
+  mainWrapper: {
+    width: '100%',
+    background: 'linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)',
+    padding: theme.spacing(4, 0, 6, 0),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
-  fixedHeightPaper: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: 240,
+  sectionCard: {
+    background: '#fff',
+    borderRadius: 18,
+    boxShadow: '0 4px 32px rgba(93,63,211,0.10)',
+    padding: theme.spacing(3, 3, 2, 3),
+    marginBottom: theme.spacing(4),
+    maxWidth: 1200,
+    width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing(2, 1, 1, 1),
+      borderRadius: 12,
+    },
+  },
+  sectionHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 14,
+    marginBottom: theme.spacing(2),
+  },
+  sectionTitle: {
+    fontWeight: 700,
+    fontSize: 22,
+    color: '#5D3FD3',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  sectionDesc: {
+    color: '#888',
+    fontSize: 15,
+    fontWeight: 400,
+    marginLeft: 2,
+    marginTop: 2,
+  },
+  optionRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 18,
+    background: '#faf9fd',
+    borderRadius: 12,
+    boxShadow: '0 1px 6px rgba(93,63,211,0.06)',
+    padding: theme.spacing(2, 2.5),
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+    transition: 'box-shadow 0.2s, background 0.2s',
+    '&:hover': {
+      background: '#f3f0fa',
+      boxShadow: '0 2px 12px rgba(93,63,211,0.10)',
+    },
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      gap: 8,
+    },
+  },
+  optionLabel: {
+    fontWeight: 600,
+    color: '#222',
+    fontSize: 16,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    minWidth: 220,
+  },
+  select: {
+    marginLeft: 'auto',
+    minWidth: 140,
+    borderRadius: 10,
+    background: '#fff',
+    fontWeight: 600,
+    fontSize: 15,
+    color: '#5D3FD3',
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: '#5D3FD3',
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: '#4930A8',
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: '#4930A8',
+    },
+  },
+  textField: {
+    minWidth: 180,
+    borderRadius: 10,
+    background: '#fff',
+    fontWeight: 500,
+    fontSize: 15,
+    color: '#5D3FD3',
+    marginLeft: theme.spacing(2),
   },
   tab: {
-    backgroundColor: theme.palette.options,  //DARK MODE PLW DESIGN//
+    backgroundColor: theme.palette.options,
     borderRadius: 4,
     width: "100%",
+    marginBottom: 10,
     "& .MuiTab-wrapper": {
       color: theme.palette.fontecor,
-    },   //DARK MODE PLW DESIGN//
+    },
     "& .MuiTabs-flexContainer": {
       justifyContent: "center"
     }
-
-
-  },
-  paper: {
-    padding: theme.spacing(2),
-    display: "flex",
-    alignItems: "center",
-    marginBottom: 12,
-    width: "100%",
-  },
-  cardAvatar: {
-    fontSize: "55px",
-    color: grey[500],
-    backgroundColor: "#ffffff",
-    width: theme.spacing(7),
-    height: theme.spacing(7),
-  },
-  cardTitle: {
-    fontSize: "18px",
-    color: blue[700],
-  },
-  cardSubtitle: {
-    color: grey[600],
-    fontSize: "14px",
-  },
-  alignRight: {
-    textAlign: "right",
-  },
-  fullWidth: {
-    width: "100%",
-  },
-  selectContainer: {
-    width: "100%",
-    textAlign: "left",
   },
 }));
 
@@ -371,249 +427,207 @@ export default function Options(props) {
     setLoadingAsaasType(false);
   }
   return (
-    <>
-      <Grid spacing={3} container>
-        {/* <Grid xs={12} item>
-                    <Title>Configurações Gerais</Title>
-                </Grid> */}
-        <Grid xs={12} sm={6} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <InputLabel id="ratings-label">Avaliações</InputLabel>
-            <Select
-              labelId="ratings-label"
-              value={userRating}
-              onChange={async (e) => {
-                handleChangeUserRating(e.target.value);
-              }}
-            >
-              <MenuItem value={"disabled"}>Desabilitadas</MenuItem>
-              <MenuItem value={"enabled"}>Habilitadas</MenuItem>
-            </Select>
-            <FormHelperText>
-              {loadingUserRating && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
+    <div className={classes.mainWrapper}>
+      {/* Seção Geral */}
+      <Paper className={classes.sectionCard} elevation={0}>
+        <div className={classes.sectionHeader}>
+          <SettingsIcon size={28} style={{ color: '#5D3FD3' }} />
+          <div>
+            <div className={classes.sectionTitle}>Configurações Gerais</div>
+            <div className={classes.sectionDesc}>Personalize o funcionamento básico do sistema.</div>
+          </div>
+        </div>
+        <Grid spacing={3} container>
+          <Grid xs={12} sm={6} md={4} item>
+            <div className={classes.optionRow}>
+              <span className={classes.optionLabel}><Smile size={18} /> Avaliações</span>
+              <Select
+                value={userRating}
+                onChange={async (e) => { handleChangeUserRating(e.target.value); }}
+                className={classes.select}
+                variant="outlined"
+                margin="dense"
+              >
+                <MenuItem value={"disabled"}>Desabilitadas</MenuItem>
+                <MenuItem value={"enabled"}>Habilitadas</MenuItem>
+              </Select>
+              <FormHelperText>{loadingUserRating && "Atualizando..."}</FormHelperText>
+            </div>
+          </Grid>
+          <Grid xs={12} sm={6} md={4} item>
+            <div className={classes.optionRow}>
+              <span className={classes.optionLabel}><SlidersHorizontal size={18} /> Gerenciamento de Expediente</span>
+              <Select
+                value={scheduleType}
+                onChange={async (e) => { handleScheduleType(e.target.value); }}
+                className={classes.select}
+                variant="outlined"
+                margin="dense"
+              >
+                <MenuItem value={"disabled"}>Desabilitado</MenuItem>
+                <MenuItem value={"queue"}>Fila</MenuItem>
+                <MenuItem value={"company"}>Empresa</MenuItem>
+              </Select>
+              <FormHelperText>{loadingScheduleType && "Atualizando..."}</FormHelperText>
+            </div>
+          </Grid>
+          <Grid xs={12} sm={6} md={4} item>
+            <div className={classes.optionRow}>
+              <span className={classes.optionLabel}><MessageCircle size={18} /> Ignorar Mensagens de Grupos</span>
+              <Select
+                value={CheckMsgIsGroup}
+                onChange={async (e) => { handleGroupType(e.target.value); }}
+                className={classes.select}
+                variant="outlined"
+                margin="dense"
+              >
+                <MenuItem value={"disabled"}>Desativado</MenuItem>
+                <MenuItem value={"enabled"}>Ativado</MenuItem>
+              </Select>
+              <FormHelperText>{loadingScheduleType && "Atualizando..."}</FormHelperText>
+            </div>
+          </Grid>
+          <Grid xs={12} sm={6} md={4} item>
+            <div className={classes.optionRow}>
+              <span className={classes.optionLabel}><Phone size={18} /> Aceitar Chamada</span>
+              <Select
+                value={callType}
+                onChange={async (e) => { handleCallType(e.target.value); }}
+                className={classes.select}
+                variant="outlined"
+                margin="dense"
+              >
+                <MenuItem value={"disabled"}>Não Aceitar</MenuItem>
+                <MenuItem value={"enabled"}>Aceitar</MenuItem>
+              </Select>
+              <FormHelperText>{loadingCallType && "Atualizando..."}</FormHelperText>
+            </div>
+          </Grid>
+          <Grid xs={12} sm={6} md={4} item>
+            <div className={classes.optionRow}>
+              <span className={classes.optionLabel}><Bot size={18} /> Tipo Chatbot</span>
+              <Select
+                value={chatbotType}
+                onChange={async (e) => { handleChatbotType(e.target.value); }}
+                className={classes.select}
+                variant="outlined"
+                margin="dense"
+              >
+                <MenuItem value={"text"}>Texto</MenuItem>
+              </Select>
+              <FormHelperText>{loadingChatbotType && "Atualizando..."}</FormHelperText>
+            </div>
+          </Grid>
+          <Grid xs={12} sm={6} md={4} item>
+            <div className={classes.optionRow}>
+              <span className={classes.optionLabel}><Smile size={18} /> Enviar saudação ao aceitar o ticket</span>
+              <Select
+                value={SendGreetingAccepted}
+                onChange={async (e) => { handleSendGreetingAccepted(e.target.value); }}
+                className={classes.select}
+                variant="outlined"
+                margin="dense"
+              >
+                <MenuItem value={"disabled"}>Desabilitado</MenuItem>
+                <MenuItem value={"enabled"}>Habilitado</MenuItem>
+              </Select>
+              <FormHelperText>{loadingSendGreetingAccepted && "Atualizando..."}</FormHelperText>
+            </div>
+          </Grid>
+          <Grid xs={12} sm={6} md={4} item>
+            <div className={classes.optionRow}>
+              <span className={classes.optionLabel}><ArrowRightLeft size={18} /> Enviar mensagem de transferência de Fila/agente</span>
+              <Select
+                value={SettingsTransfTicket}
+                onChange={async (e) => { handleSettingsTransfTicket(e.target.value); }}
+                className={classes.select}
+                variant="outlined"
+                margin="dense"
+              >
+                <MenuItem value={"disabled"}>Desabilitado</MenuItem>
+                <MenuItem value={"enabled"}>Habilitado</MenuItem>
+              </Select>
+              <FormHelperText>{loadingSettingsTransfTicket && "Atualizando..."}</FormHelperText>
+            </div>
+          </Grid>
+          <Grid xs={12} sm={6} md={4} item>
+            <div className={classes.optionRow}>
+              <span className={classes.optionLabel}><Smile size={18} /> Enviar saudação quando houver somente 1 fila</span>
+              <Select
+                value={sendGreetingMessageOneQueues}
+                onChange={async (e) => { handleSendGreetingMessageOneQueues(e.target.value); }}
+                className={classes.select}
+                variant="outlined"
+                margin="dense"
+              >
+                <MenuItem value={"disabled"}>Desabilitado</MenuItem>
+                <MenuItem value={"enabled"}>Habilitado</MenuItem>
+              </Select>
+              <FormHelperText>{loadingSendGreetingMessageOneQueues && "Atualizando..."}</FormHelperText>
+            </div>
+          </Grid>
         </Grid>
-        <Grid xs={12} sm={6} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <InputLabel id="schedule-type-label">
-              Gerenciamento de Expediente
-            </InputLabel>
-            <Select
-              labelId="schedule-type-label"
-              value={scheduleType}
-              onChange={async (e) => {
-                handleScheduleType(e.target.value);
-              }}
-            >
-              <MenuItem value={"disabled"}>Desabilitado</MenuItem>
-              <MenuItem value={"queue"}>Fila</MenuItem>
-              <MenuItem value={"company"}>Empresa</MenuItem>
-            </Select>
-            <FormHelperText>
-              {loadingScheduleType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-        <Grid xs={12} sm={6} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <InputLabel id="group-type-label">
-              Ignorar Mensagens de Grupos
-            </InputLabel>
-            <Select
-              labelId="group-type-label"
-              value={CheckMsgIsGroup}
-              onChange={async (e) => {
-                handleGroupType(e.target.value);
-              }}
-            >
-              <MenuItem value={"disabled"}>Desativado</MenuItem>
-              <MenuItem value={"enabled"}>Ativado</MenuItem>
-            </Select>
-            <FormHelperText>
-              {loadingScheduleType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-        <Grid xs={12} sm={6} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <InputLabel id="call-type-label">
-              Aceitar Chamada
-            </InputLabel>
-            <Select
-              labelId="call-type-label"
-              value={callType}
-              onChange={async (e) => {
-                handleCallType(e.target.value);
-              }}
-            >
-              <MenuItem value={"disabled"}>Não Aceitar</MenuItem>
-              <MenuItem value={"enabled"}>Aceitar</MenuItem>
-            </Select>
-            <FormHelperText>
-              {loadingCallType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-        <Grid xs={12} sm={6} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <InputLabel id="chatbot-type-label">
-              Tipo Chatbot
-            </InputLabel>
-            <Select
-              labelId="chatbot-type-label"
-              value={chatbotType}
-              onChange={async (e) => {
-                handleChatbotType(e.target.value);
-              }}
-            >
-              <MenuItem value={"text"}>Texto</MenuItem>
-			 {/*<MenuItem value={"button"}>Botão</MenuItem>*/}
-             {/*<MenuItem value={"list"}>Lista</MenuItem>*/}
-            </Select>
-            <FormHelperText>
-              {loadingChatbotType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-		{/* ENVIAR SAUDAÇÃO AO ACEITAR O TICKET */}
-        <Grid xs={12} sm={6} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <InputLabel id="sendGreetingAccepted-label">Enviar saudação ao aceitar o ticket</InputLabel>
-            <Select
-              labelId="sendGreetingAccepted-label"
-              value={SendGreetingAccepted}
-              onChange={async (e) => {
-                handleSendGreetingAccepted(e.target.value);
-              }}
-            >
-              <MenuItem value={"disabled"}>Desabilitado</MenuItem>
-              <MenuItem value={"enabled"}>Habilitado</MenuItem>
-            </Select>
-            <FormHelperText>
-              {loadingSendGreetingAccepted && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-		{/* ENVIAR SAUDAÇÃO AO ACEITAR O TICKET */}
-		
-		{/* ENVIAR MENSAGEM DE TRANSFERENCIA DE SETOR/ATENDENTE */}
-        <Grid xs={12} sm={6} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <InputLabel id="sendMsgTransfTicket-label">Enviar mensagem de transferencia de Fila/agente</InputLabel>
-            <Select
-              labelId="sendMsgTransfTicket-label"
-              value={SettingsTransfTicket}
-              onChange={async (e) => {
-                handleSettingsTransfTicket(e.target.value);
-              }}
-            >
-              <MenuItem value={"disabled"}>Desabilitado</MenuItem>
-              <MenuItem value={"enabled"}>Habilitado</MenuItem>
-            </Select>
-            <FormHelperText>
-              {loadingSettingsTransfTicket && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-		
-		{/* ENVIAR SAUDAÇÃO QUANDO HOUVER SOMENTE 1 FILA */}
-        <Grid xs={12} sm={6} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <InputLabel id="sendGreetingMessageOneQueues-label">Enviar saudação quando houver somente 1 fila</InputLabel>
-            <Select
-              labelId="sendGreetingMessageOneQueues-label"
-              value={sendGreetingMessageOneQueues}
-              onChange={async (e) => {
-                handleSendGreetingMessageOneQueues(e.target.value);
-              }}
-            >
-              <MenuItem value={"disabled"}>Desabilitado</MenuItem>
-              <MenuItem value={"enabled"}>Habilitado</MenuItem>
-            </Select>
-            <FormHelperText>
-              {loadingSendGreetingMessageOneQueues && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-		
-      </Grid>
-      <Grid spacing={3} container>
+      </Paper>
+
+      {/* Seção Integrações */}
+      <Paper className={classes.sectionCard} elevation={0}>
+        <div className={classes.sectionHeader}>
+          <Plug size={26} style={{ color: '#5D3FD3' }} />
+          <div>
+            <div className={classes.sectionTitle}>Integrações</div>
+            <div className={classes.sectionDesc}>Configure integrações com sistemas externos.</div>
+          </div>
+        </div>
         <Tabs
           indicatorColor="primary"
           textColor="primary"
           scrollButtons="on"
           variant="scrollable"
           className={classes.tab}
-          style={{
-            marginBottom: 20,
-            marginTop: 20
-          }}
+          style={{ marginBottom: 20 }}
         >
-          <Tab
-
-            label="INTEGRAÇÕES" />
-
+          <Tab label="IXC" />
+          <Tab label="MK-AUTH" />
+          <Tab label="ASAAS" />
         </Tabs>
-
-      </Grid>
-      {/*-----------------IXC-----------------*/}
-      <Grid spacing={3} container
-        style={{ marginBottom: 10 }}>
-        <Tabs
-          indicatorColor="primary"
-          textColor="primary"
-          scrollButtons="on"
-          variant="scrollable"
-          className={classes.tab}
-        >
-          <Tab
-
-            label="IXC" />
-
-        </Tabs>
-        <Grid xs={12} sm={6} md={6} item>
-          <FormControl className={classes.selectContainer}>
-            <TextField
-              id="ipixc"
-              name="ipixc"
-              margin="dense"
-              label="IP do IXC"
-              variant="outlined"
-              value={ipixcType}
-              onChange={async (e) => {
-                handleChangeIPIxc(e.target.value);
-              }}
-            >
-            </TextField>
-            <FormHelperText>
-              {loadingIpIxcType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-        <Grid xs={12} sm={6} md={6} item>
-          <FormControl className={classes.selectContainer}>
-            <TextField
-              id="tokenixc"
-              name="tokenixc"
-              margin="dense"
-              label="Token do IXC"
-              variant="outlined"
-              value={tokenixcType}
-              onChange={async (e) => {
-                handleChangeTokenIxc(e.target.value);
-              }}
-            >
-            </TextField>
-            <FormHelperText>
-              {loadingTokenIxcType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-      </Grid>
-      {/*-----------------MK-AUTH-----------------*/}
-      <Grid spacing={3} container
-        style={{ marginBottom: 10 }}>
+        {/* IXC */}
+        <Box mb={2}>
+          <Grid spacing={3} container>
+            <Grid xs={12} sm={6} md={6} item>
+              <div className={classes.optionRow}>
+                <span className={classes.optionLabel}><Server size={18} /> IP do IXC</span>
+                <TextField
+                  id="ipixc"
+                  name="ipixc"
+                  margin="dense"
+                  label="IP do IXC"
+                  variant="outlined"
+                  value={ipixcType}
+                  onChange={async (e) => { handleChangeIPIxc(e.target.value); }}
+                  className={classes.textField}
+                />
+                <FormHelperText>{loadingIpIxcType && "Atualizando..."}</FormHelperText>
+              </div>
+            </Grid>
+            <Grid xs={12} sm={6} md={6} item>
+              <div className={classes.optionRow}>
+                <span className={classes.optionLabel}><KeyRound size={18} /> Token do IXC</span>
+                <TextField
+                  id="tokenixc"
+                  name="tokenixc"
+                  margin="dense"
+                  label="Token do IXC"
+                  variant="outlined"
+                  value={tokenixcType}
+                  onChange={async (e) => { handleChangeTokenIxc(e.target.value); }}
+                  className={classes.textField}
+                />
+                <FormHelperText>{loadingTokenIxcType && "Atualizando..."}</FormHelperText>
+              </div>
+            </Grid>
+          </Grid>
+        </Box>
+        {/* MK-AUTH */}
         <Tabs
           indicatorColor="primary"
           textColor="primary"
@@ -622,69 +636,60 @@ export default function Options(props) {
           className={classes.tab}
         >
           <Tab label="MK-AUTH" />
-
         </Tabs>
-        <Grid xs={12} sm={12} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <TextField
-              id="ipmkauth"
-              name="ipmkauth"
-              margin="dense"
-              label="Ip Mk-Auth"
-              variant="outlined"
-              value={ipmkauthType}
-              onChange={async (e) => {
-                handleChangeIpMkauth(e.target.value);
-              }}
-            >
-            </TextField>
-            <FormHelperText>
-              {loadingIpMkauthType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-        <Grid xs={12} sm={12} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <TextField
-              id="clientidmkauth"
-              name="clientidmkauth"
-              margin="dense"
-              label="Client Id"
-              variant="outlined"
-              value={clientidmkauthType}
-              onChange={async (e) => {
-                handleChangeClientIdMkauth(e.target.value);
-              }}
-            >
-            </TextField>
-            <FormHelperText>
-              {loadingClientIdMkauthType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-        <Grid xs={12} sm={12} md={4} item>
-          <FormControl className={classes.selectContainer}>
-            <TextField
-              id="clientsecretmkauth"
-              name="clientsecretmkauth"
-              margin="dense"
-              label="Client Secret"
-              variant="outlined"
-              value={clientsecretmkauthType}
-              onChange={async (e) => {
-                handleChangeClientSecrectMkauth(e.target.value);
-              }}
-            >
-            </TextField>
-            <FormHelperText>
-              {loadingClientSecrectMkauthType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-      </Grid>
-      {/*-----------------ASAAS-----------------*/}
-      <Grid spacing={3} container
-        style={{ marginBottom: 10 }}>
+        <Box mb={2}>
+          <Grid spacing={3} container>
+            <Grid xs={12} sm={12} md={4} item>
+              <div className={classes.optionRow}>
+                <span className={classes.optionLabel}><Server size={18} /> IP Mk-Auth</span>
+                <TextField
+                  id="ipmkauth"
+                  name="ipmkauth"
+                  margin="dense"
+                  label="Ip Mk-Auth"
+                  variant="outlined"
+                  value={ipmkauthType}
+                  onChange={async (e) => { handleChangeIpMkauth(e.target.value); }}
+                  className={classes.textField}
+                />
+                <FormHelperText>{loadingIpMkauthType && "Atualizando..."}</FormHelperText>
+              </div>
+            </Grid>
+            <Grid xs={12} sm={12} md={4} item>
+              <div className={classes.optionRow}>
+                <span className={classes.optionLabel}><UserCheck size={18} /> Client Id</span>
+                <TextField
+                  id="clientidmkauth"
+                  name="clientidmkauth"
+                  margin="dense"
+                  label="Client Id"
+                  variant="outlined"
+                  value={clientidmkauthType}
+                  onChange={async (e) => { handleChangeClientIdMkauth(e.target.value); }}
+                  className={classes.textField}
+                />
+                <FormHelperText>{loadingClientIdMkauthType && "Atualizando..."}</FormHelperText>
+              </div>
+            </Grid>
+            <Grid xs={12} sm={12} md={4} item>
+              <div className={classes.optionRow}>
+                <span className={classes.optionLabel}><Lock size={18} /> Client Secret</span>
+                <TextField
+                  id="clientsecretmkauth"
+                  name="clientsecretmkauth"
+                  margin="dense"
+                  label="Client Secret"
+                  variant="outlined"
+                  value={clientsecretmkauthType}
+                  onChange={async (e) => { handleChangeClientSecrectMkauth(e.target.value); }}
+                  className={classes.textField}
+                />
+                <FormHelperText>{loadingClientSecrectMkauthType && "Atualizando..."}</FormHelperText>
+              </div>
+            </Grid>
+          </Grid>
+        </Box>
+        {/* ASAAS */}
         <Tabs
           indicatorColor="primary"
           textColor="primary"
@@ -693,28 +698,28 @@ export default function Options(props) {
           className={classes.tab}
         >
           <Tab label="ASAAS" />
-
         </Tabs>
-        <Grid xs={12} sm={12} md={12} item>
-          <FormControl className={classes.selectContainer}>
-            <TextField
-              id="asaas"
-              name="asaas"
-              margin="dense"
-              label="Token Asaas"
-              variant="outlined"
-              value={asaasType}
-              onChange={async (e) => {
-                handleChangeAsaas(e.target.value);
-              }}
-            >
-            </TextField>
-            <FormHelperText>
-              {loadingAsaasType && "Atualizando..."}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-      </Grid>
-    </>
+        <Box mb={2}>
+          <Grid spacing={3} container>
+            <Grid xs={12} sm={12} md={12} item>
+              <div className={classes.optionRow}>
+                <span className={classes.optionLabel}><Link2 size={18} /> Token Asaas</span>
+                <TextField
+                  id="asaas"
+                  name="asaas"
+                  margin="dense"
+                  label="Token Asaas"
+                  variant="outlined"
+                  value={asaasType}
+                  onChange={async (e) => { handleChangeAsaas(e.target.value); }}
+                  className={classes.textField}
+                />
+                <FormHelperText>{loadingAsaasType && "Atualizando..."}</FormHelperText>
+              </div>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
+    </div>
   );
 }

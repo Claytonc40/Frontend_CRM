@@ -31,10 +31,31 @@ import AndroidIcon from "@material-ui/icons/Android";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import ContactTag from "../ContactTag";
 import TicketMessagesDialog from "../TicketMessagesDialog";
+import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
+import LockRoundedIcon from '@material-ui/icons/LockRounded';
+import LockOpenRoundedIcon from '@material-ui/icons/LockOpenRounded';
 
 const useStyles = makeStyles((theme) => ({
   ticket: {
     position: "relative",
+    borderRadius: 14,
+    margin: '10px 0',
+    boxShadow: '0 2px 12px rgba(93,63,211,0.06)',
+    transition: 'box-shadow 0.2s, border 0.2s',
+    border: '2px solid transparent',
+    '&:hover': {
+      boxShadow: '0 4px 24px rgba(93,63,211,0.12)',
+      border: '2px solid #5D3FD3',
+    },
+    '&.Mui-selected': {
+      border: '2px solid #5D3FD3',
+      boxShadow: '0 4px 24px rgba(93,63,211,0.16)',
+      background: '#f7f7fa',
+    },
+    background: '#fff',
+    minHeight: 80,
+    alignItems: 'center',
+    padding: '0 8px',
   },
 
   pendingTicket: {
@@ -97,7 +118,18 @@ const useStyles = makeStyles((theme) => ({
   contactNameWrapper: {
     display: "flex",
     justifyContent: "space-between",
-    marginLeft: "5px",
+    alignItems: 'center',
+    width: '100%',
+  },
+
+  contactName: {
+    color: '#5D3FD3',
+    fontWeight: 700,
+    fontSize: 18,
+    maxWidth: 140,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
 
   lastMessageTime: {
@@ -184,7 +216,28 @@ const useStyles = makeStyles((theme) => ({
       transform: "scale(1) translate(0%, -40%)",
     },
 
-  }
+  },
+  actionButtonsWrapper: {
+    display: 'flex',
+    gap: 8,
+    alignItems: 'center',
+    marginTop: 4,
+    marginBottom: 2,
+    marginLeft: 0,
+    flexWrap: 'wrap',
+    position: 'static',
+  },
+  compactButton: {
+    minWidth: 0,
+    padding: '4px 12px',
+    fontSize: 13,
+    borderRadius: 16,
+    fontWeight: 600,
+    boxShadow: '0 1px 4px rgba(93,63,211,0.07)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+  },
 }));
   {/*PLW DESIGN INSERIDO O dentro do const handleChangeTab*/}
   const TicketListItemCustom = ({ ticket }) => {
@@ -357,8 +410,7 @@ const useStyles = makeStyles((theme) => ({
     };
 	
 	    const handleSendMessage = async (id) => {
-        
-        const msg = `{{ms}} *{{name}}*, meu nome é *${user?.name}* e agora vou prosseguir com seu atendimento!`;
+        const msg = `{{ms}} *{{name}}*, meu nome é *${user?.name}* e agora vou prosseguir com seu atendimento!`;
         const message = {
             read: 1,
             fromMe: true,
@@ -369,7 +421,6 @@ const useStyles = makeStyles((theme) => ({
             await api.post(`/messages/${id}`, message);
         } catch (err) {
             toastError(err);
-            
         }
     };
 	{/*CÓDIGO NOVO SAUDAÇÃO*/}
@@ -436,29 +487,24 @@ const useStyles = makeStyles((theme) => ({
           <span style={{ backgroundColor: ticket.queue?.color || "#7C7C7C" }} className={classes.ticketQueueColor}></span>
         </Tooltip>
         <ListItemAvatar>
-          {ticket.status !== "pending" ?
-            <Avatar
-              style={{
-                marginTop: "-20px",
-                marginLeft: "-3px",
-                width: "55px",
-                height: "55px",
-                borderRadius: "10%",
-              }}
-              src={ticket?.contact?.profilePicUrl}
-            />
-            :
-            <Avatar
-              style={{
-                marginTop: "-30px",
-                marginLeft: "0px",
-                width: "50px",
-                height: "50px",
-                borderRadius: "10%",
-              }}
-              src={ticket?.contact?.profilePicUrl}
-            />
-          }
+          <Avatar
+            src={ticket?.contact?.profilePicUrl}
+            style={{
+              width: 52,
+              height: 52,
+              border: '2px solid #5D3FD3',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              background: '#fff',
+              marginTop: 0,
+              marginLeft: 0,
+              color: '#5D3FD3',
+              fontWeight: 700,
+              fontSize: 22,
+            }}
+          >
+            {!ticket?.contact?.profilePicUrl && ticket?.contact?.name ? ticket.contact.name.charAt(0).toUpperCase() : null}
+          </Avatar>
         </ListItemAvatar>
         <ListItemText
           disableTypography
@@ -481,7 +527,7 @@ const useStyles = makeStyles((theme) => ({
                       onClick={() => setOpenTicketMessageDialog(true)}
                       fontSize="small"
                       style={{
-                        color: blue[700],
+                        color: '#5D3FD3',
                         cursor: "pointer",
                         marginLeft: 10,
                         verticalAlign: "middle"
@@ -572,54 +618,48 @@ const useStyles = makeStyles((theme) => ({
           )}
 
         </ListItemSecondaryAction>
-        <span className={classes.secondaryContentSecond} >
+        <span className={classes.actionButtonsWrapper}>
           {ticket.status === "pending" && (
             <ButtonWithSpinner
-              //color="primary"
-              style={{ backgroundColor: 'green', color: 'white', padding: '0px', bottom: '17px', borderRadius: '0px', left: '8px', fontSize: '0.6rem' }}
+              style={{ backgroundColor: '#43a047', color: 'white' }}
               variant="contained"
-              className={classes.acceptButton}
+              className={classes.compactButton}
               size="small"
               loading={loading}
-			  //PLW DESIGN INSERIDO O handleChangeTab
               onClick={e => handleAcepptTicket(ticket.id)}
+              startIcon={<CheckCircleRoundedIcon style={{ fontSize: 18 }} />}
             >
               {i18n.t("ticketsList.buttons.accept")}
             </ButtonWithSpinner>
-
           )}
           {(ticket.status !== "closed") && (
             <ButtonWithSpinner
-              //color="primary"
-              style={{ backgroundColor: 'red', color: 'white', padding: '0px', bottom: '0px', borderRadius: '0px', left: '8px', fontSize: '0.6rem' }}
+              style={{ backgroundColor: '#e53935', color: 'white' }}
               variant="contained"
-              className={classes.acceptButton}
+              className={classes.compactButton}
               size="small"
               loading={loading}
               onClick={e => handleCloseTicket(ticket.id)}
+              startIcon={<LockRoundedIcon style={{ fontSize: 18 }} />}
             >
               {i18n.t("ticketsList.buttons.closed")}
             </ButtonWithSpinner>
-
           )}
           {(ticket.status === "closed") && (
             <ButtonWithSpinner
-              //color="primary"
-              style={{ backgroundColor: 'red', color: 'white', padding: '0px', bottom: '0px', borderRadius: '0px', left: '8px', fontSize: '0.6rem' }}
+              style={{ backgroundColor: '#e53935', color: 'white' }}
               variant="contained"
-              className={classes.acceptButton}
+              className={classes.compactButton}
               size="small"
               loading={loading}
               onClick={e => handleReopenTicket(ticket.id)}
+              startIcon={<LockOpenRoundedIcon style={{ fontSize: 18 }} />}
             >
               {i18n.t("ticketsList.buttons.reopen")}
             </ButtonWithSpinner>
-
           )}
         </span>
       </ListItem>
-
-      <Divider variant="inset" component="li" />
     </React.Fragment>
   );
 };

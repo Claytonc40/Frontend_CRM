@@ -3,8 +3,51 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import React, { useEffect, useState } from "react";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
+import { makeStyles } from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: '0 16px 16px',
+    [theme.breakpoints.down("xs")]: {
+      padding: '0 8px 8px',
+    },
+  },
+  chip: {
+    borderRadius: 10,
+    fontWeight: 600,
+    fontSize: 14,
+    boxShadow: "0 2px 8px rgba(93, 63, 211, 0.10)",
+    background: "#5D3FD3",
+    color: "#fff",
+    margin: 2,
+    border: "none",
+    '& .MuiChip-label': {
+      padding: '0 10px',
+    },
+  },
+  autocomplete: {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 12,
+      background: '#fff',
+      '& fieldset': {
+        borderColor: '#5D3FD3',
+      },
+      '&:hover fieldset': {
+        borderColor: '#5D3FD3',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#5D3FD3',
+        boxShadow: '0 0 0 2px #e5e0fa',
+      },
+    },
+    '& .MuiInputBase-input': {
+      fontSize: 15,
+    },
+  },
+}));
 
 export function UsersFilter({ onFiltered, initialUsers }) {
+  const classes = useStyles();
   const [users, setUsers] = useState([]);
   const [selecteds, setSelecteds] = useState([]);
 
@@ -43,7 +86,7 @@ export function UsersFilter({ onFiltered, initialUsers }) {
   };
 
   return (
-    <Box style={{ padding: "0px 10px 10px" }}>
+    <Box className={classes.root}>
       <Autocomplete
         multiple
         size="small"
@@ -57,15 +100,12 @@ export function UsersFilter({ onFiltered, initialUsers }) {
             option?.name.toLowerCase() === value?.name.toLowerCase()
           );
         }}
+        className={classes.autocomplete}
         renderTags={(value, getUserProps) =>
           value.map((option, index) => (
             <Chip
-              variant="outlined"
-              style={{
-                backgroundColor: "#bfbfbf",
-                textShadow: "1px 1px 1px #000",
-                color: "white",
-              }}
+              variant="default"
+              className={classes.chip}
               label={option.name}
               {...getUserProps({ index })}
               size="small"
@@ -76,7 +116,7 @@ export function UsersFilter({ onFiltered, initialUsers }) {
           <TextField
             {...params}
             variant="outlined"
-            placeholder="Filtro por Users"
+            placeholder="Filtro por Usuários"
           />
         )}
       />

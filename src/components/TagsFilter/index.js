@@ -3,8 +3,63 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import React, { useEffect, useState } from "react";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
+import { makeStyles } from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: 16,
+    [theme.breakpoints.down("xs")]: {
+      padding: 8,
+    },
+  },
+  chip: {
+    borderRadius: 10,
+    fontWeight: 600,
+    fontSize: 14,
+    boxShadow: "0 2px 8px rgba(93, 63, 211, 0.10)",
+    background: "#e5e0fa",
+    color: "#5D3FD3",
+    margin: 2,
+    border: "none",
+    '& .MuiChip-label': {
+      padding: '0 10px',
+    },
+  },
+  chipColored: {
+    borderRadius: 10,
+    fontWeight: 600,
+    fontSize: 14,
+    boxShadow: "0 2px 8px rgba(93, 63, 211, 0.10)",
+    color: "#fff",
+    margin: 2,
+    border: "none",
+    '& .MuiChip-label': {
+      padding: '0 10px',
+    },
+  },
+  autocomplete: {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 12,
+      background: '#fff',
+      '& fieldset': {
+        borderColor: '#5D3FD3',
+      },
+      '&:hover fieldset': {
+        borderColor: '#5D3FD3',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#5D3FD3',
+        boxShadow: '0 0 0 2px #e5e0fa',
+      },
+    },
+    '& .MuiInputBase-input': {
+      fontSize: 15,
+    },
+  },
+}));
 
 export function TagsFilter({ onFiltered }) {
+  const classes = useStyles();
   const [tags, setTags] = useState([]);
   const [selecteds, setSelecteds] = useState([]);
 
@@ -30,7 +85,7 @@ export function TagsFilter({ onFiltered }) {
   };
 
   return (
-    <Box style={{ padding: 10 }}>
+    <Box className={classes.root}>
       <Autocomplete
         multiple
         size="small"
@@ -38,15 +93,13 @@ export function TagsFilter({ onFiltered }) {
         value={selecteds}
         onChange={(e, v, r) => onChange(v)}
         getOptionLabel={(option) => option.name}
+        className={classes.autocomplete}
         renderTags={(value, getTagProps) =>
           value.map((option, index) => (
             <Chip
-              variant="outlined"
-              style={{
-                backgroundColor: option.color || "#eee",
-                textShadow: "1px 1px 1px #000",
-                color: "white",
-              }}
+              variant="default"
+              className={option.color ? classes.chipColored : classes.chip}
+              style={option.color ? { backgroundColor: option.color } : {}}
               label={option.name}
               {...getTagProps({ index })}
               size="small"

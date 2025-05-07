@@ -40,28 +40,37 @@ const App = () => {
         },
         "&::-webkit-scrollbar-thumb": {
           boxShadow: "inset 0 0 6px rgba(0, 0, 0, 0.3)",
-          backgroundColor: "#0097b2",
+          backgroundColor: "#5D3FD3",
+          borderRadius: "2px",
+        },
+        "&::-webkit-scrollbar-track": {
+          backgroundColor: "rgba(93, 63, 211, 0.05)",
         },
       },
       scrollbarStylesSoft: {
         "&::-webkit-scrollbar": {
-          width: "8px",
+          width: "4px",
         },
         "&::-webkit-scrollbar-thumb": {
-          backgroundColor: mode === "light" ? "#F3F3F3" : "#333333",
+          backgroundColor: "#5D3FD3",
+          borderRadius: "2px",
+          opacity: 0.7,
+        },
+        "&::-webkit-scrollbar-track": {
+          backgroundColor: "rgba(93, 63, 211, 0.05)",
         },
       },
       palette: {
         type: mode,
-        primary: { main: mode === "light" ? "#0097b2" : "#FFFFFF" },
-        textPrimary: mode === "light" ? "#0097b2" : "#FFFFFF",
-        borderPrimary: mode === "light" ? "#0097b2" : "#FFFFFF",
+        primary: { main: mode === "light" ? "#5D3FD3" : "#FFFFFF" },
+        textPrimary: mode === "light" ? "#5D3FD3" : "#FFFFFF",
+        borderPrimary: mode === "light" ? "#5D3FD3" : "#FFFFFF",
         dark: { main: mode === "light" ? "#333333" : "#F3F3F3" },
         light: { main: mode === "light" ? "#F3F3F3" : "#333333" },
         tabHeaderBackground: mode === "light" ? "#EEE" : "#666",
         optionsBackground: mode === "light" ? "#fafafa" : "#333",
         options: mode === "light" ? "#fafafa" : "#666",
-        fontecor: mode === "light" ? "#225570" : "#fff",
+        fontecor: mode === "light" ? "#5D3FD3" : "#fff",
         fancyBackground: mode === "light" ? "#fafafa" : "#333",
         bordabox: mode === "light" ? "#eee" : "#333",
         newmessagebox: mode === "light" ? "#eee" : "#333",
@@ -78,13 +87,12 @@ const App = () => {
         inputBackground: mode === "light" ? "#FFFFFF" : "#333",
         barraSuperior:
           mode === "light"
-            ? "linear-gradient(to right, #0097b2, #0097b2 , #0097b2)"
+            ? "linear-gradient(to right, #5D3FD3, #5D3FD3 , #5D3FD3)"
             : "#666",
         boxticket: mode === "light" ? "#EEE" : "#666",
         campaigntab: mode === "light" ? "#ededed" : "#666",
         mediainput: mode === "light" ? "#ededed" : "#1c1c1c",
       },
-      mode,
     },
     locale
   );

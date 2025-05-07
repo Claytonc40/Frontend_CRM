@@ -12,10 +12,11 @@ import {
 } from "@material-ui/core";
 
 import {
-  AllInboxRounded,
-  HourglassEmptyRounded,
-  MoveToInbox,
-  Search
+  MarkChatUnreadRounded,
+  PendingActionsRounded,
+  MarkChatReadRounded,
+  SearchRounded,
+  AddRounded
 } from "@material-ui/icons";
 
 import NewTicketModal from "../NewTicketModal";
@@ -37,11 +38,19 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden",
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
+    background: "#faf9fd",
+    borderRadius: 18,
+    boxShadow: "0 4px 24px rgba(93,63,211,0.08)",
+    padding: theme.spacing(2, 0, 2, 0),
   },
 
   tabsHeader: {
     flex: "none",
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    margin: theme.spacing(2, 2, 0, 2),
+    boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
+    padding: theme.spacing(0.5, 1, 0.5, 1),
   },
 
   settingsIcon: {
@@ -53,53 +62,92 @@ const useStyles = makeStyles((theme) => ({
   tab: {
     minWidth: 120,
     width: 120,
+    fontWeight: 700,
+    fontSize: 17,
+    color: "#888",
+    borderRadius: 12,
+    margin: '0 4px',
+    transition: 'background 0.2s',
+    '&.Mui-selected': {
+      color: "#5D3FD3",
+      background: '#f3f0fa',
+    },
   },
 
   ticketOptionsBox: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(1),
+    backgroundColor: "#fff",
+    padding: theme.spacing(2, 2, 2, 2),
+    borderRadius: 16,
+    margin: theme.spacing(2, 2, 2, 2),
+    boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
+    gap: 16,
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: 'column',
+      gap: 10,
+      padding: theme.spacing(2, 1, 2, 1),
+    },
+  },
+
+  searchContainer: {
+    display: "flex",
+    alignItems: "center",
+    padding: theme.spacing(2, 2, 0, 2),
+    borderBottom: "none",
+    background: "transparent",
   },
 
   serachInputWrapper: {
     flex: 1,
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: "#fff",
     display: "flex",
     borderRadius: 40,
     padding: 4,
     marginRight: theme.spacing(1),
+    boxShadow: "0 1.5px 6px rgba(93,63,211,0.10)",
+    border: "1.5px solid #5D3FD3",
+    transition: 'box-shadow 0.2s',
+    '&:focus-within': {
+      boxShadow: '0 2px 12px rgba(93,63,211,0.15)',
+    },
   },
 
   searchIcon: {
-    color: theme.palette.primary.main,
-    marginLeft: 6,
-    marginRight: 6,
+    color: "#5D3FD3",
+    marginLeft: 10,
+    marginRight: 10,
     alignSelf: "center",
+    fontSize: 28,
   },
 
   searchInput: {
     flex: 1,
     border: "none",
     borderRadius: 25,
-    padding: "10px",
+    padding: "12px 16px",
     outline: "none",
+    fontSize: 17,
+    background: "transparent",
+    color: "#333",
   },
 
   badge: {
     right: 0,
+    background: "#5D3FD3",
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 14,
+    padding: "0 8px",
+    borderRadius: 10,
+    boxShadow: '0 2px 8px rgba(93,63,211,0.10)',
   },
   show: {
     display: "block",
   },
   hide: {
     display: "none !important",
-  },
-  searchContainer: {
-    display: "flex",
-    padding: "10px",
-    borderBottom: "2px solid rgba(0, 0, 0, .12)",
   },
 }));
 
@@ -162,14 +210,16 @@ const TicketsManager = () => {
         onClose={(e) => setNewTicketModalOpen(false)}
       />
       <Paper elevation={0} square className={classes.searchContainer}>
-        <Search className={classes.searchIcon} />
-        <input
-          type="text"
-          placeholder={i18n.t("tickets.search.placeholder")}
-          className={classes.searchInput}
-          value={searchParam}
-          onChange={handleSearch}
-        />
+        <div className={classes.serachInputWrapper}>
+          <SearchRounded className={classes.searchIcon} />
+          <input
+            type="text"
+            placeholder={i18n.t("tickets.search.placeholder")}
+            className={classes.searchInput}
+            value={searchParam}
+            onChange={handleSearch}
+          />
+        </div>
       </Paper>
       <Paper elevation={0} square className={classes.tabsHeader}>
         <Tabs
@@ -179,16 +229,17 @@ const TicketsManager = () => {
           indicatorColor="primary"
           textColor="primary"
           aria-label="icon label tabs example"
+          TabIndicatorProps={{ style: { height: 0 } }}
         >
           <Tab
             value={"open"}
-            icon={<MoveToInbox />}
+            icon={<MarkChatUnreadRounded style={{ fontSize: 32 }} />}
             label={
               <Badge
                 className={classes.badge}
                 badgeContent={openCount}
                 overlap="rectangular"
-                color="secondary"
+                color="primary"
               >
                 {i18n.t("tickets.tabs.open.title")}
               </Badge>
@@ -197,13 +248,13 @@ const TicketsManager = () => {
           />
           <Tab
             value={"pending"}
-            icon={<HourglassEmptyRounded />}
+            icon={<PendingActionsRounded style={{ fontSize: 32 }} />}
             label={
               <Badge
                 className={classes.badge}
                 badgeContent={pendingCount}
                 overlap="rectangular"
-                color="secondary"
+                color="primary"
               >
                 {i18n.t("ticketsList.pendingHeader")}
               </Badge>
@@ -212,7 +263,7 @@ const TicketsManager = () => {
           />
           <Tab
             value={"closed"}
-            icon={<AllInboxRounded />}
+            icon={<MarkChatReadRounded style={{ fontSize: 32 }} />}
             label={i18n.t("tickets.tabs.closed.title")}
             classes={{ root: classes.tab }}
           />
@@ -220,8 +271,9 @@ const TicketsManager = () => {
       </Paper>
       <Paper square elevation={0} className={classes.ticketOptionsBox}>
         <Button
-          variant="outlined"
-          color="primary"
+          variant="contained"
+          style={{ background: "#5D3FD3", color: "#fff", fontWeight: 700, borderRadius: 12, padding: '12px 28px', fontSize: 17, boxShadow: '0 2px 8px rgba(93,63,211,0.12)', transition: 'all 0.2s' }}
+          startIcon={<AddRounded />}
           onClick={() => setNewTicketModalOpen(true)}
         >
           {i18n.t("ticketsManager.buttons.newTicket")}

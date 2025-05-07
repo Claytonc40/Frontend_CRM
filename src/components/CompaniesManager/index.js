@@ -6,21 +6,25 @@ import {
   MenuItem,
   Paper,
   Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   TextField,
   makeStyles,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography,
+  Divider,
+  Box,
+  Stepper,
+  Step,
+  StepLabel
 } from "@material-ui/core";
 import { Field, Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import ConfirmationModal from "../ConfirmationModal";
-
-import { Edit as EditIcon } from "@material-ui/icons";
-
+import { Edit as EditIcon, Mail, Phone, User, Briefcase, CheckCircle, XCircle, Calendar, Layers, Plus } from "lucide-react";
 import { has, head, isArray } from "lodash";
 import { toast } from "react-toastify";
 import useCompanies from "../../hooks/useCompanies";
@@ -28,7 +32,6 @@ import { useDate } from "../../hooks/useDate";
 import usePlans from "../../hooks/usePlans";
 import api from "../../services/api";
 import ModalUsers from "../ModalUsers";
-
 import moment from "moment";
 
 const useStyles = makeStyles((theme) => ({
@@ -38,359 +41,290 @@ const useStyles = makeStyles((theme) => ({
   mainPaper: {
     width: "100%",
     flex: 1,
-    padding: theme.spacing(2),
+    padding: theme.spacing(3),
+    background: 'linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)',
   },
   fullWidth: {
     width: "100%",
   },
-  tableContainer: {
-    width: "100%",
-    overflowX: "scroll",
-    ...theme.scrollbarStyles,
+  companyCard: {
+    background: '#fff',
+    borderRadius: 24,
+    padding: theme.spacing(3),
+    boxShadow: '0 4px 20px rgba(93,63,211,0.08)',
+    transition: 'all 0.3s ease',
+    border: '1px solid #f0f0f0',
+    position: 'relative',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    '&:hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: '0 8px 30px rgba(93,63,211,0.15)',
+    },
   },
-  textfield: {
-    width: "100%",
+  cardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: theme.spacing(2),
   },
-  textRight: {
-    textAlign: "right",
+  companyName: {
+    fontSize: 22,
+    fontWeight: 700,
+    color: '#5D3FD3',
+    marginBottom: theme.spacing(1),
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
   },
-  row: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
+  infoList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    marginBottom: theme.spacing(2),
   },
-  control: {
-    paddingRight: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
+  infoItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    color: '#666',
+    fontSize: 15,
+    background: '#f8f7ff',
+    borderRadius: 10,
+    padding: '7px 14px',
   },
-  buttonContainer: {
-    textAlign: "right",
-    padding: theme.spacing(1),
+  badge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: 12,
+    padding: '6px 14px',
+    fontWeight: 600,
+    fontSize: 13,
+    boxShadow: '0 2px 8px rgba(93,63,211,0.08)',
+  },
+  badgeAtivo: {
+    background: '#e6fbe6',
+    color: '#2e7d32',
+  },
+  badgeInativo: {
+    background: '#ffebee',
+    color: '#c62828',
+  },
+  badgeCampanha: {
+    background: '#e3e6fd',
+    color: '#5D3FD3',
+  },
+  badgeCampanhaOff: {
+    background: '#f0f0f0',
+    color: '#888',
+  },
+  addButton: {
+    position: 'fixed',
+    bottom: theme.spacing(3),
+    right: theme.spacing(3),
+    borderRadius: '50%',
+    width: 56,
+    height: 56,
+    background: 'linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)',
+    boxShadow: '0 4px 12px rgba(93,63,211,0.15)',
+    '&:hover': {
+      background: 'linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)',
+    },
+    zIndex: 10,
   },
 }));
 
-export function CompanyForm(props) {
-  const { onSubmit, onDelete, onCancel, initialValue, loading } = props;
+function CompanyModal({ open, onClose, onSubmit, initialValue, plans, loading }) {
   const classes = useStyles();
-  const [plans, setPlans] = useState([]);
-  const [modalUser, setModalUser] = useState(false);
-  const [firstUser, setFirstUser] = useState({});
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = ['Dados da Empresa', 'Configurações e Datas'];
 
   const [record, setRecord] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    planId: "",
+    name: '',
+    email: '',
+    phone: '',
+    planId: '',
     status: true,
     campaignsEnabled: false,
-    dueDate: "",
-    recurrence: "",
+    dueDate: '',
+    recurrence: '',
     ...initialValue,
   });
 
-  const { list: listPlans } = usePlans();
-
   useEffect(() => {
-    async function fetchData() {
-      const list = await listPlans();
-      setPlans(list);
-    }
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    setRecord((prev) => {
-      if (moment(initialValue).isValid()) {
-        initialValue.dueDate = moment(initialValue.dueDate).format(
-          "YYYY-MM-DD"
-        );
-      }
-      return {
-        ...prev,
-        ...initialValue,
-      };
+    setRecord({
+      name: '',
+      email: '',
+      phone: '',
+      planId: '',
+      status: true,
+      campaignsEnabled: false,
+      dueDate: '',
+      recurrence: '',
+      ...initialValue,
     });
-  }, [initialValue]);
+    setActiveStep(0);
+  }, [initialValue, open]);
 
-  const handleSubmit = async (data) => {
-    if (data.dueDate === "" || moment(data.dueDate).isValid() === false) {
-      data.dueDate = null;
-    }
-    onSubmit(data);
-    setRecord({ ...initialValue, dueDate: "" });
+  const handleNext = () => setActiveStep((prev) => prev + 1);
+  const handleBack = () => setActiveStep((prev) => prev - 1);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setRecord((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
-  const handleOpenModalUsers = async () => {
-    try {
-      const { data } = await api.get("/users/list", {
-        params: {
-          companyId: initialValue.id,
-        },
-      });
-      if (isArray(data) && data.length) {
-        setFirstUser(head(data));
-      }
-      setModalUser(true);
-    } catch (e) {
-      toast.error(e);
-    }
-  };
-
-  const handleCloseModalUsers = () => {
-    setFirstUser({});
-    setModalUser(false);
-  };
-
-  const incrementDueDate = () => {
-    const data = { ...record };
-    if (data.dueDate !== "" && data.dueDate !== null) {
-      switch (data.recurrence) {
-        case "MENSAL":
-          data.dueDate = moment(data.dueDate)
-            .add(1, "month")
-            .format("YYYY-MM-DD");
-          break;
-        case "BIMESTRAL":
-          data.dueDate = moment(data.dueDate)
-            .add(2, "month")
-            .format("YYYY-MM-DD");
-          break;
-        case "TRIMESTRAL":
-          data.dueDate = moment(data.dueDate)
-            .add(3, "month")
-            .format("YYYY-MM-DD");
-          break;
-        case "SEMESTRAL":
-          data.dueDate = moment(data.dueDate)
-            .add(6, "month")
-            .format("YYYY-MM-DD");
-          break;
-        case "ANUAL":
-          data.dueDate = moment(data.dueDate)
-            .add(12, "month")
-            .format("YYYY-MM-DD");
-          break;
-        default:
-          break;
-      }
-    }
-    setRecord(data);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(record);
   };
 
   return (
-    <>
-      <ModalUsers
-        userId={firstUser.id}
-        companyId={initialValue.id}
-        open={modalUser}
-        onClose={handleCloseModalUsers}
-      />
-      <Formik
-        enableReinitialize
-        className={classes.fullWidth}
-        initialValues={record}
-        onSubmit={(values, { resetForm }) =>
-          setTimeout(() => {
-            handleSubmit(values);
-            resetForm();
-          }, 500)
-        }
-      >
-        {(values, setValues) => (
-          <Form className={classes.fullWidth}>
-            <Grid spacing={2} justifyContent="flex-end" container>
-              <Grid xs={12} sm={6} md={4} item>
-                <Field
-                  as={TextField}
-                  label="Nome"
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <User size={28} style={{ color: '#5D3FD3' }} />
+        {record.id ? 'Editar Empresa' : 'Nova Empresa'}
+      </DialogTitle>
+      <DialogContent style={{ padding: 32 }}>
+        <Stepper activeStep={activeStep} style={{ marginBottom: 24 }}>
+          {steps.map((label) => (
+            <Step key={label}><StepLabel>{label}</StepLabel></Step>
+          ))}
+        </Stepper>
+        <form onSubmit={handleSubmit} autoComplete="off">
+          {activeStep === 0 && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Nome da Empresa"
                   name="name"
+                  value={record.name}
+                  onChange={handleChange}
                   variant="outlined"
-                  className={classes.fullWidth}
-                  margin="dense"
-                />
-              </Grid>
-              <Grid xs={12} sm={6} md={2} item>
-                <Field
-                  as={TextField}
-                  label="E-mail"
-                  name="email"
-                  variant="outlined"
-                  className={classes.fullWidth}
+                  fullWidth
                   margin="dense"
                   required
                 />
               </Grid>
-              <Grid xs={12} sm={6} md={2} item>
-                <Field
-                  as={TextField}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="E-mail"
+                  name="email"
+                  value={record.email}
+                  onChange={handleChange}
+                  variant="outlined"
+                  fullWidth
+                  margin="dense"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
                   label="Telefone"
                   name="phone"
+                  value={record.phone}
+                  onChange={handleChange}
                   variant="outlined"
-                  className={classes.fullWidth}
+                  fullWidth
                   margin="dense"
                 />
               </Grid>
-              <Grid xs={12} sm={6} md={2} item>
-                <FormControl margin="dense" variant="outlined" fullWidth>
-                  <InputLabel htmlFor="plan-selection">Plano</InputLabel>
-                  <Field
-                    as={Select}
-                    id="plan-selection"
-                    label="Plano"
-                    labelId="plan-selection-label"
+              <Grid item xs={12} md={6}>
+                <FormControl variant="outlined" fullWidth margin="dense">
+                  <InputLabel>Plano</InputLabel>
+                  <Select
                     name="planId"
-                    margin="dense"
+                    value={record.planId}
+                    onChange={handleChange}
+                    label="Plano"
                     required
                   >
-                    {plans.map((plan, key) => (
-                      <MenuItem key={key} value={plan.id}>
-                        {plan.name}
-                      </MenuItem>
+                    {plans.map((plan) => (
+                      <MenuItem key={plan.id} value={plan.id}>{plan.name}</MenuItem>
                     ))}
-                  </Field>
+                  </Select>
                 </FormControl>
               </Grid>
-              <Grid xs={12} sm={6} md={2} item>
-                <FormControl margin="dense" variant="outlined" fullWidth>
-                  <InputLabel htmlFor="status-selection">Status</InputLabel>
-                  <Field
-                    as={Select}
-                    id="status-selection"
-                    label="Status"
-                    labelId="status-selection-label"
+            </Grid>
+          )}
+          {activeStep === 1 && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={4}>
+                <FormControl variant="outlined" fullWidth margin="dense">
+                  <InputLabel>Status</InputLabel>
+                  <Select
                     name="status"
-                    margin="dense"
+                    value={record.status}
+                    onChange={handleChange}
+                    label="Status"
                   >
-                    <MenuItem value={true}>Sim</MenuItem>
-                    <MenuItem value={false}>Não</MenuItem>
-                  </Field>
+                    <MenuItem value={true}>Ativo</MenuItem>
+                    <MenuItem value={false}>Inativo</MenuItem>
+                  </Select>
                 </FormControl>
               </Grid>
-              <Grid xs={12} sm={6} md={2} item>
-                <FormControl margin="dense" variant="outlined" fullWidth>
-                  <InputLabel htmlFor="status-selection">Campanhas</InputLabel>
-                  <Field
-                    as={Select}
-                    id="campaigns-selection"
-                    label="Campanhas"
-                    labelId="campaigns-selection-label"
+              <Grid item xs={12} md={4}>
+                <FormControl variant="outlined" fullWidth margin="dense">
+                  <InputLabel>Campanhas</InputLabel>
+                  <Select
                     name="campaignsEnabled"
-                    margin="dense"
+                    value={record.campaignsEnabled}
+                    onChange={handleChange}
+                    label="Campanhas"
                   >
                     <MenuItem value={true}>Habilitadas</MenuItem>
                     <MenuItem value={false}>Desabilitadas</MenuItem>
-                  </Field>
+                  </Select>
                 </FormControl>
               </Grid>
-              <Grid xs={12} sm={6} md={2} item>
-                <FormControl variant="outlined" fullWidth>
-                  <Field
-                    as={TextField}
-                    label="Data de Vencimento"
-                    type="date"
-                    name="dueDate"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    variant="outlined"
-                    fullWidth
-                    margin="dense"
-                  />
-                </FormControl>
-              </Grid>
-              <Grid xs={12} sm={6} md={2} item>
-                <FormControl margin="dense" variant="outlined" fullWidth>
-                  <InputLabel htmlFor="recorrencia-selection">
-                    Recorrência
-                  </InputLabel>
-                  <Field
-                    as={Select}
-                    label="Recorrência"
-                    labelId="recorrencia-selection-label"
-                    id="recurrence"
+              <Grid item xs={12} md={4}>
+                <FormControl variant="outlined" fullWidth margin="dense">
+                  <InputLabel>Recorrência</InputLabel>
+                  <Select
                     name="recurrence"
-                    margin="dense"
+                    value={record.recurrence}
+                    onChange={handleChange}
+                    label="Recorrência"
                   >
                     <MenuItem value="MENSAL">Mensal</MenuItem>
-                    {/*<MenuItem value="BIMESTRAL">Bimestral</MenuItem>*/}
-                    {/*<MenuItem value="TRIMESTRAL">Trimestral</MenuItem>*/}
-                    {/*<MenuItem value="SEMESTRAL">Semestral</MenuItem>*/}
-                    {/*<MenuItem value="ANUAL">Anual</MenuItem>*/}
-                  </Field>
+                  </Select>
                 </FormControl>
               </Grid>
-              <Grid xs={12} item>
-                <Grid justifyContent="flex-end" spacing={1} container>
-                  <Grid xs={4} md={1} item>
-                    <ButtonWithSpinner
-                      className={classes.fullWidth}
-                      style={{ marginTop: 7 }}
-                      loading={loading}
-                      onClick={() => onCancel()}
-                      variant="contained"
-                    >
-                      Limpar
-                    </ButtonWithSpinner>
-                  </Grid>
-                  {record.id !== undefined ? (
-                    <>
-                      <Grid xs={6} md={1} item>
-                        <ButtonWithSpinner
-                          style={{ marginTop: 7 }}
-                          className={classes.fullWidth}
-                          loading={loading}
-                          onClick={() => onDelete(record)}
-                          variant="contained"
-                          color="secondary"
-                        >
-                          Excluir
-                        </ButtonWithSpinner>
-                      </Grid>
-                      <Grid xs={6} md={2} item>
-                        <ButtonWithSpinner
-                          style={{ marginTop: 7 }}
-                          className={classes.fullWidth}
-                          loading={loading}
-                          onClick={() => incrementDueDate()}
-                          variant="contained"
-                          color="primary"
-                        >
-                          + Vencimento
-                        </ButtonWithSpinner>
-                      </Grid>
-                      <Grid xs={6} md={1} item>
-                        <ButtonWithSpinner
-                          style={{ marginTop: 7 }}
-                          className={classes.fullWidth}
-                          loading={loading}
-                          onClick={() => handleOpenModalUsers()}
-                          variant="contained"
-                          color="primary"
-                        >
-                          Usuário
-                        </ButtonWithSpinner>
-                      </Grid>
-                    </>
-                  ) : null}
-                  <Grid xs={6} md={1} item>
-                    <ButtonWithSpinner
-                      className={classes.fullWidth}
-                      style={{ marginTop: 7 }}
-                      loading={loading}
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                    >
-                      Salvar
-                    </ButtonWithSpinner>
-                  </Grid>
-                </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Data de Vencimento"
+                  name="dueDate"
+                  type="date"
+                  value={record.dueDate}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  variant="outlined"
+                  fullWidth
+                  margin="dense"
+                />
               </Grid>
             </Grid>
-          </Form>
-        )}
-      </Formik>
-    </>
+          )}
+          <DialogActions style={{ marginTop: 24 }}>
+            <Button onClick={onClose}>Cancelar</Button>
+            {activeStep > 0 && (
+              <Button onClick={handleBack}>Voltar</Button>
+            )}
+            {activeStep < steps.length - 1 ? (
+              <Button variant="contained" color="primary" onClick={handleNext}>Próximo</Button>
+            ) : (
+              <ButtonWithSpinner loading={loading} type="submit" variant="contained" color="primary">Salvar</ButtonWithSpinner>
+            )}
+          </DialogActions>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -399,99 +333,67 @@ export function CompaniesManagerGrid(props) {
   const classes = useStyles();
   const { dateToClient } = useDate();
 
-  const renderStatus = (row) => {
-    return row.status === false ? "Não" : "Sim";
-  };
+  const renderStatus = (row) => (
+    <span className={`${classes.badge} ${row.status ? classes.badgeAtivo : classes.badgeInativo}`}>
+      {row.status ? <CheckCircle size={15} /> : <XCircle size={15} />} {row.status ? 'Ativo' : 'Inativo'}
+    </span>
+  );
 
-  const renderPlan = (row) => {
-    return row.planId !== null ? row.plan.name : "-";
-  };
+  const renderPlan = (row) => (
+    <span className={classes.infoItem} style={{ background: '#f0f7ff' }}>
+      <Briefcase size={16} /> {row.planId !== null ? row.plan?.name : '-'}
+    </span>
+  );
 
   const renderCampaignsStatus = (row) => {
-    if (
-      has(row, "settings") &&
-      isArray(row.settings) &&
-      row.settings.length > 0
-    ) {
+    let enabled = false;
+    if (has(row, "settings") && isArray(row.settings) && row.settings.length > 0) {
       const setting = row.settings.find((s) => s.key === "campaignsEnabled");
-      if (setting) {
-        return setting.value === "true" ? "Habilitadas" : "Desabilitadas";
-      }
+      if (setting) enabled = setting.value === "true";
     }
-    return "Desabilitadas";
-  };
-
-  const rowStyle = (record) => {
-    if (moment(record.dueDate).isValid()) {
-      const now = moment();
-      const dueDate = moment(record.dueDate);
-      const diff = dueDate.diff(now, "days");
-      if (diff === 5) {
-        return { backgroundColor: "#fffead" };
-      }
-      if (diff >= -3 && diff <= 4) {
-        return { backgroundColor: "#f7cc8f" };
-      }
-      if (diff === -4) {
-        return { backgroundColor: "#fa8c8c" };
-      }
-    }
-    return {};
+    return (
+      <span className={`${classes.badge} ${enabled ? classes.badgeCampanha : classes.badgeCampanhaOff}`}>
+        {enabled ? <CheckCircle size={14} /> : <XCircle size={14} />} Campanhas {enabled ? 'Habilitadas' : 'Desabilitadas'}
+      </span>
+    );
   };
 
   return (
-    <Paper className={classes.tableContainer}>
-      <Table
-        className={classes.fullWidth}
-        size="small"
-        aria-label="a dense table"
-      >
-        <TableHead>
-          <TableRow>
-            <TableCell align="center" style={{ width: "1%" }}>
-              #
-            </TableCell>
-            <TableCell align="left">Nome</TableCell>
-            <TableCell align="left">E-mail</TableCell>
-            <TableCell align="left">Telefone</TableCell>
-            <TableCell align="left">Plano</TableCell>
-            <TableCell align="left">Campanhas</TableCell>
-            <TableCell align="left">Status</TableCell>
-            <TableCell align="left">Criada Em</TableCell>
-            <TableCell align="left">Vencimento</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {records.map((row, key) => (
-            <TableRow style={rowStyle(row)} key={key}>
-              <TableCell align="center" style={{ width: "1%" }}>
-                <IconButton onClick={() => onSelect(row)} aria-label="delete">
-                  <EditIcon />
-                </IconButton>
-              </TableCell>
-              <TableCell align="left">{row.name || "-"}</TableCell>
-              <TableCell align="left">{row.email || "-"}</TableCell>
-              <TableCell align="left">{row.phone || "-"}</TableCell>
-              <TableCell align="left">{renderPlan(row)}</TableCell>
-              <TableCell align="left">{renderCampaignsStatus(row)}</TableCell>
-              <TableCell align="left">{renderStatus(row)}</TableCell>
-              <TableCell align="left">{dateToClient(row.createdAt)}</TableCell>
-              <TableCell align="left">
-                {dateToClient(row.dueDate)}
-                <br />
-                <span>{row.recurrence}</span>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Paper>
+    <Grid container spacing={3}>
+      {records.map((row, key) => (
+        <Grid item xs={12} sm={6} md={4} key={key}>
+          <Paper className={classes.companyCard}>
+            <div className={classes.cardHeader}>
+              <div className={classes.companyName}>
+                <User size={22} /> {row.name || "-"}
+              </div>
+              <IconButton onClick={() => onSelect(row)} aria-label="edit">
+                <EditIcon />
+              </IconButton>
+            </div>
+            <div className={classes.infoList}>
+              <div className={classes.infoItem}><Mail size={16} /> {row.email || "-"}</div>
+              <div className={classes.infoItem}><Phone size={16} /> {row.phone || "-"}</div>
+              {renderPlan(row)}
+              <div className={classes.infoItem}><Calendar size={16} /> Vencimento: {dateToClient(row.dueDate)}</div>
+              <div className={classes.infoItem}><Layers size={16} /> Recorrência: {row.recurrence || '-'}</div>
+            </div>
+            <Divider style={{ margin: '12px 0' }} />
+            <Box display="flex" flexWrap="wrap" gap={1}>
+              {renderStatus(row)}
+              {renderCampaignsStatus(row)}
+            </Box>
+          </Paper>
+        </Grid>
+      ))}
+    </Grid>
   );
 }
 
 export default function CompaniesManager() {
   const classes = useStyles();
   const { list, save, update, remove } = useCompanies();
+  const { list: listPlans } = usePlans();
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -506,22 +408,19 @@ export default function CompaniesManager() {
     dueDate: "",
     recurrence: "",
   });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [plans, setPlans] = useState([]);
 
   useEffect(() => {
-    loadPlans();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const loadPlans = async () => {
-    setLoading(true);
-    try {
+    async function fetchData() {
       const companyList = await list();
       setRecords(companyList);
-    } catch (e) {
-      toast.error("Não foi possível carregar a lista de registros");
+      const plansList = await listPlans();
+      setPlans(plansList);
     }
-    setLoading(false);
-  };
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (data) => {
     setLoading(true);
@@ -531,7 +430,8 @@ export default function CompaniesManager() {
       } else {
         await save(data);
       }
-      await loadPlans();
+      const companyList = await list();
+      setRecords(companyList);
       handleCancel();
       toast.success("Operação realizada com sucesso!");
     } catch (e) {
@@ -546,7 +446,8 @@ export default function CompaniesManager() {
     setLoading(true);
     try {
       await remove(record.id);
-      await loadPlans();
+      const companyList = await list();
+      setRecords(companyList);
       handleCancel();
       toast.success("Operação realizada com sucesso!");
     } catch (e) {
@@ -560,8 +461,8 @@ export default function CompaniesManager() {
   };
 
   const handleCancel = () => {
-    setRecord((prev) => ({
-      ...prev,
+    setRecord({
+      id: undefined,
       name: "",
       email: "",
       phone: "",
@@ -570,22 +471,20 @@ export default function CompaniesManager() {
       campaignsEnabled: false,
       dueDate: "",
       recurrence: "",
-    }));
+    });
+    setModalOpen(false);
   };
 
   const handleSelect = (data) => {
     let campaignsEnabled = false;
-
-    const setting = data.settings.find(
+    const setting = data.settings?.find(
       (s) => s.key.indexOf("campaignsEnabled") > -1
     );
     if (setting) {
       campaignsEnabled =
         setting.value === "true" || setting.value === "enabled";
     }
-
-    setRecord((prev) => ({
-      ...prev,
+    setRecord({
       id: data.id,
       name: data.name || "",
       phone: data.phone || "",
@@ -595,21 +494,24 @@ export default function CompaniesManager() {
       campaignsEnabled,
       dueDate: data.dueDate || "",
       recurrence: data.recurrence || "",
-    }));
+    });
+    setModalOpen(true);
   };
 
   return (
     <Paper className={classes.mainPaper} elevation={0}>
+      <IconButton className={classes.addButton} color="primary" onClick={() => { setRecord({}); setModalOpen(true); }}>
+        <Plus size={24} color="#fff" />
+      </IconButton>
+      <CompanyModal
+        open={modalOpen}
+        onClose={handleCancel}
+        onSubmit={handleSubmit}
+        initialValue={record}
+        plans={plans}
+        loading={loading}
+      />
       <Grid spacing={2} container>
-        <Grid xs={12} item>
-          <CompanyForm
-            initialValue={record}
-            onDelete={handleOpenDeleteDialog}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            loading={loading}
-          />
-        </Grid>
         <Grid xs={12} item>
           <CompaniesManagerGrid records={records} onSelect={handleSelect} />
         </Grid>

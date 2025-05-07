@@ -145,7 +145,7 @@ const elements = [
 const allowedElements = ["a", "b", "strong", "em", "u", "code", "del"];
 
 const CustomLink = ({ children, ...props }) => (
-	<a {...props} target="_blank" rel="noopener noreferrer">
+	<a {...props} target="_blank" rel="noopener noreferrer" style={{ color: '#5D3FD3', textDecoration: 'underline', fontWeight: 600 }}>
 		{children}
 	</a>
 );
@@ -169,6 +169,16 @@ const MarkdownWrapper = ({ children, message }) => {
 			forceInline: true,
 			overrides: {
 				a: { component: CustomLink },
+				strong: {
+					props: {
+						style: { color: '#5D3FD3', fontWeight: 700 }
+					}
+				},
+				em: {
+					props: {
+						style: { color: '#5D3FD3', fontStyle: 'italic' }
+					}
+				},
 			},
 		};
 
@@ -191,24 +201,31 @@ const MarkdownWrapper = ({ children, message }) => {
 	const contact = matches ? matches[0] : '';
 	const number = matches ? matches[1] : '';
 	const vcardStyle = {
-		backgroundColor: 'rgb(74 222 128)',
-		border: '1.5px solid green',
-		borderRadius: '4px',
-		width: '300px',
+		backgroundColor: '#f7f7fa',
+		border: '2px solid #5D3FD3',
+		borderRadius: '12px',
+		width: '320px',
 		display: 'flex',
 		alignItems: 'center',
-		padding: '5px 0',
+		padding: '12px 0',
+		boxShadow: '0 2px 12px rgba(93,63,211,0.10)',
+		margin: '8px 0',
 	};
 
 	const avatar = {
-		marginLeft: '10px',
+		marginLeft: '16px',
+		width: 56,
+		height: 56,
+		border: '2px solid #5D3FD3',
 	};
 
 	const infoStyle = {
-		marginLeft: '10px',
+		marginLeft: '18px',
 	};
 	const p = {
-		margin: '2px',
+		margin: '4px',
+		fontSize: 16,
+		color: '#222',
 	}
 
 
@@ -217,13 +234,13 @@ const MarkdownWrapper = ({ children, message }) => {
 			<div style={vcardStyle}>
 				<Avatar style={avatar} src={message.contact.profilePicUrl} alt="contact_image" />
 				<div style={infoStyle}>
-					<p style={p}><strong>Nome:</strong> {contact}</p>
-					<p style={p}><strong>Número:</strong> {number}</p>
+					<p style={p}><strong style={{ color: '#5D3FD3' }}>Nome:</strong> {contact}</p>
+					<p style={p}><strong style={{ color: '#5D3FD3' }}>Número:</strong> {number}</p>
 				</div>
 			</div>
 		)
 	}
-	return <Markdown options={options}>{children}</Markdown>;
+	return <div style={{ fontSize: 16, color: '#444', lineHeight: 1.6, margin: '4px 0' }}><Markdown options={options}>{children}</Markdown></div>;
 };
 
 export default MarkdownWrapper;

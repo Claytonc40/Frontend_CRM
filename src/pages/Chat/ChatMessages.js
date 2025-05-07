@@ -8,13 +8,12 @@ import {
   makeStyles,
   Paper,
   Typography,
+  CircularProgress
 } from "@material-ui/core";
-import SendIcon from "@material-ui/icons/Send";
-
+import { Send } from 'lucide-react';
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { useDate } from "../../hooks/useDate";
 import api from "../../services/api";
-import { green } from "@material-ui/core/colors";
 
 const useStyles = makeStyles((theme) => ({
   mainContainer: {
@@ -26,44 +25,95 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 0,
     height: "100%",
     borderLeft: "1px solid rgba(0, 0, 0, 0.12)",
+    background: theme.palette.chatlist,
   },
   messageList: {
     position: "relative",
     overflowY: "auto",
     height: "100%",
     ...theme.scrollbarStyles,
-    backgroundColor: theme.palette.chatlist, //DARK MODE PLW DESIGN//
+    backgroundColor: theme.palette.chatlist,
+    padding: theme.spacing(2, 1, 2, 1),
+    display: 'flex',
+    flexDirection: 'column',
   },
   inputArea: {
     position: "relative",
     height: "auto",
+    background: '#fff',
+    borderTop: '1px solid #eee',
+    padding: theme.spacing(1, 2),
   },
   input: {
-    padding: "20px",
+    padding: "16px",
+    fontSize: 15,
+    borderRadius: 8,
+    background: '#f7f8fa',
   },
   buttonSend: {
     margin: theme.spacing(1),
+    color: '#5D3FD3',
+    background: 'rgba(93,63,211,0.07)',
+    borderRadius: 8,
+    '&:hover': {
+      background: '#5D3FD3',
+      color: '#fff',
+    },
   },
   boxLeft: {
-    padding: "10px 10px 5px",
-    margin: "10px",
+    padding: "12px 16px 8px 16px",
+    margin: "8px 0 8px 8px",
     position: "relative",
-    backgroundColor: "blue",
-    maxWidth: 300,
-    borderRadius: 10,
-    borderBottomLeftRadius: 0,
-    border: "1px solid rgba(0, 0, 0, 0.12)",
+    backgroundColor: "#f1f1f7",
+    maxWidth: 340,
+    borderRadius: 16,
+    borderBottomLeftRadius: 4,
+    border: "1px solid #e0e0e0",
+    alignSelf: 'flex-start',
+    boxShadow: '0 1px 4px rgba(93,63,211,0.04)',
   },
   boxRight: {
-    padding: "10px 10px 5px",
-    margin: "10px 10px 10px auto",
+    padding: "12px 16px 8px 16px",
+    margin: "8px 8px 8px 0",
     position: "relative",
-    backgroundColor: "green", //DARK MODE PLW DESIGN//
+    backgroundColor: "#5D3FD3",
+    color: '#fff',
     textAlign: "right",
-    maxWidth: 300,
-    borderRadius: 10,
-    borderBottomRightRadius: 0,
-    border: "1px solid rgba(0, 0, 0, 0.12)",
+    maxWidth: 340,
+    borderRadius: 16,
+    borderBottomRightRadius: 4,
+    border: "1px solid #e0e0e0",
+    alignSelf: 'flex-end',
+    boxShadow: '0 1.5px 6px rgba(93,63,211,0.08)',
+  },
+  senderName: {
+    fontWeight: 600,
+    fontSize: 14,
+    marginBottom: 2,
+    color: '#5D3FD3',
+  },
+  senderNameRight: {
+    fontWeight: 600,
+    fontSize: 14,
+    marginBottom: 2,
+    color: '#fff',
+  },
+  messageText: {
+    fontSize: 15,
+    marginBottom: 4,
+    wordBreak: 'break-word',
+  },
+  messageTime: {
+    fontSize: 11,
+    color: '#888',
+    marginTop: 2,
+    textAlign: 'right',
+  },
+  messageTimeRight: {
+    fontSize: 11,
+    color: '#e0e0e0',
+    marginTop: 2,
+    textAlign: 'right',
   },
 }));
 
@@ -80,7 +130,6 @@ export default function ChatMessages({
   const { user } = useContext(AuthContext);
   const { datetimeToClient } = useDate();
   const baseRef = useRef();
-
   const [contentMessage, setContentMessage] = useState("");
 
   const scrollToBottom = () => {
@@ -97,7 +146,7 @@ export default function ChatMessages({
     return 0;
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (unreadMessages(chat) > 0) {
       try {
         api.post(`/chats/${chat.id}/read`, { userId: user.id });
@@ -123,11 +172,11 @@ export default function ChatMessages({
             if (item.senderId === user.id) {
               return (
                 <Box key={key} className={classes.boxRight}>
-                  <Typography variant="subtitle2">
+                  <Typography className={classes.senderNameRight}>
                     {item.sender.name}
                   </Typography>
-                  {item.message}
-                  <Typography variant="caption" display="block">
+                  <div className={classes.messageText}>{item.message}</div>
+                  <Typography className={classes.messageTimeRight} display="block">
                     {datetimeToClient(item.createdAt)}
                   </Typography>
                 </Box>
@@ -135,11 +184,11 @@ export default function ChatMessages({
             } else {
               return (
                 <Box key={key} className={classes.boxLeft}>
-                  <Typography variant="subtitle2">
+                  <Typography className={classes.senderName}>
                     {item.sender.name}
                   </Typography>
-                  {item.message}
-                  <Typography variant="caption" display="block">
+                  <div className={classes.messageText}>{item.message}</div>
+                  <Typography className={classes.messageTime} display="block">
                     {datetimeToClient(item.createdAt)}
                   </Typography>
                 </Box>
@@ -172,7 +221,7 @@ export default function ChatMessages({
                   }}
                   className={classes.buttonSend}
                 >
-                  <SendIcon />
+                  <Send size={22} />
                 </IconButton>
               </InputAdornment>
             }

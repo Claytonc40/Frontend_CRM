@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
-import { MoreVert, Replay } from "@material-ui/icons";
+import { RotateCcw, MoreVertical } from "lucide-react";
 
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
@@ -18,10 +18,32 @@ const useStyles = makeStyles(theme => ({
 		flex: "none",
 		alignSelf: "center",
 		marginLeft: "auto",
+		display: "flex",
+		alignItems: "center",
+		gap: 8,
 		"& > *": {
-			marginRight: theme.spacing(1),
-			marginLeft: theme.spacing(1),
+			margin: 0,
 		},
+	},
+	iconButton: {
+		padding: 6,
+		color: "#5D3FD3",
+		transition: "background 0.2s",
+		borderRadius: 8,
+		"&:hover": {
+			background: "#f3f0fa",
+		},
+	},
+	button: {
+		minWidth: 32,
+		fontSize: 13,
+		padding: "6px 12px",
+		borderRadius: 8,
+		fontWeight: 600,
+		textTransform: "none",
+		boxShadow: "none",
+		marginRight: 4,
+		marginLeft: 0,
 	},
 }));
 
@@ -66,8 +88,9 @@ const TicketActionButtons = ({ ticket }) => {
 			{ticket.status === "closed" && (
 				<ButtonWithSpinner
 					loading={loading}
-					startIcon={<Replay />}
+					startIcon={<RotateCcw size={16} />}
 					size="small"
+					className={classes.button}
 					onClick={e => handleUpdateTicketStatus(e, "open", user?.id)}
 				>
 					{i18n.t("messagesList.header.buttons.reopen")}
@@ -77,8 +100,9 @@ const TicketActionButtons = ({ ticket }) => {
 				<>
 					<ButtonWithSpinner
 						loading={loading}
-						startIcon={<Replay />}
+						startIcon={<RotateCcw size={16} />}
 						size="small"
+						className={classes.button}
 						onClick={e => handleUpdateTicketStatus(e, "pending", null)}
 					>
 						{i18n.t("messagesList.header.buttons.return")}
@@ -88,12 +112,13 @@ const TicketActionButtons = ({ ticket }) => {
 						size="small"
 						variant="contained"
 						color="primary"
+						className={classes.button}
 						onClick={e => handleUpdateTicketStatus(e, "closed", user?.id)}
 					>
 						{i18n.t("messagesList.header.buttons.resolve")}
 					</ButtonWithSpinner>
-					<IconButton onClick={handleOpenTicketOptionsMenu}>
-						<MoreVert />
+					<IconButton className={classes.iconButton} onClick={handleOpenTicketOptionsMenu}>
+						<MoreVertical size={18} />
 					</IconButton>
 					<TicketOptionsMenu
 						ticket={ticket}
@@ -109,6 +134,7 @@ const TicketActionButtons = ({ ticket }) => {
 					size="small"
 					variant="contained"
 					color="primary"
+					className={classes.button}
 					onClick={e => handleUpdateTicketStatus(e, "open", user?.id)}
 				>
 					{i18n.t("messagesList.header.buttons.accept")}

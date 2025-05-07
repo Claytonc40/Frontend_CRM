@@ -4,250 +4,292 @@ import {
     Paper,
     Grid,
     TextField,
-    Table,
-    TableHead,
-    TableBody,
-    TableCell,
-    TableRow,
-    IconButton
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    Typography,
+    Divider,
+    Box,
+    Stepper,
+    Step,
+    StepLabel
 } from "@material-ui/core";
-import { Formik, Form, Field } from 'formik';
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import ConfirmationModal from "../ConfirmationModal";
-
-import { Edit as EditIcon } from "@material-ui/icons";
-
+import { Edit as EditIcon, BookOpen, Youtube, FileText, Plus } from "lucide-react";
 import { toast } from "react-toastify";
 import useHelps from "../../hooks/useHelps";
 
-
 const useStyles = makeStyles(theme => ({
-	root: {
-		width: '100%'
-	},
     mainPaper: {
-		width: '100%',
-		flex: 1,
-		padding: theme.spacing(2)
+        width: '100%',
+        flex: 1,
+        padding: theme.spacing(3),
+        background: 'linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)',
     },
-	fullWidth: {
-		width: '100%'
-	},
-    tableContainer: {
-		width: '100%',
-		overflowX: "scroll",
-		...theme.scrollbarStyles
+    card: {
+        background: '#fff',
+        borderRadius: 22,
+        boxShadow: '0 4px 20px rgba(93,63,211,0.10)',
+        padding: theme.spacing(3),
+        margin: '0 auto',
+        transition: 'all 0.3s',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 30px rgba(93,63,211,0.15)',
+        },
     },
-	textfield: {
-		width: '100%'
-	},
-    textRight: {
-        textAlign: 'right'
+    cardHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: theme.spacing(2),
     },
-    row: {
-		paddingTop: theme.spacing(2),
-		paddingBottom: theme.spacing(2)
+    cardTitle: {
+        fontWeight: 700,
+        fontSize: 20,
+        color: '#5D3FD3',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
     },
-    control: {
-		paddingRight: theme.spacing(1),
-		paddingLeft: theme.spacing(1)
-	},
-    buttonContainer: {
-        textAlign: 'right',
-		padding: theme.spacing(1)
-	}
+    cardDesc: {
+        color: '#444',
+        fontSize: 15,
+        marginBottom: theme.spacing(1),
+        marginTop: theme.spacing(1),
+    },
+    cardVideo: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        color: '#c62828',
+        fontWeight: 500,
+        fontSize: 15,
+        marginTop: theme.spacing(1),
+    },
+    addButton: {
+        position: 'fixed',
+        bottom: theme.spacing(3),
+        right: theme.spacing(3),
+        borderRadius: '50%',
+        width: 56,
+        height: 56,
+        background: 'linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)',
+        boxShadow: '0 4px 12px rgba(93,63,211,0.15)',
+        '&:hover': {
+            background: 'linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)',
+        },
+        zIndex: 10,
+    },
 }));
 
-export function HelpManagerForm (props) {
-    const { onSubmit, onDelete, onCancel, initialValue, loading } = props;
-    const classes = useStyles()
-
-    const [record, setRecord] = useState(initialValue);
-
+function HelpModal({ open, onClose, onSubmit, initialValue, loading }) {
+    const classes = useStyles();
+    const [activeStep, setActiveStep] = useState(0);
+    const steps = ['Informações Básicas', 'Conteúdo do Vídeo'];
+    const [record, setRecord] = useState({
+        title: '',
+        description: '',
+        video: '',
+        ...initialValue,
+    });
     useEffect(() => {
-        setRecord(initialValue)
-    }, [initialValue])
-
-    const handleSubmit = async(data) => {
-        onSubmit(data)
-    }
-
+        setRecord({
+            title: '',
+            description: '',
+            video: '',
+            ...initialValue,
+        });
+        setActiveStep(0);
+    }, [initialValue, open]);
+    const handleNext = () => setActiveStep((prev) => prev + 1);
+    const handleBack = () => setActiveStep((prev) => prev - 1);
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setRecord((prev) => ({ ...prev, [name]: value }));
+    };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit(record);
+    };
     return (
-        <Formik
-            enableReinitialize
-            className={classes.fullWidth}
-            initialValues={record}
-            onSubmit={(values, { resetForm }) =>
-                setTimeout(() => {
-                    handleSubmit(values)
-                    resetForm()
-                }, 500)
-            }
-        >
-            {(values) => (
-                <Form className={classes.fullWidth}>
-                    <Grid spacing={2} justifyContent="flex-end" container>
-                        <Grid xs={12} sm={6} md={3} item>
-                            <Field
-                                as={TextField}
-                                label="Título"
-                                name="title"
-                                variant="outlined"
-                                className={classes.fullWidth}
-                                margin="dense"
-                            />
-                        </Grid>
-                        <Grid xs={12} sm={6} md={3} item>
-                            <Field
-                                as={TextField}
-                                label="Código do Vídeo"
-                                name="video"
-                                variant="outlined"
-                                className={classes.fullWidth}
-                                margin="dense"
-                            />
-                        </Grid>
-                        <Grid xs={12} sm={12} md={6} item>
-                            <Field
-                                as={TextField}
-                                label="Descrição"
-                                name="description"
-                                variant="outlined"
-                                className={classes.fullWidth}
-                                margin="dense"
-                            />
-                        </Grid>
-                        <Grid sm={3} md={1} item>
-                            <ButtonWithSpinner className={classes.fullWidth} loading={loading} onClick={() => onCancel()} variant="contained">
-                                Limpar
-                            </ButtonWithSpinner>
-                        </Grid>
-                        { record.id !== undefined ? (
-                            <Grid sm={3} md={1} item>
-                                <ButtonWithSpinner className={classes.fullWidth} loading={loading} onClick={() => onDelete(record)} variant="contained" color="secondary">
-                                    Excluir
-                                </ButtonWithSpinner>
+        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+            <DialogTitle style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <BookOpen size={26} style={{ color: '#5D3FD3' }} />
+                {record.id ? 'Editar Ajuda' : 'Nova Ajuda'}
+            </DialogTitle>
+            <DialogContent style={{ padding: 32 }}>
+                <Stepper activeStep={activeStep} style={{ marginBottom: 24 }}>
+                    {steps.map((label) => (
+                        <Step key={label}><StepLabel>{label}</StepLabel></Step>
+                    ))}
+                </Stepper>
+                <form onSubmit={handleSubmit} autoComplete="off">
+                    {activeStep === 0 && (
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Título"
+                                    name="title"
+                                    value={record.title}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                    fullWidth
+                                    margin="dense"
+                                    required
+                                />
                             </Grid>
-                        ) : null}
-                        <Grid sm={3} md={1} item>
-                            <ButtonWithSpinner className={classes.fullWidth} loading={loading} type="submit" variant="contained" color="primary">
-                                Salvar
-                            </ButtonWithSpinner>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Descrição"
+                                    name="description"
+                                    value={record.description}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                    fullWidth
+                                    margin="dense"
+                                />
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </Form>
-            )}
-        </Formik>
-    )
+                    )}
+                    {activeStep === 1 && (
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Código do Vídeo (YouTube)"
+                                    name="video"
+                                    value={record.video}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                    fullWidth
+                                    margin="dense"
+                                />
+                            </Grid>
+                        </Grid>
+                    )}
+                    <DialogActions style={{ marginTop: 24 }}>
+                        <Button onClick={onClose}>Cancelar</Button>
+                        {activeStep > 0 && (
+                            <Button onClick={handleBack}>Voltar</Button>
+                        )}
+                        {activeStep < steps.length - 1 ? (
+                            <Button variant="contained" color="primary" onClick={handleNext}>Próximo</Button>
+                        ) : (
+                            <ButtonWithSpinner loading={loading} type="submit" variant="contained" color="primary">Salvar</ButtonWithSpinner>
+                        )}
+                    </DialogActions>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
 }
 
-export function HelpsManagerGrid (props) {
-    const { records, onSelect } = props
-    const classes = useStyles()
-
+function HelpsManagerGrid({ records, onSelect }) {
+    const classes = useStyles();
     return (
-        <Paper className={classes.tableContainer}>
-            <Table className={classes.fullWidth} size="small" aria-label="a dense table">
-                <TableHead>
-                <TableRow>
-                    <TableCell align="center" style={{width: '1%'}}>#</TableCell>
-                    <TableCell align="left">Título</TableCell>
-                    <TableCell align="left">Descrição</TableCell>
-                    <TableCell align="left">Vídeo</TableCell>
-                </TableRow>
-                </TableHead>
-                <TableBody>
-                {records.map((row) => (
-                    <TableRow key={row.id}>
-                        <TableCell align="center" style={{width: '1%'}}>
-                            <IconButton onClick={() => onSelect(row)} aria-label="delete">
+        <Grid container spacing={3}>
+            {records.map((row) => (
+                <Grid item xs={12} sm={6} md={4} key={row.id}>
+                    <Paper className={classes.card}>
+                        <div className={classes.cardHeader}>
+                            <BookOpen size={22} />
+                            <span className={classes.cardTitle}>{row.title || '-'}</span>
+                            <IconButton onClick={() => onSelect(row)} aria-label="edit">
                                 <EditIcon />
                             </IconButton>
-                        </TableCell>
-                        <TableCell align="left">{row.title || '-'}</TableCell>
-                        <TableCell align="left">{row.description || '-'}</TableCell>
-                        <TableCell align="left">{row.video || '-'}</TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-            </Table>
-        </Paper>
-    )
+                        </div>
+                        <div className={classes.cardDesc}><FileText size={16} style={{ marginRight: 4 }} /> {row.description || '-'}</div>
+                        <Divider style={{ margin: '10px 0' }} />
+                        <div className={classes.cardVideo}><Youtube size={18} /> {row.video || '-'}</div>
+                    </Paper>
+                </Grid>
+            ))}
+        </Grid>
+    );
 }
 
 export default function HelpsManager () {
-    const classes = useStyles()
-    const { list, save, update, remove } = useHelps()
-    
-    const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [records, setRecords] = useState([])
+    const classes = useStyles();
+    const { list, save, update, remove } = useHelps();
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [records, setRecords] = useState([]);
     const [record, setRecord] = useState({
         title: '',
         description: '',
         video: ''
-    })
+    });
+    const [modalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         async function fetchData () {
-            await loadHelps()
+            await loadHelps();
         }
-        fetchData()
+        fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, []);
 
     const loadHelps = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
-            const helpList = await list()
-            setRecords(helpList)
+            const helpList = await list();
+            setRecords(helpList);
         } catch (e) {
-            toast.error('Não foi possível carregar a lista de registros')
+            toast.error('Não foi possível carregar a lista de registros');
         }
-        setLoading(false)
-    }
+        setLoading(false);
+    };
 
     const handleSubmit = async (data) => {
-        setLoading(true)
+        setLoading(true);
         try {
             if (data.id !== undefined) {
-                await update(data)
+                await update(data);
             } else {
-                await save(data)
+                await save(data);
             }
-            await loadHelps()
-            handleCancel()
-            toast.success('Operação realizada com sucesso!')
+            await loadHelps();
+            handleCancel();
+            toast.success('Operação realizada com sucesso!');
         } catch (e) {
-            toast.error('Não foi possível realizar a operação. Verifique se já existe uma helpo com o mesmo nome ou se os campos foram preenchidos corretamente')
+            toast.error('Não foi possível realizar a operação. Verifique se já existe uma ajuda com o mesmo nome ou se os campos foram preenchidos corretamente');
         }
-        setLoading(false)
-    }
+        setLoading(false);
+    };
 
     const handleDelete = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
-            await remove(record.id)
-            await loadHelps()
-            handleCancel()
-            toast.success('Operação realizada com sucesso!')
+            await remove(record.id);
+            await loadHelps();
+            handleCancel();
+            toast.success('Operação realizada com sucesso!');
         } catch (e) {
-            toast.error('Não foi possível realizar a operação')
+            toast.error('Não foi possível realizar a operação');
         }
-        setLoading(false)
-    }
+        setLoading(false);
+    };
 
     const handleOpenDeleteDialog = () => {
-        setShowConfirmDialog(true)
-    }
+        setShowConfirmDialog(true);
+    };
 
     const handleCancel = () => {
         setRecord({
             title: '',
             description: '',
             video: ''
-        })
-    }
+        });
+        setModalOpen(false);
+    };
 
     const handleSelect = (data) => {
         setRecord({
@@ -255,21 +297,23 @@ export default function HelpsManager () {
             title: data.title || '',
             description: data.description || '',
             video: data.video || ''
-        })
-    }
+        });
+        setModalOpen(true);
+    };
 
     return (
         <Paper className={classes.mainPaper} elevation={0}>
+            <IconButton className={classes.addButton} color="primary" onClick={() => { setRecord({}); setModalOpen(true); }}>
+                <Plus size={24} color="#fff" />
+            </IconButton>
+            <HelpModal
+                open={modalOpen}
+                onClose={handleCancel}
+                onSubmit={handleSubmit}
+                initialValue={record}
+                loading={loading}
+            />
             <Grid spacing={2} container>
-                <Grid xs={12} item>
-                    <HelpManagerForm 
-                        initialValue={record} 
-                        onDelete={handleOpenDeleteDialog} 
-                        onSubmit={handleSubmit} 
-                        onCancel={handleCancel} 
-                        loading={loading}
-                    />
-                </Grid>
                 <Grid xs={12} item>
                     <HelpsManagerGrid 
                         records={records}
@@ -286,5 +330,5 @@ export default function HelpsManager () {
                 Deseja realmente excluir esse registro?
             </ConfirmationModal>
         </Paper>
-    )
+    );
 }

@@ -8,13 +8,10 @@ import {
   Paper,
   InputBase
 } from "@material-ui/core";
-import CloseIcon from '@material-ui/icons/Close';
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import { X, CheckCircle } from "lucide-react";
 import { makeStyles } from "@material-ui/core";
 import MarkdownWrapper from "../MarkdownWrapper";
-import MoodIcon from "@material-ui/icons/Mood";
 import api from "../../services/api";
-
 
 const useStyles = makeStyles((theme) => ({
   messagesList: {
@@ -23,22 +20,24 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "center",
     flexGrow: 1,
-    padding: "20px 20px 20px 20px",
-    overflowY: "scroll",
+    padding: "16px",
+    overflowY: "auto",
     "@media (max-width: 600px)": {
-      paddingBottom: "90px"
+      paddingBottom: "70px"
     },
     ...theme.scrollbarStyles,
-    minHeight: "150px",
-    minWidth: "500px"
+    minHeight: "120px",
+    minWidth: "400px",
+    maxWidth: "600px",
+    background: "#faf9fd",
   },
   textContentItem: {
     overflowWrap: "break-word",
-    padding: "3px 80px 6px 6px",
+    padding: "8px 12px",
   },
   messageRight: {
     fontSize: "13px",
-    marginLeft: 20,
+    marginLeft: 16,
     marginTop: 2,
     minWidth: 100,
     maxWidth: 510,
@@ -48,72 +47,71 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: "pre-wrap",
     alignSelf: "flex-end",
     borderRadius: 8,
-    paddingLeft: 5,
-    paddingRight: 5,
-    paddingTop: 5,
-    paddingBottom: 0
+    padding: "8px 12px",
+    background: "#f3f0fa",
+    border: "1px solid #e8e8e8",
   },
-  inputmsg:{
-	  backgroundColor: theme.mode === 'light' ? '#FFF' : '#1c1c1c',
-	  display: "flex",
-      width: "100%",
-      margin: "10px 0px 10px 20px",
-      borderRadius: "10px"
+  inputmsg: {
+    backgroundColor: "#fff",
+    display: "flex",
+    width: "100%",
+    margin: "8px 0",
+    borderRadius: 8,
+    border: "1px solid #e8e8e8",
+    transition: "all 0.2s",
+    "&:focus-within": {
+      borderColor: "#5D3FD3",
+      boxShadow: "0 1px 4px rgba(93,63,211,0.08)",
+    }
   },
   timestamp: {
     fontSize: 11,
     position: "absolute",
     bottom: 0,
     right: 5,
-    color: "#999"
+    color: "#666"
   },
   titleBackground: {
-    color:'#ffff',
-    backgroundColor: "#00796b"  , // Cor de fundo desejada
-    marginLeft:'3px'
+    color: "#fff",
+    backgroundColor: "#5D3FD3",
+    padding: "12px 16px",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    "& .MuiIconButton-root": {
+      padding: 4,
+      marginRight: 8,
+      "&:hover": {
+        background: "rgba(255,255,255,0.1)",
+      }
+    }
   },
-  emojiBox: {
-    position: "absolute",
-    bottom: 63,
-    width: 40,
-    borderTop: "1px solid #e8e8e8",
-    zIndex:1
+  dialogPaper: {
+    borderRadius: 12,
+    boxShadow: "0 4px 24px rgba(93,63,211,0.12)",
   },
+  saveButton: {
+    padding: 8,
+    margin: "0 8px",
+    color: "#5D3FD3",
+    "&:hover": {
+      background: "#f3f0fa",
+    }
+  },
+  inputBase: {
+    padding: "12px 16px",
+    fontSize: 14,
+    color: "#333",
+    "&::placeholder": {
+      color: "#999",
+      opacity: 1
+    }
+  }
 }));
-
-// const EmojiOptions = React.forwardRef((props, ref) => {
-//   const { disabled, showEmoji, setShowEmoji, handleAddEmoji } = props;
-//   const classes = useStyles();
-
-//   return (
-//     <>
-//       <IconButton
-//         aria-label="emojiPicker"
-//         component="span"
-//         disabled={disabled}
-//         onClick={(e) => setShowEmoji((prevState) => !prevState)}
-//       >
-//         <MoodIcon className={classes.sendMessageIcons} />
-//       </IconButton>
-
-//       {showEmoji ? (
-//         <div ref={ref} className={classes.emojiBox}>
-//           <EmojiPicker
-//             height={700}
-//             width={400}
-//           />
-//         </div>
-//       ) : null}
-//     </>
-//   );
-// });
 
 const EditMessageModal = ({ open, onClose, onSave, message }) => {
   const classes = useStyles();
   const [editedMessage, setEditedMessage] = useState(null);
-  const [showEmoji, setShowEmoji] = useState(false);
-  const [inputMessage, setInputMessage] = useState("");
-  const emojiOptionsRef = useRef(null);
   const modalRef = useRef(null);
   
   useEffect(() => {
@@ -132,37 +130,13 @@ const EditMessageModal = ({ open, onClose, onSave, message }) => {
           body: editedMessage,
           quotedMsg: null,
         };
-        await api.post(`/messages/edit/${message.id}`,messages)
-        onClose(false)
+        await api.post(`/messages/edit/${message.id}`, messages);
+        onClose(false);
       } catch (err) {
-        
+        // Handle error
       }
     }
   };
-
-
-  const setInputValue = (value) => {
-    let emoji = value.native;
-    setEditedMessage(editedMessage ? editedMessage + value.native : emoji);
-  };
-
-  useEffect(() => {
-    if (open) {
-      // Calculate the position for EmojiOptions inside the modal
-      if (open && modalRef.current && emojiOptionsRef.current) {
-      const modalRect = modalRef.current.getBoundingClientRect();
-      const emojiOptionsRect = emojiOptionsRef.current.getBoundingClientRect();
-      const desiredPosition = {
-        top: emojiOptionsRect.height > modalRect.height
-          ? 0
-          : modalRect.height - emojiOptionsRect.height,
-        left: modalRect.width - emojiOptionsRect.width
-      };
-      emojiOptionsRef.current.style.top = `${desiredPosition.top}px`;
-      emojiOptionsRef.current.style.left = `${desiredPosition.left}px`;
-    }
-  };
-  }, [open]);
 
   return (
     <Dialog
@@ -170,77 +144,61 @@ const EditMessageModal = ({ open, onClose, onSave, message }) => {
       onClose={() => onClose(false)}
       aria-labelledby="edit-message-dialog"
       PaperProps={{
-        style: {
-          zIndex: 1 // Defina um valor alto de zIndex para garantir que o modal sobreponha outros elementos
-        },
+        className: classes.dialogPaper
       }}
       ref={modalRef}
     >
       <DialogTitle id="edit-message-dialog" className={classes.titleBackground}>
-       <IconButton edge="start" color="inherit" onClick={() => onClose(false)} aria-label="close">
-          <CloseIcon />
+        <IconButton 
+          edge="start" 
+          color="inherit" 
+          onClick={() => onClose(false)} 
+          aria-label="close"
+        >
+          <X size={20} />
         </IconButton>
         Editar Mensagem
-        </DialogTitle>
-      <DialogContent style={{ padding: "0px"}}>
+      </DialogTitle>
+      <DialogContent style={{ padding: 0 }}>
         <Box>
-          <Box className={classes.messagesList} >
+          <Box className={classes.messagesList}>
             <Box
               component="div"
-              className={`${classes.messageRight}`}
-              style={{
-                fontStyle: "italic",
-                backgroundColor: "#d9fdd3"
-              }}
+              className={classes.messageRight}
             >
               <Box className={classes.textContentItem}>
-                <Box component="div" style={{ color:  "#212B36" }}>
+                <Box component="div" style={{ color: "#333" }}>
                   <MarkdownWrapper>{message?.body}</MarkdownWrapper>
                 </Box>
-                {/* <span className={classes.timestamp}>
-                  {format(parseISO(message?.updatedAt), "HH:mm")}
-                </span> */}
               </Box>
             </Box>
           </Box>
           <Paper
-		   
             component="form"
             style={{
-              p: "2px 4px",
               display: "flex",
               alignItems: "center",
-              borderRadius: "0px",
-              backgroundColor: "#f0f2f5"
+              borderRadius: 0,
+              backgroundColor: "#fff",
+              borderTop: "1px solid #e8e8e8"
             }}
           >
-            <Box
-			  className={`${classes.inputmsg}`}
-            >
+            <Box className={classes.inputmsg}>
               <InputBase
-                style={{ padding: "15px 0px 15px 15px", flex: 1 }}
+                className={classes.inputBase}
                 multiline
                 maxRows={6}
-                placeholder="Search Google Maps"
+                placeholder="Digite sua mensagem..."
                 value={editedMessage}
                 onChange={(e) => setEditedMessage(e.target.value)}
-                inputProps={{ "aria-label": "search google maps" }}
+                inputProps={{ "aria-label": "edit message" }}
               />
-            {/* <EmojiOptions
-              ref={emojiOptionsRef}
-              handleAddEmoji={setInputValue}
-              showEmoji={showEmoji}
-              setShowEmoji={setShowEmoji}
-            /> */}
             </Box>
-            <IconButton color="primary" aria-label="directions"  onClick={() => handleSave(editedMessage)}>
-              <CheckCircleIcon
-                style={{
-                  width: "35px",
-                  height: "35px",
-                  color:'#00A884'
-                }}
-              />
+            <IconButton 
+              className={classes.saveButton}
+              onClick={() => handleSave(editedMessage)}
+            >
+              <CheckCircle size={20} />
             </IconButton>
           </Paper>
         </Box>

@@ -21,6 +21,8 @@ import {
   DialogActions,
   Button,
   DialogContentText,
+  Tooltip,
+  Fade,
 } from "@material-ui/core";
 import api from "../../services/api";
 import { isArray } from "lodash";
@@ -30,48 +32,208 @@ import { SocketContext } from "../../context/Socket/SocketContext";
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    maxHeight: 3000,
-    maxWidth: 5000,
+    maxHeight: 400,
+    maxWidth: 360,
     padding: theme.spacing(1),
     overflowY: "scroll",
     ...theme.scrollbarStyles,
+    borderRadius: 12,
+    boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+    border: '1px solid rgba(93, 63, 211, 0.1)',
+    animation: '$slideIn 0.3s ease-out',
+  },
+  '@keyframes slideIn': {
+    '0%': {
+      opacity: 0,
+      transform: 'translateY(-10px)'
+    },
+    '100%': {
+      opacity: 1,
+      transform: 'translateY(0)'
+    }
+  },
+  announcementHeader: {
+    padding: theme.spacing(2),
+    borderBottom: '1px solid rgba(0,0,0,0.08)',
+    background: 'linear-gradient(145deg, #5D3FD3 0%, #7058e6 100%)',
+    color: '#FFFFFF',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderTopLeftRadius: 12,
+    borderTopRight: 12,
+  },
+  headerTitle: {
+    fontWeight: 600,
+    fontSize: 16,
+    display: 'flex',
+    alignItems: 'center',
+    '& svg': {
+      marginRight: theme.spacing(1),
+      fontSize: 20,
+    }
+  },
+  announcementItem: {
+    margin: theme.spacing(1, 0),
+    transition: 'all 0.2s ease',
+    borderRadius: 8,
+    '&:hover': {
+      backgroundColor: 'rgba(93, 63, 211, 0.05)',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    }
+  },
+  priorityHigh: {
+    borderLeft: '4px solid #b81111',
+  },
+  priorityMedium: {
+    borderLeft: '4px solid orange',
+  },
+  priorityLow: {
+    borderLeft: '4px solid grey',
+  },
+  announcementTitle: {
+    fontWeight: 600,
+    color: '#333',
+    fontSize: 14,
+  },
+  announcementDate: {
+    fontSize: 12,
+    color: '#666',
+    marginRight: theme.spacing(1),
+  },
+  announcementText: {
+    color: '#555',
+    marginTop: theme.spacing(0.5),
+    fontSize: 13,
+    maxHeight: 40,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    '-webkit-line-clamp': 2,
+    '-webkit-box-orient': 'vertical',
+  },
+  buttonIcon: {
+    color: '#5D3FD3',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      color: '#4930A8',
+    }
+  },
+  badge: {
+    backgroundColor: '#5D3FD3',
+    transition: 'all 0.3s ease',
+  },
+  emptyAnnouncements: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: theme.spacing(4),
+    color: '#666',
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    margin: theme.spacing(2),
+  },
+  emptyIcon: {
+    fontSize: 48,
+    color: '#5D3FD3',
+    opacity: 0.6,
+    marginBottom: theme.spacing(2),
+  },
+  dialog: {
+    '& .MuiDialog-paper': {
+      borderRadius: 12,
+      boxShadow: '0 6px 30px rgba(0,0,0,0.2)',
+    }
+  },
+  dialogTitle: {
+    backgroundColor: '#5D3FD3',
+    color: '#FFFFFF',
+    '& .MuiTypography-root': {
+      fontWeight: 600,
+    },
+  },
+  dialogContent: {
+    padding: theme.spacing(3),
+  },
+  dialogMedia: {
+    border: '1px solid #f1f1f1',
+    margin: '0 auto 20px',
+    textAlign: 'center',
+    width: '100%',
+    maxWidth: 400,
+    height: 300,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'contain',
+    backgroundPosition: 'center',
+    borderRadius: 8,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    }
+  },
+  dialogText: {
+    color: '#333',
+    lineHeight: 1.6,
+  },
+  dialogActions: {
+    padding: theme.spacing(2),
+  },
+  closeButton: {
+    color: '#5D3FD3',
+    borderColor: '#5D3FD3',
+    '&:hover': {
+      backgroundColor: 'rgba(93, 63, 211, 0.08)',
+      borderColor: '#4930A8',
+    }
   },
 }));
 
 function AnnouncementDialog({ announcement, open, handleClose }) {
+  const classes = useStyles();
+  
   const getMediaPath = (filename) => {
     return `${process.env.REACT_APP_BACKEND_URL}/public/${filename}`;
   };
+  
   return (
     <Dialog
       open={open}
       onClose={() => handleClose()}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
+      className={classes.dialog}
+      fullWidth
+      maxWidth="sm"
     >
-      <DialogTitle id="alert-dialog-title">{announcement.title}</DialogTitle>
-      <DialogContent>
+      <DialogTitle id="alert-dialog-title" className={classes.dialogTitle}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <AnnouncementIcon style={{ marginRight: 8 }} />
+          {announcement.title}
+        </div>
+      </DialogTitle>
+      <DialogContent className={classes.dialogContent}>
         {announcement.mediaPath && (
           <div
+            className={classes.dialogMedia}
             style={{
-              border: "1px solid #f1f1f1",
-              margin: "0 auto 20px",
-              textAlign: "center",
-              width: "400px",
-              height: 300,
               backgroundImage: `url(${getMediaPath(announcement.mediaPath)})`,
-              backgroundRepeat: "no-repeat",
-              backgroundSize: "contain",
-              backgroundPosition: "center",
             }}
           ></div>
         )}
-        <DialogContentText id="alert-dialog-description">
+        <DialogContentText id="alert-dialog-description" className={classes.dialogText}>
           {announcement.text}
         </DialogContentText>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={() => handleClose()} color="primary" autoFocus>
+      <DialogActions className={classes.dialogActions}>
+        <Button 
+          onClick={() => handleClose()} 
+          variant="outlined"
+          className={classes.closeButton}
+          autoFocus
+        >
           Fechar
         </Button>
       </DialogActions>
@@ -212,16 +374,17 @@ export default function AnnouncementsPopover() {
     setAnchorEl(null);
   };
 
-  const borderPriority = (priority) => {
+  const getPriorityClass = (priority) => {
     if (priority === 1) {
-      return "4px solid #b81111";
+      return classes.priorityHigh;
     }
     if (priority === 2) {
-      return "4px solid orange";
+      return classes.priorityMedium;
     }
     if (priority === 3) {
-      return "4px solid grey";
+      return classes.priorityLow;
     }
+    return "";
   };
 
   const getMediaPath = (filename) => {
@@ -244,20 +407,28 @@ export default function AnnouncementsPopover() {
         open={showAnnouncementDialog}
         handleClose={() => setShowAnnouncementDialog(false)}
       />
-      <IconButton
-        variant="contained"
-        aria-describedby={id}
-        onClick={handleClick}
-        style={{ color: "white" }}
+      <Tooltip 
+        title="Informativos" 
+        arrow 
+        TransitionComponent={Fade} 
+        TransitionProps={{ timeout: 600 }}
       >
-        <Badge
-          color="secondary"
-          variant="dot"
-          invisible={invisible || announcements.length < 1}
+        <IconButton
+          variant="contained"
+          aria-describedby={id}
+          onClick={handleClick}
+          className={classes.buttonIcon}
         >
-          <Notifications />
-        </Badge>
-      </IconButton>
+          <Badge
+            color="secondary"
+            variant="dot"
+            classes={{ badge: classes.badge }}
+            invisible={invisible || announcements.length < 1}
+          >
+            <AnnouncementIcon />
+          </Badge>
+        </IconButton>
+      </Tooltip>
       <Popover
         id={id}
         open={open}
@@ -265,11 +436,11 @@ export default function AnnouncementsPopover() {
         onClose={handleClose}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "center",
+          horizontal: "right",
         }}
         transformOrigin={{
           vertical: "top",
-          horizontal: "center",
+          horizontal: "right",
         }}
       >
         <Paper
@@ -277,22 +448,31 @@ export default function AnnouncementsPopover() {
           onScroll={handleScroll}
           className={classes.mainPaper}
         >
+          <div className={classes.announcementHeader}>
+            <Typography className={classes.headerTitle}>
+              <AnnouncementIcon fontSize="small" />
+              Informativos
+            </Typography>
+            <Badge
+              color="error"
+              badgeContent={announcements.length}
+              max={99}
+            >
+              <AnnouncementIcon fontSize="small" />
+            </Badge>
+          </div>
+          
           <List
             component="nav"
             aria-label="main mailbox folders"
-            style={{ minWidth: 300 }}
           >
-            {isArray(announcements) &&
+            {isArray(announcements) && announcements.length > 0 ? (
               announcements.map((item, key) => (
                 <ListItem
                   key={key}
-                  style={{
-                    //background: key % 2 === 0 ? "#ededed" : "white",
-                    border: "1px solid #eee",
-                    borderLeft: borderPriority(item.priority),
-                    cursor: "pointer",
-                  }}
+                  className={`${classes.announcementItem} ${getPriorityClass(item.priority)}`}
                   onClick={() => handleShowAnnouncementDialog(item)}
+                  button
                 >
                   {item.mediaPath && (
                     <ListItemAvatar>
@@ -303,23 +483,29 @@ export default function AnnouncementsPopover() {
                     </ListItemAvatar>
                   )}
                   <ListItemText
-                    primary={item.title}
+                    primary={
+                      <Typography className={classes.announcementTitle}>
+                        {item.title}
+                      </Typography>
+                    }
                     secondary={
                       <>
-                        <Typography component="span" style={{ fontSize: 12 }}>
+                        <Typography component="span" className={classes.announcementDate}>
                           {moment(item.createdAt).format("DD/MM/YYYY")}
                         </Typography>
-                        <span style={{ marginTop: 5, display: "block" }}></span>
-                        <Typography component="span" variant="body2">
+                        <Typography component="div" className={classes.announcementText}>
                           {item.text}
                         </Typography>
                       </>
                     }
                   />
                 </ListItem>
-              ))}
-            {isArray(announcements) && announcements.length === 0 && (
-              <ListItemText primary="Nenhum registro" />
+              ))
+            ) : (
+              <div className={classes.emptyAnnouncements}>
+                <AnnouncementIcon className={classes.emptyIcon} />
+                <Typography>Nenhum informativo</Typography>
+              </div>
             )}
           </List>
         </Paper>

@@ -6,6 +6,8 @@ import List from "@material-ui/core/List";
 import { makeStyles } from "@material-ui/core/styles";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
+import Tooltip from "@material-ui/core/Tooltip";
+import Fade from "@material-ui/core/Fade";
 
 import { Grid, Slider } from "@material-ui/core";
 
@@ -21,12 +23,46 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down("sm")]: {
             maxWidth: 270,
         },
+        borderRadius: 12,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+        overflow: 'hidden',
+        border: '1px solid rgba(93, 63, 211, 0.1)',
+        animation: '$slideIn 0.3s ease-out',
+    },
+    '@keyframes slideIn': {
+        '0%': {
+            opacity: 0,
+            transform: 'translateY(-10px)'
+        },
+        '100%': {
+            opacity: 1,
+            transform: 'translateY(0)'
+        }
     },
     noShadow: {
         boxShadow: "none !important",
     },
+    buttonIcon: {
+        color: '#5D3FD3',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+            color: '#4930A8',
+        }
+    },
     icons: {
-        color: "#fff",
+        color: '#5D3FD3',
+    },
+    volumeSlider: {
+        color: '#5D3FD3',
+        '& .MuiSlider-thumb': {
+            backgroundColor: '#5D3FD3',
+        },
+        '& .MuiSlider-track': {
+            backgroundColor: '#5D3FD3',
+        },
+        '& .MuiSlider-rail': {
+            backgroundColor: 'rgba(93, 63, 211, 0.2)',
+        },
     },
     customBadge: {
         backgroundColor: "#f44336",
@@ -55,16 +91,23 @@ const NotificationsVolume = ({ volume, setVolume }) => {
 
     return (
         <>
-            <IconButton
-                className={classes.icons}
-                onClick={handleClick}
-                ref={anchorEl}
-                aria-label="Open Notifications"
-                // color="inherit"
-                // color="secondary"
+            <Tooltip 
+                title="Volume" 
+                arrow 
+                TransitionComponent={Fade} 
+                TransitionProps={{ timeout: 600 }}
             >
-                <VolumeUpIcon color="inherit" />
-            </IconButton>
+                <IconButton
+                    onClick={handleClick}
+                    ref={anchorEl}
+                    aria-label="Ajustar Volume"
+                    color="inherit"
+                    className={classes.buttonIcon}
+                    size="medium"
+                >
+                    <VolumeUpIcon />
+                </IconButton>
+            </Tooltip>
             <Popover
                 disableScrollLock
                 open={isOpen}
@@ -83,7 +126,7 @@ const NotificationsVolume = ({ volume, setVolume }) => {
                 <List dense className={classes.tabContainer}>
                     <Grid container spacing={2}>
                         <Grid item>
-                            <VolumeDownIcon />
+                            <VolumeDownIcon className={classes.icons} />
                         </Grid>
                         <Grid item xs>
                             <Slider
@@ -95,10 +138,11 @@ const NotificationsVolume = ({ volume, setVolume }) => {
                                 onChange={(e, value) =>
                                     handleVolumeChange(value)
                                 }
+                                className={classes.volumeSlider}
                             />
                         </Grid>
                         <Grid item>
-                            <VolumeUpIcon />
+                            <VolumeUpIcon className={classes.icons} />
                         </Grid>
                     </Grid>
                 </List>

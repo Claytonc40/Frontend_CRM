@@ -14,7 +14,7 @@ import { i18n } from "../../translate/i18n";
 const useStyles = makeStyles(theme => ({
 	chatContainer: {
 		flex: 1,
-		// backgroundColor: "#eee",
+		backgroundColor: "#eee",
 		padding: theme.spacing(4),
 		height: `calc(100% - 48px)`,
 		overflowY: "hidden",
@@ -66,11 +66,11 @@ const Chat = () => {
 						) : (
 							<Paper square variant="outlined" className={classes.welcomeMsg}>
 							
-							<div>
+							{/* <div>
 							<center><img style={{ margin: "0 auto", width: "70%" }} src={logo} alt="logologin" /></center>
-							</div>
+							</div> */}
 							
-							{/*<span>{i18n.t("chat.noTicketMessage")}</span>*/}
+							{/* <span>{i18n.t("chat.noTicketMessage")}</span> */}
 							</Paper>
 						)}
 					</Grid>

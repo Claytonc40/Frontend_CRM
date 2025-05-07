@@ -1,34 +1,199 @@
-import React, { useState, useEffect, useReducer, useContext } from "react";
+import {
+  Avatar,
+  Box,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import SearchIcon from "@material-ui/icons/Search";
+import { Edit, Plus, Trash2, Users as UsersIcon } from "lucide-react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 import { toast } from "react-toastify";
 
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import Button from "@material-ui/core/Button";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import IconButton from "@material-ui/core/IconButton";
-import SearchIcon from "@material-ui/icons/Search";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-
-import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import EditIcon from "@material-ui/icons/Edit";
-
+import ConfirmationModal from "../../components/ConfirmationModal";
 import MainContainer from "../../components/MainContainer";
-import MainHeader from "../../components/MainHeader";
-import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
-import Title from "../../components/Title";
-
+import UserModal from "../../components/UserModal";
+import { SocketContext } from "../../context/Socket/SocketContext";
+import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
-import UserModal from "../../components/UserModal";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import toastError from "../../errors/toastError";
-import { SocketContext } from "../../context/Socket/SocketContext";
+
+const useStyles = makeStyles((theme) => ({
+  mainPaper: {
+    flex: 1,
+    padding: theme.spacing(3),
+    background: "linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)",
+    minHeight: "100vh",
+  },
+  searchContainer: {
+    flex: 1,
+    maxWidth: 480,
+    display: "flex",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      maxWidth: "100%",
+      marginBottom: theme.spacing(1),
+    },
+  },
+  searchInput: {
+    flex: 1,
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 10,
+    },
+  },
+  addButton: {
+    position: "fixed",
+    bottom: theme.spacing(3),
+    right: theme.spacing(3),
+    borderRadius: "50%",
+    width: 56,
+    height: 56,
+    background: "linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)",
+    boxShadow: "0 4px 12px rgba(93,63,211,0.15)",
+    "&:hover": {
+      background: "linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)",
+    },
+    zIndex: 10,
+  },
+  headerContainer: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: theme.spacing(3),
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      alignItems: "flex-start",
+    },
+  },
+  pageTitle: {
+    color: "#5D3FD3",
+    fontWeight: 600,
+    fontSize: "1.5rem",
+    marginBottom: theme.spacing(2),
+    position: "relative",
+    display: "inline-block",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      width: "40%",
+      height: 3,
+      bottom: -5,
+      left: 0,
+      backgroundColor: "#5D3FD3",
+      borderRadius: 2,
+    },
+  },
+  card: {
+    background: "#fff",
+    borderRadius: 12,
+    boxShadow: "0 4px 20px rgba(93,63,211,0.10)",
+    padding: theme.spacing(2),
+    height: "100%",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "translateY(-4px)",
+      boxShadow: "0 8px 30px rgba(93,63,211,0.15)",
+    },
+  },
+  cardHeader: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: theme.spacing(2),
+    gap: theme.spacing(1),
+  },
+  userAvatar: {
+    width: 48,
+    height: 48,
+    background: "linear-gradient(45deg, #5D3FD3 30%, #7B68EE 90%)",
+    fontSize: "1.2rem",
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontWeight: 600,
+    color: "#333",
+    fontSize: "1.1rem",
+    marginBottom: 2,
+  },
+  userEmail: {
+    color: "#666",
+    fontSize: "0.9rem",
+  },
+  cardContent: {
+    padding: theme.spacing(1, 0),
+  },
+  infoRow: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: theme.spacing(1),
+    "&:last-child": {
+      marginBottom: 0,
+    },
+  },
+  infoLabel: {
+    color: "#666",
+    fontSize: "0.9rem",
+    width: 80,
+  },
+  infoValue: {
+    color: "#333",
+    fontSize: "0.9rem",
+    fontWeight: 500,
+  },
+  cardActions: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: theme.spacing(1),
+    marginTop: theme.spacing(2),
+    paddingTop: theme.spacing(2),
+    borderTop: "1px solid #e3e6fd",
+  },
+  actionButton: {
+    padding: theme.spacing(1),
+    color: "#555",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      backgroundColor: "rgba(93, 63, 211, 0.08)",
+      transform: "scale(1.1)",
+    },
+  },
+  editButton: {
+    color: "#5D3FD3",
+    "&:hover": {
+      color: "#4930A8",
+    },
+  },
+  deleteButton: {
+    color: "#F44336",
+    "&:hover": {
+      color: "#D32F2F",
+    },
+  },
+  noUsersContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: theme.spacing(8),
+    width: "100%",
+  },
+  noUsersIcon: {
+    fontSize: 80,
+    color: "rgba(0, 0, 0, 0.2)",
+    marginBottom: theme.spacing(2),
+  },
+  noUsersText: {
+    color: "rgba(0, 0, 0, 0.5)",
+    fontSize: "1.1rem",
+    maxWidth: 300,
+    textAlign: "center",
+  },
+}));
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_USERS") {
@@ -74,15 +239,6 @@ const reducer = (state, action) => {
   }
 };
 
-const useStyles = makeStyles((theme) => ({
-  mainPaper: {
-    flex: 1,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
-    ...theme.scrollbarStyles,
-  },
-}));
-
 const Users = () => {
   const classes = useStyles();
 
@@ -111,7 +267,13 @@ const Users = () => {
           const { data } = await api.get("/users/", {
             params: { searchParam, pageNumber },
           });
-          dispatch({ type: "LOAD_USERS", payload: data.users });
+          const usersWithData = data.users.map((user) => ({
+            ...user,
+            whatsapp: user.whatsapp || null,
+            allTicket: user.allTicket || "desabled",
+            queues: user.queues || [],
+          }));
+          dispatch({ type: "LOAD_USERS", payload: usersWithData });
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
@@ -185,107 +347,166 @@ const Users = () => {
     }
   };
 
+  const getInitials = (name) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
+
   return (
     <MainContainer>
-      <ConfirmationModal
-        title={
-          deletingUser &&
-          `${i18n.t("users.confirmationModal.deleteTitle")} ${
-            deletingUser.name
-          }?`
-        }
-        open={confirmModalOpen}
-        onClose={setConfirmModalOpen}
-        onConfirm={() => handleDeleteUser(deletingUser.id)}
-      >
-        {i18n.t("users.confirmationModal.deleteMessage")}
-      </ConfirmationModal>
-      <UserModal
-        open={userModalOpen}
-        onClose={handleCloseUserModal}
-        aria-labelledby="form-dialog-title"
-        userId={selectedUser && selectedUser.id}
-      />
-      <MainHeader>
-        <Title>{i18n.t("users.title")}</Title>
-        <MainHeaderButtonsWrapper>
-          <TextField
-            placeholder={i18n.t("contacts.searchPlaceholder")}
-            type="search"
-            value={searchParam}
-            onChange={handleSearch}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon style={{ color: "gray" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenUserModal}
-          >
-            {i18n.t("users.buttons.add")}
-          </Button>
-        </MainHeaderButtonsWrapper>
-      </MainHeader>
-      <Paper
-        className={classes.mainPaper}
-        variant="outlined"
-        onScroll={handleScroll}
-      >
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-			<TableCell align="center">
-                {i18n.t("users.table.id")}
-              </TableCell>
-              <TableCell align="center">{i18n.t("users.table.name")}</TableCell>
-              <TableCell align="center">
-                {i18n.t("users.table.email")}
-              </TableCell>
-              <TableCell align="center">
-                {i18n.t("users.table.profile")}
-              </TableCell>
-              <TableCell align="center">
-                {i18n.t("users.table.actions")}
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-				  <TableCell align="center">{user.id}</TableCell>
-                  <TableCell align="center">{user.name}</TableCell>
-                  <TableCell align="center">{user.email}</TableCell>
-                  <TableCell align="center">{user.profile}</TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleEditUser(user)}
-                    >
-                      <EditIcon />
-                    </IconButton>
+      <Paper className={classes.mainPaper} elevation={0}>
+        <IconButton
+          className={classes.addButton}
+          color="primary"
+          onClick={handleOpenUserModal}
+        >
+          <Plus size={24} color="#fff" />
+        </IconButton>
+        <ConfirmationModal
+          title={
+            deletingUser &&
+            `${i18n.t("users.confirmationModal.deleteTitle")} ${
+              deletingUser.name
+            }?`
+          }
+          open={confirmModalOpen}
+          onClose={() => setConfirmModalOpen(false)}
+          onConfirm={() => handleDeleteUser(deletingUser.id)}
+        >
+          {i18n.t("users.confirmationModal.deleteMessage")}
+        </ConfirmationModal>
+        <UserModal
+          open={userModalOpen}
+          onClose={handleCloseUserModal}
+          aria-labelledby="form-dialog-title"
+          userId={selectedUser && selectedUser.id}
+        />
+        <Box className={classes.headerContainer}>
+          <Box display="flex" alignItems="center" gap={2}>
+            <UsersIcon size={32} style={{ color: "#5D3FD3" }} />
+            <Typography className={classes.pageTitle} component="h1">
+              {i18n.t("users.title")}{" "}
+              <span style={{ color: "#888", fontWeight: 400 }}>
+                ({users.length})
+              </span>
+            </Typography>
+          </Box>
+          <Box className={classes.searchContainer}>
+            <TextField
+              placeholder={i18n.t("contacts.searchPlaceholder")}
+              type="search"
+              value={searchParam}
+              onChange={handleSearch}
+              className={classes.searchInput}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon style={{ color: "gray" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+        </Box>
 
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        setConfirmModalOpen(true);
-                        setDeletingUser(user);
-                      }}
-                    >
-                      <DeleteOutlineIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {loading && <TableRowSkeleton columns={4} />}
-            </>
-          </TableBody>
-        </Table>
+        {users.length === 0 && !loading ? (
+          <div className={classes.noUsersContainer}>
+            <UsersIcon className={classes.noUsersIcon} />
+            <Typography className={classes.noUsersText}>
+              {searchParam
+                ? "Nenhum usuário encontrado com esse termo."
+                : "Nenhum usuário cadastrado. Clique no botão abaixo para adicionar."}
+            </Typography>
+          </div>
+        ) : (
+          <Grid container spacing={3}>
+            {users.map((user) => (
+              <Grid item xs={12} sm={6} md={4} key={user.id}>
+                <Paper className={classes.card}>
+                  <div className={classes.cardHeader}>
+                    <Avatar className={classes.userAvatar}>
+                      {getInitials(user.name)}
+                    </Avatar>
+                    <div className={classes.userInfo}>
+                      <Typography className={classes.userName}>
+                        {user.name}
+                      </Typography>
+                      <Typography className={classes.userEmail}>
+                        {user.email}
+                      </Typography>
+                    </div>
+                  </div>
+                  <div className={classes.cardContent}>
+                    <div className={classes.infoRow}>
+                      <Typography className={classes.infoLabel}>
+                        Perfil:
+                      </Typography>
+                      <Typography className={classes.infoValue}>
+                        {user.profile === "admin" ? "Administrador" : "Usuário"}
+                      </Typography>
+                    </div>
+                    <div className={classes.infoRow}>
+                      <Typography className={classes.infoLabel}>
+                        Filas:
+                      </Typography>
+                      <Typography className={classes.infoValue}>
+                        {user.queues && user.queues.length > 0
+                          ? user.queues.map((queue) => queue.name).join(", ")
+                          : "Nenhuma fila"}
+                      </Typography>
+                    </div>
+                    <div className={classes.infoRow}>
+                      <Typography className={classes.infoLabel}>
+                        Conexão:
+                      </Typography>
+                      <Typography className={classes.infoValue}>
+                        {user.whatsapp && user.whatsapp.name
+                          ? user.whatsapp.name
+                          : "Sem conexão"}
+                      </Typography>
+                    </div>
+                    <div className={classes.infoRow}>
+                      <Typography className={classes.infoLabel}>
+                        Tickets sem fila:
+                      </Typography>
+                      <Typography className={classes.infoValue}>
+                        {user.allTicket === "enabled"
+                          ? "Permitido"
+                          : "Não permitido"}
+                      </Typography>
+                    </div>
+                  </div>
+                  <div className={classes.cardActions}>
+                    <Tooltip title="Editar" arrow placement="top">
+                      <IconButton
+                        size="small"
+                        className={`${classes.actionButton} ${classes.editButton}`}
+                        onClick={() => handleEditUser(user)}
+                      >
+                        <Edit size={18} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Excluir" arrow placement="top">
+                      <IconButton
+                        size="small"
+                        className={`${classes.actionButton} ${classes.deleteButton}`}
+                        onClick={() => {
+                          setConfirmModalOpen(true);
+                          setDeletingUser(user);
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </IconButton>
+                    </Tooltip>
+                  </div>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Paper>
     </MainContainer>
   );

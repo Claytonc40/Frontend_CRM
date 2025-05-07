@@ -21,54 +21,93 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden",
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
+    background: "#faf9fd",
   },
 
   ticketsList: {
     flex: 1,
     maxHeight: "100%",
-    overflowY: "scroll",
-    ...theme.scrollbarStyles,
-    borderTop: "2px solid rgba(0, 0, 0, 0.12)",
+    overflowY: "auto",
+    padding: "8px",
+    "&::-webkit-scrollbar": {
+      width: "8px",
+    },
+    "&::-webkit-scrollbar-track": {
+      background: "#f1f1f1",
+      borderRadius: "10px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: "#5D3FD3",
+      borderRadius: "10px",
+      "&:hover": {
+        background: "#4b2fc7",
+      },
+    },
   },
 
   ticketsListHeader: {
-    color: "rgb(67, 83, 105)",
+    color: "#5D3FD3",
     zIndex: 2,
     backgroundColor: "white",
-    borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+    borderBottom: "1px solid #e5e0fa",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    padding: "16px 24px",
+    boxShadow: "0 2px 8px rgba(93, 63, 211, 0.05)",
   },
 
   ticketsCount: {
-    fontWeight: "normal",
-    color: "rgb(104, 121, 146)",
+    fontWeight: 600,
+    color: "#5D3FD3",
     marginLeft: "8px",
-    fontSize: "14px",
+    fontSize: "15px",
+    background: "#f3f0fa",
+    padding: "4px 12px",
+    borderRadius: "20px",
   },
 
   noTicketsText: {
     textAlign: "center",
-    color: "rgb(104, 121, 146)",
-    fontSize: "14px",
-    lineHeight: "1.4",
+    color: "#666",
+    fontSize: "15px",
+    lineHeight: "1.6",
+    marginTop: "12px",
   },
 
   noTicketsTitle: {
     textAlign: "center",
-    fontSize: "16px",
-    fontWeight: "600",
+    fontSize: "20px",
+    fontWeight: "700",
+    color: "#5D3FD3",
     margin: "0px",
   },
 
   noTicketsDiv: {
     display: "flex",
-    height: "100px",
-    margin: 40,
+    height: "200px",
+    margin: "40px 24px",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    background: "white",
+    borderRadius: "16px",
+    boxShadow: "0 4px 16px rgba(93, 63, 211, 0.08)",
+    padding: "32px",
+    [theme.breakpoints.down("xs")]: {
+      margin: "24px 16px",
+      padding: "24px",
+    },
+  },
+
+  listItem: {
+    marginBottom: "8px",
+    borderRadius: "12px",
+    transition: "all 0.2s",
+    "&:hover": {
+      transform: "translateY(-2px)",
+      boxShadow: "0 4px 12px rgba(93, 63, 211, 0.1)",
+    },
   },
 }));
 
@@ -306,7 +345,7 @@ const TicketsListCustom = (props) => {
         className={classes.ticketsList}
         onScroll={handleScroll}
       >
-        <List style={{ paddingTop: 0 }}>
+        <List style={{ padding: 0 }}>
           {ticketsList.length === 0 && !loading ? (
             <div className={classes.noTicketsDiv}>
               <span className={classes.noTicketsTitle}>
@@ -319,7 +358,9 @@ const TicketsListCustom = (props) => {
           ) : (
             <>
               {ticketsList.map((ticket) => (
-                <TicketListItem ticket={ticket} key={ticket.id} />
+                <div key={ticket.id} className={classes.listItem}>
+                  <TicketListItem ticket={ticket} />
+                </div>
               ))}
             </>
           )}

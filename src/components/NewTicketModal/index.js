@@ -33,7 +33,125 @@ const useStyles = makeStyles((theme) => ({
   offline: {
     fontSize: 11,
     color: "#e1306c"
-  }
+  },
+  dialogPaper: {
+    borderRadius: 18,
+    boxShadow: '0 8px 32px rgba(93, 63, 211, 0.15)',
+    overflow: 'hidden',
+  },
+  dialogTitle: {
+    fontSize: 24,
+    fontWeight: 700,
+    color: '#5D3FD3',
+    padding: '28px 32px 10px 32px',
+    letterSpacing: 0.2,
+    [theme.breakpoints.down('xs')]: {
+      padding: '20px 16px 8px 16px',
+      fontSize: 20,
+    },
+  },
+  dialogContent: {
+    padding: '24px 32px',
+    background: '#faf9fd',
+    [theme.breakpoints.down('xs')]: {
+      padding: '16px',
+    },
+  },
+  dialogActions: {
+    padding: '18px 32px 28px 32px',
+    justifyContent: 'flex-end',
+    gap: 16,
+    background: '#faf9fd',
+    [theme.breakpoints.down('xs')]: {
+      padding: '12px 16px 20px 16px',
+      gap: 8,
+    },
+  },
+  input: {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 12,
+      fontSize: 16,
+      height: 48,
+      background: '#fff',
+      '& fieldset': {
+        borderColor: '#5D3FD3',
+      },
+      '&:hover fieldset': {
+        borderColor: '#5D3FD3',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#5D3FD3',
+        boxShadow: '0 0 0 2px #e5e0fa',
+      },
+    },
+    '& label': {
+      color: '#5D3FD3',
+      fontWeight: 500,
+      fontSize: 15,
+    },
+    '& .MuiInputBase-input': {
+      fontSize: 16,
+    },
+  },
+  select: {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 12,
+      fontSize: 16,
+      height: 48,
+      background: '#fff',
+      '& fieldset': {
+        borderColor: '#5D3FD3',
+      },
+      '&:hover fieldset': {
+        borderColor: '#5D3FD3',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#5D3FD3',
+        boxShadow: '0 0 0 2px #e5e0fa',
+      },
+    },
+    '& .MuiSelect-select': {
+      fontSize: 16,
+      padding: '14px 12px',
+    },
+  },
+  buttonOutlined: {
+    borderRadius: 10,
+    borderColor: '#5D3FD3',
+    color: '#5D3FD3',
+    fontWeight: 600,
+    fontSize: 16,
+    padding: '10px 24px',
+    textTransform: 'none',
+    transition: 'all 0.2s',
+    '&:hover': {
+      background: '#f3f0fa',
+      borderColor: '#5D3FD3',
+    },
+    [theme.breakpoints.down('xs')]: {
+      padding: '8px 16px',
+      fontSize: 14,
+    },
+  },
+  buttonContained: {
+    borderRadius: 10,
+    background: '#5D3FD3',
+    color: '#fff',
+    fontWeight: 600,
+    fontSize: 16,
+    padding: '10px 24px',
+    textTransform: 'none',
+    boxShadow: '0 2px 8px rgba(93, 63, 211, 0.15)',
+    transition: 'all 0.2s',
+    '&:hover': {
+      background: '#4b2fc7',
+      boxShadow: '0 4px 12px rgba(93, 63, 211, 0.2)',
+    },
+    [theme.breakpoints.down('xs')]: {
+      padding: '8px 16px',
+      fontSize: 14,
+    },
+  },
 }));
 
 const filter = createFilterOptions({
@@ -286,11 +404,11 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
         onClose={handleCloseContactModal}
         onSave={handleAddNewContactTicket}
       ></ContactModal>
-      <Dialog open={modalOpen} onClose={handleClose}>
-        <DialogTitle id="form-dialog-title">
+      <Dialog open={modalOpen} onClose={handleClose} classes={{ paper: classes.dialogPaper }}>
+        <DialogTitle id="form-dialog-title" className={classes.dialogTitle}>
           {i18n.t("newTicketModal.title")}
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent dividers className={classes.dialogContent}>
           <Grid style={{ width: 300 }} container spacing={2}>
             {/* CONTATO */}
             {renderContactAutocomplete()}
@@ -323,10 +441,11 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
                   const queue = user.queues.find(q => q.id === selectedQueue)
                   return queue.name
                 }}
+                className={classes.select}
               >
                 {user.queues?.length > 0 &&
                   user.queues.map((queue, key) => (
-                    <MenuItem dense key={key} value={queue.id}>
+                    <MenuItem dense key={key} value={queue.id} style={{ borderRadius: 8 }}>
                       <ListItemText primary={queue.name} />
                     </MenuItem>
                   ))
@@ -362,10 +481,11 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
                   const whatsapp = whatsapps.find(w => w.id === selectedWhatsapp)
                   return whatsapp.name
                 }}
+                className={classes.select}
               >
                 {whatsapps?.length > 0 &&
                   whatsapps.map((whatsapp, key) => (
-                    <MenuItem dense key={key} value={whatsapp.id}>
+                    <MenuItem dense key={key} value={whatsapp.id} style={{ borderRadius: 8 }}>
                       <ListItemText
                         primary={
                           <>
@@ -382,12 +502,13 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={classes.dialogActions}>
           <Button
             onClick={handleClose}
             color="secondary"
             disabled={loading}
             variant="outlined"
+            className={classes.buttonOutlined}
           >
             {i18n.t("newTicketModal.buttons.cancel")}
           </Button>
@@ -398,6 +519,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
             onClick={() => handleSaveTicket(selectedContact.id)}
             color="primary"
             loading={loading}
+            className={classes.buttonContained}
           >
             {i18n.t("newTicketModal.buttons.ok")}
           </ButtonWithSpinner>

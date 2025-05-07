@@ -3,14 +3,11 @@ import { useHistory } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
-import SearchIcon from "@material-ui/icons/Search";
 import InputBase from "@material-ui/core/InputBase";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Badge from "@material-ui/core/Badge";
-import MoveToInboxIcon from "@material-ui/icons/MoveToInbox";
-import CheckBoxIcon from "@material-ui/icons/CheckBox";
-
+import { Inbox, CheckSquare, Search, Plus } from "lucide-react";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 
@@ -33,70 +30,137 @@ const useStyles = makeStyles(theme => ({
 		height: "100%",
 		flexDirection: "column",
 		overflow: "hidden",
-		borderTopRightRadius: 0,
-		borderBottomRightRadius: 0,
-		borderRadius:0,
+		borderRadius: 8,
+		background: "#faf9fd",
+		boxShadow: "0 2px 12px rgba(93,63,211,0.06)",
+		padding: theme.spacing(0.5, 0, 0.5, 0),
 	},
 
 	tabsHeader: {
 		flex: "none",
-		backgroundColor: theme.palette.tabHeaderBackground,
+		backgroundColor: "#fff",
+		borderRadius: 8,
+		margin: theme.spacing(0.5, 0.5, 0, 0.5),
+		boxShadow: "0 1px 4px rgba(93,63,211,0.04)",
+		padding: theme.spacing(0.25, 0.25, 0.25, 0.25),
 	},
 
 	tabsInternal: {
 		flex: "none",
-		backgroundColor: theme.palette.tabHeaderBackground
-	},
-
-	settingsIcon: {
-		alignSelf: "center",
-		marginLeft: "auto",
-		padding: 8,
+		backgroundColor: "#fff",
+		borderRadius: 8,
+		margin: theme.spacing(0.5, 0.5, 0, 0.5),
+		boxShadow: "0 1px 4px rgba(93,63,211,0.04)",
+		padding: theme.spacing(0.25, 0.25, 0.25, 0.25),
 	},
 
 	tab: {
-		minWidth: 120,
-		width: 120,
+		minWidth: 70,
+		width: 70,
+		fontSize: 13,
+		fontWeight: 600,
+		color: "#666",
+		borderRadius: 6,
+		margin: '0 2px',
+		padding: '4px 6px',
+		transition: 'all 0.2s',
+		'& .MuiTab-wrapper': {
+			flexDirection: 'row',
+			gap: 4,
+		},
+		'& svg': {
+			width: 16,
+			height: 16,
+		},
+		'&.Mui-selected': {
+			color: "#5D3FD3",
+			background: '#f3f0fa',
+		},
 	},
 
 	internalTab: {
-		minWidth: 120,
-		width: 120,
-		padding: 5
+		minWidth: 70,
+		width: 70,
+		fontSize: 13,
+		padding: 4,
+		fontWeight: 600,
+		color: "#666",
+		borderRadius: 6,
+		margin: '0 2px',
+		transition: 'all 0.2s',
+		'&.Mui-selected': {
+			color: "#5D3FD3",
+			background: '#f3f0fa',
+		},
 	},
 
 	ticketOptionsBox: {
 		display: "flex",
 		justifyContent: "space-between",
 		alignItems: "center",
-		background: theme.palette.optionsBackground,
-		padding: theme.spacing(1),
-	},
-
-	ticketSearchLine: {
-		padding: theme.spacing(1),
+		background: "#fff",
+		padding: theme.spacing(0.75, 1, 0.75, 1),
+		borderRadius: 8,
+		margin: theme.spacing(0.5, 0.5, 0.5, 0.5),
+		boxShadow: "0 1px 4px rgba(93,63,211,0.04)",
+		gap: 8,
+		[theme.breakpoints.down('xs')]: {
+			flexDirection: 'column',
+			gap: 8,
+			padding: theme.spacing(1, 0.75, 1, 0.75),
+		},
 	},
 
 	serachInputWrapper: {
 		flex: 1,
-		background: theme.palette.total,
+		background: "#fff",
 		display: "flex",
-		borderRadius: 40,
-		padding: 4,
-		marginRight: theme.spacing(1),
+		borderRadius: 6,
+		padding: 2,
+		marginRight: theme.spacing(0.5),
+		boxShadow: "0 1px 4px rgba(93,63,211,0.06)",
+		border: "1px solid #5D3FD3",
+		transition: 'box-shadow 0.2s',
+		'&:focus-within': {
+			boxShadow: '0 2px 8px rgba(93,63,211,0.10)',
+		},
 	},
 
 	searchIcon: {
-		color: "grey",
-		marginLeft: 6,
-		marginRight: 6,
+		color: "#5D3FD3",
+		marginLeft: 8,
+		marginRight: 8,
 		alignSelf: "center",
+		width: 18,
+		height: 18,
 	},
 
 	searchInput: {
 		flex: 1,
 		border: "none",
-		borderRadius: 30,
+		borderRadius: 4,
+		padding: "8px 12px",
+		outline: "none",
+		fontSize: 14,
+		background: "transparent",
+		color: "#333",
+	},
+
+	badge: {
+		right: 0,
+		background: "#5D3FD3",
+		color: "#fff",
+		fontWeight: 600,
+		fontSize: 12,
+		padding: "0 6px",
+		borderRadius: 6,
+		boxShadow: '0 1px 4px rgba(93,63,211,0.10)',
+	},
+	show: {
+		display: "block",
+	},
+	hide: {
+		display: "none !important",
 	},
 
 	insiderTabPanel: {
@@ -227,7 +291,6 @@ const TicketsManagerTabs = () => {
       <NewTicketModal
         modalOpen={newTicketModalOpen}
         onClose={(ticket) => {
-          
           handleCloseOrOpenTicket(ticket);
         }}
       />
@@ -242,19 +305,19 @@ const TicketsManagerTabs = () => {
         >
           <Tab
             value={"open"}
-            icon={<MoveToInboxIcon />}
+            icon={<Inbox size={16} />}
             label={i18n.t("tickets.tabs.open.title")}
             classes={{ root: classes.tab }}
           />
           <Tab
             value={"closed"}
-            icon={<CheckBoxIcon />}
+            icon={<CheckSquare size={16} />}
             label={i18n.t("tickets.tabs.closed.title")}
             classes={{ root: classes.tab }}
           />
           <Tab
             value={"search"}
-            icon={<SearchIcon />}
+            icon={<Search size={16} />}
             label={i18n.t("tickets.tabs.search.title")}
             classes={{ root: classes.tab }}
           />
@@ -263,7 +326,7 @@ const TicketsManagerTabs = () => {
       <Paper square elevation={0} className={classes.ticketOptionsBox}>
         {tab === "search" ? (
           <div className={classes.serachInputWrapper}>
-            <SearchIcon className={classes.searchIcon} />
+            <Search size={18} className={classes.searchIcon} />
             <InputBase
               className={classes.searchInput}
               inputRef={searchInputRef}
@@ -275,8 +338,20 @@ const TicketsManagerTabs = () => {
         ) : (
           <>
             <Button
-              variant="outlined"
-              color="primary"
+              variant="contained"
+              style={{ 
+                background: "#5D3FD3", 
+                color: "#fff", 
+                fontWeight: 600, 
+                borderRadius: 6, 
+                padding: '6px 16px', 
+                fontSize: 14, 
+                boxShadow: '0 1px 4px rgba(93,63,211,0.10)', 
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
               onClick={() => setNewTicketModalOpen(true)}
             >
               {i18n.t("ticketsManager.buttons.newTicket")}
@@ -318,6 +393,8 @@ const TicketsManagerTabs = () => {
           indicatorColor="primary"
           textColor="primary"
           variant="fullWidth"
+          className={classes.tabsInternal}
+          TabIndicatorProps={{ style: { height: 0 } }}
         >
           <Tab
             label={
@@ -330,6 +407,7 @@ const TicketsManagerTabs = () => {
               </Badge>
             }
             value={"open"}
+            classes={{ root: classes.internalTab }}
           />
           <Tab
             label={
@@ -342,6 +420,7 @@ const TicketsManagerTabs = () => {
               </Badge>
             }
             value={"pending"}
+            classes={{ root: classes.internalTab }}
           />
         </Tabs>
         <Paper className={classes.ticketsWrapper}>

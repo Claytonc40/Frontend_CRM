@@ -1,22 +1,50 @@
-/* Adicione as regras CSS para ocultar os ícones */
+/* Container do evento */
 .event-container {
-    position: relative;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .delete-icon,
-  .edit-icon {
-    opacity: 0;
-    transition: opacity 0.3s;
-    margin-left: 5px; /* Adicione margem à esquerda */
-    z-index: 1; /* Garante que os ícones apareçam sobre o evento */
-  }
-  
-  .event-container:hover .delete-icon,
-  .event-container:hover .edit-icon {
-    opacity: 1;
-  }
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  min-width: 0;
+}
+
+/* Ícones de ação */
+.event-icons {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+  gap: 4px;
+}
+
+.delete-icon,
+.edit-icon {
+  opacity: 0;
+  transition: opacity 0.3s, color 0.2s;
+  margin-left: 4px;
+  z-index: 1;
+  color: #5D3FD3;
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.event-container:hover .delete-icon,
+.event-container:hover .edit-icon {
+  opacity: 1;
+}
+
+.delete-icon:hover {
+  color: #F44336;
+  background: rgba(244,67,54,0.08);
+}
+
+.edit-icon:hover {
+  color: #4930A8;
+  background: rgba(93,63,211,0.08);
+}
   

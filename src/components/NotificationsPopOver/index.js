@@ -14,6 +14,11 @@ import ListItemText from "@material-ui/core/ListItemText";
 import { makeStyles } from "@material-ui/core/styles";
 import Badge from "@material-ui/core/Badge";
 import ChatIcon from "@material-ui/icons/Chat";
+import NotificationsIcon from "@material-ui/icons/Notifications";
+import Typography from "@material-ui/core/Typography";
+import Tooltip from "@material-ui/core/Tooltip";
+import Fade from "@material-ui/core/Fade";
+import Button from "@material-ui/core/Button";
 
 import TicketListItem from "../TicketListItemCustom";
 import useTickets from "../../hooks/useTickets";
@@ -26,7 +31,16 @@ const useStyles = makeStyles(theme => ({
 	tabContainer: {
 		overflowY: "auto",
 		maxHeight: 350,
-		...theme.scrollbarStyles,
+		"&::-webkit-scrollbar": {
+      		width: "6px",
+    	},
+    	"&::-webkit-scrollbar-thumb": {
+      		backgroundColor: "#5D3FD3",
+      		borderRadius: "4px",
+    	},
+    	"&::-webkit-scrollbar-track": {
+      		backgroundColor: "rgba(93, 63, 211, 0.05)",
+    	},
 	},
 	popoverPaper: {
 		width: "100%",
@@ -36,10 +50,126 @@ const useStyles = makeStyles(theme => ({
 		[theme.breakpoints.down("sm")]: {
 			maxWidth: 270,
 		},
+		borderRadius: 12,
+		boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+		overflow: 'hidden',
+		border: '1px solid rgba(93, 63, 211, 0.1)',
+		animation: '$slideIn 0.3s ease-out',
+	},
+	'@keyframes slideIn': {
+		'0%': {
+			opacity: 0,
+			transform: 'translateY(-10px)'
+		},
+		'100%': {
+			opacity: 1,
+			transform: 'translateY(0)'
+		}
 	},
 	noShadow: {
 		boxShadow: "none !important",
 	},
+	notificationHeader: {
+		background: 'linear-gradient(145deg, #5D3FD3 0%, #7058e6 100%)',
+		padding: theme.spacing(1.8, 2),
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		color: '#FFFFFF',
+	},
+	notificationTitle: {
+		fontWeight: 600,
+		color: '#FFFFFF',
+		fontSize: 15,
+		display: 'flex',
+		alignItems: 'center',
+		'& svg': {
+			marginRight: theme.spacing(1),
+			fontSize: 20,
+		}
+	},
+	notificationIcon: {
+		color: '#FFFFFF',
+		opacity: 0.9,
+		transition: 'all 0.2s ease',
+		'&:hover': {
+			opacity: 1,
+			transform: 'scale(1.1)',
+		}
+	},
+	emptyNotifications: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center',
+		padding: theme.spacing(6),
+		color: '#666',
+		backgroundColor: '#f9f9f9',
+		borderRadius: 8,
+		margin: theme.spacing(2),
+		transition: 'all 0.3s ease',
+	},
+	emptyNotificationsIcon: {
+		fontSize: 48,
+		color: '#5D3FD3',
+		opacity: 0.6,
+		marginBottom: theme.spacing(2),
+		animation: '$pulse 2s infinite',
+	},
+	'@keyframes pulse': {
+		'0%': {
+			transform: 'scale(1)',
+			opacity: 0.6,
+		},
+		'50%': {
+			transform: 'scale(1.1)',
+			opacity: 0.8,
+		},
+		'100%': {
+			transform: 'scale(1)',
+			opacity: 0.6,
+		}
+	},
+	badge: {
+		backgroundColor: '#5D3FD3',
+		transition: 'all 0.3s ease',
+		'&.MuiBadge-badge': {
+			transform: 'scale(1) translate(40%, -40%)',
+		},
+	},
+	buttonIcon: {
+		color: '#5D3FD3',
+		transition: 'all 0.3s ease',
+		'&:hover': {
+			color: '#4930A8',
+		}
+	},
+	readAllBtn: {
+		margin: theme.spacing(1),
+		fontSize: 13,
+		color: '#5D3FD3',
+		borderColor: '#5D3FD3',
+		borderRadius: 20,
+		padding: theme.spacing(0.5, 2),
+		transition: 'all 0.2s ease',
+		'&:hover': {
+			backgroundColor: 'rgba(93, 63, 211, 0.08)',
+			borderColor: '#4930A8',
+			color: '#4930A8',
+		}
+	},
+	footer: {
+		display: 'flex',
+		justifyContent: 'center',
+		padding: theme.spacing(1),
+		borderTop: '1px solid rgba(0,0,0,0.05)',
+	},
+	notificationItem: {
+		transition: 'all 0.2s ease',
+		'&:hover': {
+			backgroundColor: 'rgba(93, 63, 211, 0.05)',
+		}
+	}
 }));
 
 const NotificationsPopOver = (volume) => {
@@ -223,17 +353,30 @@ const NotificationsPopOver = (volume) => {
 
 	return (
 		<>
+			<Tooltip 
+				title="Notificações" 
+				arrow 
+				TransitionComponent={Fade} 
+				TransitionProps={{ timeout: 600 }}
+			>
 			<IconButton
 				onClick={handleClick}
 				ref={anchorEl}
 				aria-label="Open Notifications"
 				color="inherit"
-				style={{color:"white"}}
+					className={classes.buttonIcon}
+					size="medium"
 			>
-				<Badge overlap="rectangular" badgeContent={notifications.length} color="secondary">
-					<ChatIcon />
+					<Badge 
+						overlap="rectangular" 
+						badgeContent={notifications.length} 
+						color="secondary"
+						classes={{ badge: classes.badge }}
+					>
+						<NotificationsIcon />
 				</Badge>
 			</IconButton>
+			</Tooltip>
 			<Popover
 				disableScrollLock
 				open={isOpen}
@@ -249,19 +392,53 @@ const NotificationsPopOver = (volume) => {
 				classes={{ paper: classes.popoverPaper }}
 				onClose={handleClickAway}
 			>
-				<List dense className={classes.tabContainer}>
+				<div className={classes.notificationHeader}>
+					<Typography className={classes.notificationTitle}>
+						<NotificationsIcon fontSize="small" />
+						Notificações
+					</Typography>
+					<Badge 
+						overlap="rectangular" 
+						badgeContent={notifications.length} 
+						color="error"
+					>
+						<IconButton size="small" className={classes.notificationIcon}>
+							<ChatIcon fontSize="small" />
+						</IconButton>
+					</Badge>
+				</div>
+				<div className={classes.tabContainer}>
 					{notifications.length === 0 ? (
-						<ListItem>
-							<ListItemText>{i18n.t("notifications.noTickets")}</ListItemText>
-						</ListItem>
+						<div className={classes.emptyNotifications}>
+							<ChatIcon className={classes.emptyNotificationsIcon} />
+							<Typography variant="body2" align="center">
+								Nenhuma notificação
+							</Typography>
+						</div>
 					) : (
-						notifications.map(ticket => (
+						<List>
+							{notifications.map((ticket) => (
 							<NotificationTicket key={ticket.id}>
+									<div className={classes.notificationItem}>
 								<TicketListItem ticket={ticket} />
+									</div>
 							</NotificationTicket>
-						))
-					)}
+							))}
 				</List>
+					)}
+				</div>
+				{notifications.length > 0 && (
+					<div className={classes.footer}>
+						<Button 
+							variant="outlined" 
+							size="small"
+							className={classes.readAllBtn}
+							onClick={handleClickAway}
+						>
+							Ler todas
+						</Button>
+					</div>
+				)}
 			</Popover>
 		</>
 	);

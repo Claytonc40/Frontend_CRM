@@ -12,6 +12,45 @@ import { Can } from "../Can";
 import { AuthContext } from "../../context/Auth/AuthContext";
 
 import ScheduleModal from "../ScheduleModal";
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+	menuPaper: {
+		borderRadius: 14,
+		boxShadow: '0 4px 24px rgba(93,63,211,0.10)',
+		minWidth: 220,
+		padding: 0,
+	},
+	menuItem: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: 12,
+		fontWeight: 600,
+		fontSize: 15,
+		padding: '12px 20px',
+		borderRadius: 10,
+		margin: '4px 8px',
+		transition: 'background 0.2s',
+		'&:hover': {
+			background: '#f3f0fa',
+		},
+	},
+	iconSchedule: {
+		color: '#5D3FD3',
+		fontSize: 22,
+	},
+	iconTransfer: {
+		color: '#1976d2',
+		fontSize: 22,
+	},
+	iconDelete: {
+		color: '#e53935',
+		fontSize: 22,
+	},
+}));
 
 const TicketOptionsMenu = ({ ticket, menuOpen, handleClose, anchorEl }) => {
 	const [confirmationOpen, setConfirmationOpen] = useState(false);
@@ -21,6 +60,7 @@ const TicketOptionsMenu = ({ ticket, menuOpen, handleClose, anchorEl }) => {
 
 	const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
 	const [contactId, setContactId] = useState(null);
+	const classes = useStyles();
 
 	useEffect(() => {
 		return () => {
@@ -80,18 +120,22 @@ const TicketOptionsMenu = ({ ticket, menuOpen, handleClose, anchorEl }) => {
 				}}
 				open={menuOpen}
 				onClose={handleClose}
+				PaperProps={{ className: classes.menuPaper }}
 			>
-				<MenuItem onClick={handleOpenScheduleModal}>
+				<MenuItem onClick={handleOpenScheduleModal} className={classes.menuItem}>
+					<ScheduleIcon className={classes.iconSchedule} />
 					{i18n.t("ticketOptionsMenu.schedule")}
 				</MenuItem>
-				<MenuItem onClick={handleOpenTransferModal}>
+				<MenuItem onClick={handleOpenTransferModal} className={classes.menuItem}>
+					<SwapHorizIcon className={classes.iconTransfer} />
 					{i18n.t("ticketOptionsMenu.transfer")}
 				</MenuItem>
 				<Can
 					role={user.profile}
 					perform="ticket-options:deleteTicket"
 					yes={() => (
-						<MenuItem onClick={handleOpenConfirmationModal}>
+						<MenuItem onClick={handleOpenConfirmationModal} className={classes.menuItem}>
+							<DeleteOutlineIcon className={classes.iconDelete} />
 							{i18n.t("ticketOptionsMenu.delete")}
 						</MenuItem>
 					)}

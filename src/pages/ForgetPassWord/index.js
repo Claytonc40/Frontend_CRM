@@ -25,15 +25,15 @@ import { toast } from 'react-toastify';
 import toastError from '../../errors/toastError';
 import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import EmailIcon from "@material-ui/icons/Email";
+import VpnKeyIcon from "@material-ui/icons/VpnKey";
+import LockIcon from "@material-ui/icons/Lock";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100vw",
     height: "100vh",
-    background: "black", //Cor de fundo
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "100% 100%",
-    backgroundPosition: "center",
+    background: "linear-gradient(to right,rgb(244, 244, 246),rgb(141, 145, 254))",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -45,22 +45,55 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: "55px 30px",
-    borderRadius: "12.5px",
+    padding: "40px 30px",
+    borderRadius: "8px",
+    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+    width: "400px",
   },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+  title: {
+    color: "#6151FF",
+    fontWeight: "bold",
+    fontSize: "28px",
+    marginBottom: "10px",
+  },
+  subtitle: {
+    color: "#666",
+    fontSize: "14px",
+    marginBottom: "30px",
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: "100%",
     marginTop: theme.spacing(1),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
+    padding: "12px",
+    backgroundColor: "#6151FF",
+    borderRadius: "6px",
+    textTransform: "none",
+    fontWeight: "bold",
+    fontSize: "16px",
+    "&:hover": {
+      backgroundColor: "#4C3FD9",
+    }
   },
-  powered: {
-    color: "white",
+  textField: {
+    marginBottom: "15px",
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "6px",
+    }
+  },
+  inputIcon: {
+    color: "#6151FF",
+  },
+  link: {
+    color: "#6151FF",
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: "500",
+    "&:hover": {
+      textDecoration: "underline",
+    }
   },
 }));
 
@@ -167,14 +200,10 @@ const handleSendEmail = async (values) => {
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <div className={classes.paper}>
-          <div>
-            <img
-              style={{ margin: "0 auto", height: "80px", width: "100%" }}
-              src={logo}
-              alt="Whats"
-            />
-          </div>
-          <Typography component="h1" variant="h5">
+          <Typography className={classes.title} component="h1" variant="h5">
+            CRM<span style={{ color: "#4C3FD9" }}>Pro</span>
+          </Typography>
+          <Typography className={classes.subtitle} component="p">
             {i18n.t("Redefinir senha")}
           </Typography>
           <Formik
@@ -206,6 +235,7 @@ const handleSendEmail = async (values) => {
                       as={TextField}
                       variant="outlined"
                       fullWidth
+                      className={classes.textField}
                       id="email"
                       label={i18n.t("signup.form.email")}
                       name="email"
@@ -213,6 +243,13 @@ const handleSendEmail = async (values) => {
                       helperText={touched.email && errors.email}
                       autoComplete="email"
                       required
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <EmailIcon className={classes.inputIcon} />
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                   </Grid>
                   {showAdditionalFields && (
@@ -222,6 +259,7 @@ const handleSendEmail = async (values) => {
                           as={TextField}
                           variant="outlined"
                           fullWidth
+                          className={classes.textField}
                           id="token"
                           label="Código de Verificação"
                           name="token"
@@ -229,6 +267,13 @@ const handleSendEmail = async (values) => {
                           helperText={touched.token && errors.token}
                           autoComplete="off"
                           required
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <VpnKeyIcon className={classes.inputIcon} />
+                              </InputAdornment>
+                            ),
+                          }}
                         />
                       </Grid>
                       <Grid item xs={12}>
@@ -236,6 +281,7 @@ const handleSendEmail = async (values) => {
                           as={TextField}
                           variant="outlined"
                           fullWidth
+                          className={classes.textField}
                           type={showPassword ? "text" : "password"}
                           id="newPassword"
                           label="Nova senha"
@@ -250,6 +296,11 @@ const handleSendEmail = async (values) => {
                           autoComplete="off"
                           required
                           InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LockIcon className={classes.inputIcon} />
+                              </InputAdornment>
+                            ),
                             endAdornment: (
                               <InputAdornment position="end">
                                 <IconButton
@@ -271,6 +322,7 @@ const handleSendEmail = async (values) => {
                           as={TextField}
                           variant="outlined"
                           fullWidth
+                          className={classes.textField}
                           type={showConfirmPassword ? "text" : "password"}
                           id="confirmPassword"
                           label="Confirme a senha"
@@ -286,6 +338,11 @@ const handleSendEmail = async (values) => {
                           autoComplete="off"
                           required
                           InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LockIcon className={classes.inputIcon} />
+                              </InputAdornment>
+                            ),
                             endAdornment: (
                               <InputAdornment position="end">
                                 <IconButton
@@ -305,36 +362,23 @@ const handleSendEmail = async (values) => {
                     </>
                   )}
                 </Grid>
-                {showResetPasswordButton ? (
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                  >
-                    Redefinir Senha
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                  >
-                    Enviar Email
-                  </Button>
-                )}
-                <Grid container justifyContent="flex-end">
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                >
+                  {showResetPasswordButton ? "Redefinir Senha" : "Enviar Email"}
+                </Button>
+                <Grid container justifyContent="center">
                   <Grid item>
                     <Link
-                      href="#"
-                      variant="body2"
+                      className={classes.link}
                       component={RouterLink}
-                      to="/signup"
+                      to="/login"
                     >
-                      {i18n.t("Não tem uma conta? Cadastre-se!")}
+                      Voltar para o login
                     </Link>
                   </Grid>
                 </Grid>

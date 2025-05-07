@@ -2,13 +2,15 @@ import React, { useEffect, useState, useContext } from "react";
 import QRCode from "qrcode.react";
 import toastError from "../../errors/toastError";
 
-import { Dialog, DialogContent, Paper, Typography, useTheme } from "@material-ui/core";
+import { Dialog, DialogContent, Paper, Typography, useTheme, Button, CircularProgress, Box } from "@material-ui/core";
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import { SocketContext } from "../../context/Socket/SocketContext";
+import { Refresh as RefreshIcon, Close as CloseIcon, CropFree as QrIcon, Smartphone } from "@material-ui/icons";
 
 const QrcodeModal = ({ open, onClose, whatsAppId }) => {
   const [qrCode, setQrCode] = useState("");
+  const [loading, setLoading] = useState(true);
   const theme = useTheme();
 
   const socketManager = useContext(SocketContext);
@@ -16,13 +18,14 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
   useEffect(() => {
     const fetchSession = async () => {
       if (!whatsAppId) return;
-
+      setLoading(true);
       try {
         const { data } = await api.get(`/whatsapp/${whatsAppId}`);
         setQrCode(data.qrcode);
       } catch (err) {
         toastError(err);
       }
+      setLoading(false);
     };
     fetchSession();
   }, [whatsAppId]);
@@ -47,35 +50,63 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
     };
   }, [whatsAppId, onClose, socketManager]);
 
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      await api.put(`/whatsappsession/${whatsAppId}`);
+    } catch (err) {
+      toastError(err);
+    }
+    setLoading(false);
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="lg" scroll="paper">
-      <DialogContent>
-        <Paper elevation={0} style={{ display: "flex", alignItems: "center" }}>
-          <div style={{ marginRight: "20px" }}>
-            <Typography variant="h2" component="h2" color="textPrimary" gutterBottom style={{ fontFamily: "Montserrat", fontWeight: "bold", fontSize:"20px",}}>
-              Utilize o Whaticket com seu WhatsApp:
-            </Typography>
-            <Typography variant="body1" color="textPrimary" gutterBottom>
-              1 - Abra o WhatsApp no seu celular
-            </Typography>
-            <Typography variant="body1" color="textPrimary" gutterBottom>
-              2 - Toque em Mais opções no Android <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path></svg> ou em Configurações <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"></path></svg> no iPhone
-            </Typography>
-            <Typography variant="body1" color="textPrimary" gutterBottom>
-              3 - Toque em Dispositivos conectados e, em seguida, em Conectar dispositivos
-            </Typography>
-            <Typography variant="body1" color="textPrimary" gutterBottom>
-              4 - Aponte seu celular para essa tela para capturar o QR Code
-            </Typography>
-          </div>
-          <div>
-            {qrCode ? (
-              <QRCode value={qrCode} size={256} />
+    <Dialog open={open} onClose={onClose} maxWidth="xs" scroll="paper" PaperProps={{ style: { borderRadius: 16, background: '#f7f7fa' } }}>
+      <DialogContent style={{ padding: 32 }}>
+        <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minWidth={340}>
+          <QrIcon style={{ fontSize: 40, color: theme.palette.primary.main, marginBottom: 8 }} />
+          <Typography variant="h5" style={{ fontWeight: 700, marginBottom: 8, textAlign: 'center' }}>
+            Escaneie o QR Code
+          </Typography>
+          <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16, textAlign: 'center' }}>
+            Abra o WhatsApp no seu celular <Smartphone style={{ fontSize: 18, verticalAlign: 'middle' }} /> e escaneie o código abaixo para conectar.
+          </Typography>
+          <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" mb={2}>
+            {loading || !qrCode ? (
+              <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" style={{ height: 256, width: 256, background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+                <CircularProgress color="primary" />
+                <Typography variant="caption" color="textSecondary" style={{ marginTop: 12 }}>
+                  Aguardando QR Code...
+                </Typography>
+              </Box>
             ) : (
-              <span>Waiting for QR Code</span>
+              <Box style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.07)', padding: 12, marginBottom: 8 }}>
+                <QRCode value={qrCode} size={220} />
+              </Box>
             )}
-          </div>
-        </Paper>
+          </Box>
+          <Box display="flex" justifyContent="center" gap={2} mt={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<RefreshIcon />}
+              onClick={handleRefresh}
+              style={{ marginRight: 8, borderRadius: 8 }}
+              disabled={loading}
+            >
+              Novo QR Code
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              startIcon={<CloseIcon />}
+              onClick={onClose}
+              style={{ borderRadius: 8 }}
+            >
+              Fechar
+            </Button>
+          </Box>
+        </Box>
       </DialogContent>
     </Dialog>
   );

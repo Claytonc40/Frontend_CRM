@@ -12,24 +12,48 @@ import Skeleton from "@material-ui/lab/Skeleton";
 import { makeStyles } from "@material-ui/core/styles";
 import { green, red } from '@material-ui/core/colors';
 
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import ErrorIcon from '@material-ui/icons/Error';
+import { CheckCircle, AlertCircle } from 'lucide-react';
 import moment from 'moment';
 
 import Rating from '@material-ui/lab/Rating';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles = makeStyles(theme => ({
 	on: {
 		color: green[600],
-		fontSize: '20px'
+		fontSize: 26,
+		verticalAlign: 'middle',
 	},
 	off: {
-		color: red[600],
-		fontSize: '20px'
+		color: red[500],
+		fontSize: 26,
+		verticalAlign: 'middle',
 	},
     pointer: {
         cursor: "pointer"
-    }
+    },
+    tableHead: {
+        background: 'linear-gradient(90deg, #f3f0fa 0%, #faf9fd 100%)',
+    },
+    tableCellHead: {
+        color: '#5D3FD3',
+        fontWeight: 700,
+        fontSize: 15,
+        letterSpacing: 0.2,
+        borderBottom: '2px solid #ece6fa',
+        background: 'none',
+    },
+    tableRow: {
+        transition: 'background 0.15s',
+        '&:hover': {
+            background: '#f3f0fa',
+        },
+    },
+    tableCell: {
+        fontSize: 15,
+        padding: '14px 10px',
+        borderBottom: '1px solid #f0eef7',
+    },
 }));
 
 export function RatingBox ({ rating }) {
@@ -38,6 +62,7 @@ export function RatingBox ({ rating }) {
         defaultValue={ratingTrunc}
         max={3}
         readOnly
+        size="small"
     />
 }
 
@@ -47,16 +72,20 @@ export default function TableAttendantsStatus(props) {
 
     function renderList () {
         return attendants.map((a, k) => (
-            <TableRow key={k}>
-                <TableCell>{a.name}</TableCell>
-                <TableCell align="center" title="1 - Insatisfeito, 2 - Satisfeito, 3 - Muito Satisfeito" className={classes.pointer}>
-                    <RatingBox rating={a.rating} />
+            <TableRow key={k} className={classes.tableRow}>
+                <TableCell className={classes.tableCell}>{a.name}</TableCell>
+                <TableCell align="center" className={classes.tableCell}>
+                    <Tooltip title="1 - Insatisfeito, 2 - Satisfeito, 3 - Muito Satisfeito" arrow>
+                        <span className={classes.pointer}>
+                            <RatingBox rating={a.rating} />
+                        </span>
+                    </Tooltip>
                 </TableCell>
-                <TableCell align="center">{formatTime(a.avgSupportTime, 2)}</TableCell>
-                <TableCell align="center">
+                <TableCell align="center" className={classes.tableCell}>{formatTime(a.avgSupportTime, 2)}</TableCell>
+                <TableCell align="center" className={classes.tableCell}>
                     { a.online ?
-                        <CheckCircleIcon className={classes.on} />
-                        : <ErrorIcon className={classes.off} />
+                        <CheckCircle className={classes.on} />
+                        : <AlertCircle className={classes.off} />
                     }
                 </TableCell>
             </TableRow>
@@ -68,37 +97,21 @@ export default function TableAttendantsStatus(props) {
 	}
 
     return ( !loading ?
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} style={{ borderRadius: 16, boxShadow: '0 4px 24px rgba(93,63,211,0.08)' }}>
             <Table>
-                <TableHead>
+                <TableHead className={classes.tableHead}>
                     <TableRow>
-                        <TableCell>Nome</TableCell>
-                        <TableCell align="center">Avaliações</TableCell>
-                        <TableCell align="center">T.M. de Atendimento</TableCell>
-                        <TableCell align="center">Status (Atual)</TableCell>
+                        <TableCell className={classes.tableCellHead}>Nome</TableCell>
+                        <TableCell align="center" className={classes.tableCellHead}>Avaliações</TableCell>
+                        <TableCell align="center" className={classes.tableCellHead}>T.M. de Atendimento</TableCell>
+                        <TableCell align="center" className={classes.tableCellHead}>Status (Atual)</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     { renderList() }
-                    {/* <TableRow>
-                        <TableCell>Nome 4</TableCell>
-                        <TableCell align="center">10</TableCell>
-                        <TableCell align="center">10 minutos</TableCell>
-                        <TableCell align="center">
-                            <CheckCircleIcon className={classes.off} />
-                        </TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Nome 5</TableCell>
-                        <TableCell align="center">10</TableCell>
-                        <TableCell align="center">10 minutos</TableCell>
-                        <TableCell align="center">
-                            <CheckCircleIcon className={classes.on} />
-                        </TableCell>
-                    </TableRow> */}
                 </TableBody>
             </Table>
         </TableContainer>
-        : <Skeleton variant="rect" height={150} />
+        : <Skeleton variant="rect" height={150} style={{ borderRadius: 16 }} />
     )
 }

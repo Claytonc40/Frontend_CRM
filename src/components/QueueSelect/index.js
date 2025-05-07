@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
 	},
 }));
 
-const QueueSelect = ({ selectedQueueIds, onChange, multiple = true, title = i18n.t("queueSelect.inputLabel") }) => {
+const QueueSelect = ({ selectedQueueIds, onChange, multiple = true, title = "", style = {}, className = "" }) => {
 	const classes = useStyles();
 	const [queues, setQueues] = useState([]);
 
@@ -43,9 +43,9 @@ const QueueSelect = ({ selectedQueueIds, onChange, multiple = true, title = i18n
 	};
 
 	return (
-		<div >
-			<FormControl fullWidth margin="dense" variant="outlined">
-				<InputLabel shrink={selectedQueueIds ? true : false} >{title}</InputLabel>
+		<div>
+			<FormControl fullWidth margin="dense" variant="outlined" style={{ ...style, width: '100%' }} className={className}>
+				<InputLabel shrink={selectedQueueIds ? true : false}>{title}</InputLabel>
 				<Select
 					label={title}
 					multiple={multiple}
@@ -63,7 +63,8 @@ const QueueSelect = ({ selectedQueueIds, onChange, multiple = true, title = i18n
 						},
 						getContentAnchorEl: null,
 					}}
-
+					style={{ ...style, width: '100%' }}
+					className={className}
 					renderValue={selected => {
 						return (
 							<div className={classes.chips}>

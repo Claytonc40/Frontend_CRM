@@ -4,27 +4,47 @@ import {
     Paper,
     Grid,
     TextField,
-    Table,
-    TableHead,
-    TableBody,
-    TableCell,
-    TableRow,
     IconButton,
     FormControl,
     InputLabel,
     MenuItem,
-    Select
+    Select,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    Typography,
+    Stepper,
+    Step,
+    StepLabel,
+    Box,
+    Chip,
+    Divider
 } from "@material-ui/core";
 import { Formik, Form, Field } from 'formik';
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import ConfirmationModal from "../ConfirmationModal";
-
-import { Edit as EditIcon } from "@material-ui/icons";
-
+import { 
+    Edit as EditIcon,
+    Users,
+    Link,
+    List,
+    DollarSign,
+    Megaphone,
+    Calendar,
+    MessageSquare,
+    Code,
+    Trello,
+    Brain,
+    GitBranch,
+    Plus,
+    CheckCircle,
+    XCircle
+} from "lucide-react";
 import { toast } from "react-toastify";
 import usePlans from "../../hooks/usePlans";
 import { i18n } from "../../translate/i18n";
-
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -33,39 +53,122 @@ const useStyles = makeStyles(theme => ({
     mainPaper: {
         width: '100%',
         flex: 1,
-        padding: theme.spacing(2)
+        padding: theme.spacing(3),
+        background: 'linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)',
     },
     fullWidth: {
         width: '100%'
     },
-    tableContainer: {
-        width: '100%',
-        overflowX: "scroll",
-        ...theme.scrollbarStyles
+    planCard: {
+        background: '#fff',
+        borderRadius: 24,
+        padding: theme.spacing(3),
+        boxShadow: '0 4px 20px rgba(93,63,211,0.08)',
+        transition: 'all 0.3s ease',
+        border: '1px solid #f0f0f0',
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 30px rgba(93,63,211,0.15)',
+        },
     },
-    textfield: {
-        width: '100%'
+    planHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: theme.spacing(2),
     },
-    textRight: {
-        textAlign: 'right'
+    planName: {
+        fontSize: 24,
+        fontWeight: 700,
+        color: '#5D3FD3',
+        marginBottom: theme.spacing(1),
     },
-    row: {
-        paddingTop: theme.spacing(2),
-        paddingBottom: theme.spacing(2)
+    planValue: {
+        fontSize: 28,
+        fontWeight: 700,
+        color: '#5D3FD3',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: theme.spacing(2),
     },
-    control: {
-        paddingRight: theme.spacing(1),
-        paddingLeft: theme.spacing(1)
+    planFeatures: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        marginTop: theme.spacing(2),
     },
-    buttonContainer: {
-        textAlign: 'right',
-        padding: theme.spacing(1)
-    }
+    featureItem: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '8px 16px',
+        background: '#f8f7ff',
+        borderRadius: 12,
+        '& svg': {
+            color: '#5D3FD3',
+        },
+    },
+    featureLabel: {
+        fontSize: 14,
+        color: '#666',
+        fontWeight: 500,
+    },
+    featureValue: {
+        marginLeft: 'auto',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+    },
+    addButton: {
+        position: 'fixed',
+        bottom: theme.spacing(3),
+        right: theme.spacing(3),
+        borderRadius: '50%',
+        width: 56,
+        height: 56,
+        background: 'linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)',
+        boxShadow: '0 4px 12px rgba(93,63,211,0.15)',
+        '&:hover': {
+            background: 'linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)',
+        },
+    },
+    modalContent: {
+        padding: theme.spacing(3),
+    },
+    stepContent: {
+        marginTop: theme.spacing(3),
+    },
+    formSection: {
+        marginBottom: theme.spacing(3),
+    },
+    formTitle: {
+        fontSize: 18,
+        fontWeight: 600,
+        color: '#5D3FD3',
+        marginBottom: theme.spacing(2),
+    },
+    formGrid: {
+        marginBottom: theme.spacing(2),
+    },
+    dialogActions: {
+        padding: theme.spacing(2, 3),
+        borderTop: '1px solid #f0f0f0',
+    },
 }));
+
+const steps = ['Informações Básicas', 'Recursos do Plano'];
 
 export function PlanManagerForm(props) {
     const { onSubmit, onDelete, onCancel, initialValue, loading } = props;
-    const classes = useStyles()
+    const classes = useStyles();
+    const [activeStep, setActiveStep] = useState(0);
+    const [open, setOpen] = useState(false);
 
     const [record, setRecord] = useState({
         name: '',
@@ -83,327 +186,341 @@ export function PlanManagerForm(props) {
     });
 
     useEffect(() => {
-        setRecord(initialValue)
-    }, [initialValue])
+        setRecord(initialValue);
+        if (initialValue.id) {
+            setOpen(true);
+        }
+    }, [initialValue]);
 
-    const handleSubmit = async (data) => {
-        onSubmit(data)
-    }
+    const handleNext = () => {
+        setActiveStep((prevStep) => prevStep + 1);
+    };
 
-    return (
-        <Formik
-            enableReinitialize
-            className={classes.fullWidth}
-            initialValues={record}
-            onSubmit={(values, { resetForm }) =>
-                setTimeout(() => {
-                    handleSubmit(values)
-                    resetForm()
-                }, 500)
-            }
-        >
-            {(values) => (
-                <Form className={classes.fullWidth}>
-                    <Grid spacing={1} justifyContent="flex-start" container>
-                        {/* NOME */}
-                        <Grid xs={12} sm={6} md={2} item>
+    const handleBack = () => {
+        setActiveStep((prevStep) => prevStep - 1);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setActiveStep(0);
+        onCancel();
+    };
+
+    const handleSubmit = async (values) => {
+        onSubmit(values);
+        handleClose();
+    };
+
+    const renderStepContent = (step) => {
+        switch (step) {
+            case 0:
+                return (
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography className={classes.formTitle}>Detalhes do Plano</Typography>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
                             <Field
                                 as={TextField}
-                                label={i18n.t("plans.form.name")}
+                                label="Nome do Plano"
                                 name="name"
                                 variant="outlined"
-                                className={classes.fullWidth}
+                                fullWidth
                                 margin="dense"
                             />
                         </Grid>
-
-                        {/* USUARIOS */}
-                        <Grid xs={12} sm={6} md={1} item>
-                            <Field
-                                as={TextField}
-                                label={i18n.t("plans.form.users")}
-                                name="users"
-                                variant="outlined"
-                                className={classes.fullWidth}
-                                margin="dense"
-                                type="number"
-                            />
-                        </Grid>
-
-                        {/* CONEXOES */}
-                        <Grid xs={12} sm={6} md={1} item>
-                            <Field
-                                as={TextField}
-                                label={i18n.t("plans.form.connections")}
-                                name="connections"
-                                variant="outlined"
-                                className={classes.fullWidth}
-                                margin="dense"
-                                type="number"
-                            />
-                        </Grid>
-
-                        {/* FILAS */}
-                        <Grid xs={12} sm={6} md={1} item>
-                            <Field
-                                as={TextField}
-                                label="Filas"
-                                name="queues"
-                                variant="outlined"
-                                className={classes.fullWidth}
-                                margin="dense"
-                                type="number"
-                            />
-                        </Grid>
-
-                        {/* VALOR */}
-                        <Grid xs={12} sm={6} md={1} item>
+                        <Grid item xs={12} md={6}>
                             <Field
                                 as={TextField}
                                 label="Valor"
                                 name="value"
                                 variant="outlined"
-                                className={classes.fullWidth}
+                                fullWidth
                                 margin="dense"
                                 type="text"
                             />
                         </Grid>
-
-                        {/* CAMPANHAS */}
-                        <Grid xs={12} sm={6} md={2} item>
-                            <FormControl margin="dense" variant="outlined" fullWidth>
-                                <InputLabel htmlFor="useCampaigns-selection">{i18n.t("plans.form.campaigns")}</InputLabel>
+                        <Grid item xs={12} md={4}>
+                            <Field
+                                as={TextField}
+                                label="Usuários"
+                                name="users"
+                                variant="outlined"
+                                fullWidth
+                                margin="dense"
+                                type="number"
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Field
+                                as={TextField}
+                                label="Conexões"
+                                name="connections"
+                                variant="outlined"
+                                fullWidth
+                                margin="dense"
+                                type="number"
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Field
+                                as={TextField}
+                                label="Filas"
+                                name="queues"
+                                variant="outlined"
+                                fullWidth
+                                margin="dense"
+                                type="number"
+                            />
+                        </Grid>
+                    </Grid>
+                );
+            case 1:
+                return (
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography className={classes.formTitle}>Recursos Disponíveis</Typography>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <FormControl fullWidth margin="dense" variant="outlined">
+                                <InputLabel>Campanhas</InputLabel>
                                 <Field
                                     as={Select}
-                                    id="useCampaigns-selection"
-                                    label={i18n.t("plans.form.campaigns")}
-                                    labelId="useCampaigns-selection-label"
                                     name="useCampaigns"
-                                    margin="dense"
+                                    label="Campanhas"
                                 >
-                                    <MenuItem value={true}>{i18n.t("plans.form.enabled")}</MenuItem>
-                                    <MenuItem value={false}>{i18n.t("plans.form.disabled")}</MenuItem>
+                                    <MenuItem value={true}>Habilitado</MenuItem>
+                                    <MenuItem value={false}>Desabilitado</MenuItem>
                                 </Field>
                             </FormControl>
                         </Grid>
-
-                        {/* AGENDAMENTOS */}
-                        <Grid xs={12} sm={8} md={2} item>
-                            <FormControl margin="dense" variant="outlined" fullWidth>
-                                <InputLabel htmlFor="useSchedules-selection">{i18n.t("plans.form.schedules")}</InputLabel>
+                        <Grid item xs={12} md={6}>
+                            <FormControl fullWidth margin="dense" variant="outlined">
+                                <InputLabel>Agendamentos</InputLabel>
                                 <Field
                                     as={Select}
-                                    id="useSchedules-selection"
-                                    label={i18n.t("plans.form.schedules")}
-                                    labelId="useSchedules-selection-label"
                                     name="useSchedules"
-                                    margin="dense"
+                                    label="Agendamentos"
                                 >
-                                    <MenuItem value={true}>{i18n.t("plans.form.enabled")}</MenuItem>
-                                    <MenuItem value={false}>{i18n.t("plans.form.disabled")}</MenuItem>
+                                    <MenuItem value={true}>Habilitado</MenuItem>
+                                    <MenuItem value={false}>Desabilitado</MenuItem>
                                 </Field>
                             </FormControl>
                         </Grid>
-
-                        {/* CHAT INTERNO */}
-                        <Grid xs={12} sm={8} md={2} item>
-                            <FormControl margin="dense" variant="outlined" fullWidth>
-                                <InputLabel htmlFor="useInternalChat-selection">Chat Interno</InputLabel>
+                        <Grid item xs={12} md={6}>
+                            <FormControl fullWidth margin="dense" variant="outlined">
+                                <InputLabel>Chat Interno</InputLabel>
                                 <Field
                                     as={Select}
-                                    id="useInternalChat-selection"
-                                    label="Chat Interno"
-                                    labelId="useInternalChat-selection-label"
                                     name="useInternalChat"
-                                    margin="dense"
+                                    label="Chat Interno"
                                 >
-                                    <MenuItem value={true}>{i18n.t("plans.form.enabled")}</MenuItem>
-                                    <MenuItem value={false}>{i18n.t("plans.form.disabled")}</MenuItem>
+                                    <MenuItem value={true}>Habilitado</MenuItem>
+                                    <MenuItem value={false}>Desabilitado</MenuItem>
                                 </Field>
                             </FormControl>
                         </Grid>
-
-                        {/* API Externa */}
-                        <Grid xs={12} sm={8} md={4} item>
-                            <FormControl margin="dense" variant="outlined" fullWidth>
-                                <InputLabel htmlFor="useExternalApi-selection">API Externa</InputLabel>
+                        <Grid item xs={12} md={6}>
+                            <FormControl fullWidth margin="dense" variant="outlined">
+                                <InputLabel>API Externa</InputLabel>
                                 <Field
                                     as={Select}
-                                    id="useExternalApi-selection"
-                                    label="API Externa"
-                                    labelId="useExternalApi-selection-label"
                                     name="useExternalApi"
-                                    margin="dense"
+                                    label="API Externa"
                                 >
-                                    <MenuItem value={true}>{i18n.t("plans.form.enabled")}</MenuItem>
-                                    <MenuItem value={false}>{i18n.t("plans.form.disabled")}</MenuItem>
+                                    <MenuItem value={true}>Habilitado</MenuItem>
+                                    <MenuItem value={false}>Desabilitado</MenuItem>
                                 </Field>
                             </FormControl>
                         </Grid>
-
-                        {/* KANBAN */}
-                        <Grid xs={12} sm={8} md={2} item>
-                            <FormControl margin="dense" variant="outlined" fullWidth>
-                                <InputLabel htmlFor="useKanban-selection">Kanban</InputLabel>
+                        <Grid item xs={12} md={6}>
+                            <FormControl fullWidth margin="dense" variant="outlined">
+                                <InputLabel>Kanban</InputLabel>
                                 <Field
                                     as={Select}
-                                    id="useKanban-selection"
-                                    label="Kanban"
-                                    labelId="useKanban-selection-label"
                                     name="useKanban"
-                                    margin="dense"
+                                    label="Kanban"
                                 >
-                                    <MenuItem value={true}>{i18n.t("plans.form.enabled")}</MenuItem>
-                                    <MenuItem value={false}>{i18n.t("plans.form.disabled")}</MenuItem>
+                                    <MenuItem value={true}>Habilitado</MenuItem>
+                                    <MenuItem value={false}>Desabilitado</MenuItem>
                                 </Field>
                             </FormControl>
                         </Grid>
-
-                        {/* OPENAI */}
-                        <Grid xs={12} sm={8} md={2} item>
-                            <FormControl margin="dense" variant="outlined" fullWidth>
-                                <InputLabel htmlFor="useOpenAi-selection">Open.Ai</InputLabel>
+                        <Grid item xs={12} md={6}>
+                            <FormControl fullWidth margin="dense" variant="outlined">
+                                <InputLabel>Open.Ai</InputLabel>
                                 <Field
                                     as={Select}
-                                    id="useOpenAi-selection"
-                                    label="Talk.Ai"
-                                    labelId="useOpenAi-selection-label"
                                     name="useOpenAi"
-                                    margin="dense"
+                                    label="Open.Ai"
                                 >
-                                    <MenuItem value={true}>{i18n.t("plans.form.enabled")}</MenuItem>
-                                    <MenuItem value={false}>{i18n.t("plans.form.disabled")}</MenuItem>
+                                    <MenuItem value={true}>Habilitado</MenuItem>
+                                    <MenuItem value={false}>Desabilitado</MenuItem>
                                 </Field>
                             </FormControl>
                         </Grid>
-
-                        {/* INTEGRACOES */}
-                        <Grid xs={12} sm={8} md={2} item>
-                            <FormControl margin="dense" variant="outlined" fullWidth>
-                                <InputLabel htmlFor="useIntegrations-selection">Integrações</InputLabel>
+                        <Grid item xs={12}>
+                            <FormControl fullWidth margin="dense" variant="outlined">
+                                <InputLabel>Integrações</InputLabel>
                                 <Field
                                     as={Select}
-                                    id="useIntegrations-selection"
-                                    label="Integrações"
-                                    labelId="useIntegrations-selection-label"
                                     name="useIntegrations"
-                                    margin="dense"
+                                    label="Integrações"
                                 >
-                                    <MenuItem value={true}>{i18n.t("plans.form.enabled")}</MenuItem>
-                                    <MenuItem value={false}>{i18n.t("plans.form.disabled")}</MenuItem>
+                                    <MenuItem value={true}>Habilitado</MenuItem>
+                                    <MenuItem value={false}>Desabilitado</MenuItem>
                                 </Field>
                             </FormControl>
                         </Grid>
                     </Grid>
-                    <Grid spacing={2} justifyContent="flex-end" container>
-
-                        <Grid sm={3} md={2} item>
-                            <ButtonWithSpinner className={classes.fullWidth} loading={loading} onClick={() => onCancel()} variant="contained">
-                                {i18n.t("plans.form.clear")}
-                            </ButtonWithSpinner>
-                        </Grid>
-                        {record.id !== undefined ? (
-                            <Grid sm={3} md={2} item>
-                                <ButtonWithSpinner className={classes.fullWidth} loading={loading} onClick={() => onDelete(record)} variant="contained" color="secondary">
-                                    {i18n.t("plans.form.delete")}
-                                </ButtonWithSpinner>
-                            </Grid>
-                        ) : null}
-                        <Grid sm={3} md={2} item>
-                            <ButtonWithSpinner className={classes.fullWidth} loading={loading} type="submit" variant="contained" color="primary">
-                                {i18n.t("plans.form.save")}
-                            </ButtonWithSpinner>
-                        </Grid>
-                    </Grid>
-                </Form>
-            )}
-        </Formik>
-    )
-}
-
-export function PlansManagerGrid(props) {
-    const { records, onSelect } = props
-    const classes = useStyles()
-    
-    const renderCampaigns = (row) => {
-        return row.useCampaigns === false ? `${i18n.t("plans.form.no")}` : `${i18n.t("plans.form.yes")}`;
-    };
-
-    const renderSchedules = (row) => {
-        return row.useSchedules === false ? `${i18n.t("plans.form.no")}` : `${i18n.t("plans.form.yes")}`;
-    };
-
-    const renderInternalChat = (row) => {
-        return row.useInternalChat === false ? `${i18n.t("plans.form.no")}` : `${i18n.t("plans.form.yes")}`;
-    };
-
-    const renderExternalApi = (row) => {
-        return row.useExternalApi === false ? `${i18n.t("plans.form.no")}` : `${i18n.t("plans.form.yes")}`;
-    };
-
-    const renderKanban = (row) => {
-        return row.useKanban === false ? `${i18n.t("plans.form.no")}` : `${i18n.t("plans.form.yes")}`;
-    };
-
-    const renderOpenAi = (row) => {
-        return row.useOpenAi === false ? `${i18n.t("plans.form.no")}` : `${i18n.t("plans.form.yes")}`;
-    };
-
-    const renderIntegrations = (row) => {
-        return row.useIntegrations === false ? `${i18n.t("plans.form.no")}` : `${i18n.t("plans.form.yes")}`;
+                );
+            default:
+                return null;
+        }
     };
 
     return (
-        <Paper className={classes.tableContainer}>
-            <Table
-                className={classes.fullWidth}
-                // size="small"
-                padding="none"
-                aria-label="a dense table"
+        <>
+            <IconButton
+                className={classes.addButton}
+                color="primary"
+                onClick={() => setOpen(true)}
             >
-                <TableHead>
-                    <TableRow>
-                        <TableCell align="center" style={{ width: '1%' }}>#</TableCell>
-                        <TableCell align="left">{i18n.t("plans.form.name")}</TableCell>
-                        <TableCell align="center">{i18n.t("plans.form.users")}</TableCell>
-                        <TableCell align="center">{i18n.t("plans.form.connections")}</TableCell>
-                        <TableCell align="center">Filas</TableCell>
-                        <TableCell align="center">Valor</TableCell>
-                        <TableCell align="center">{i18n.t("plans.form.campaigns")}</TableCell>
-                        <TableCell align="center">{i18n.t("plans.form.schedules")}</TableCell>
-                        <TableCell align="center">Chat Interno</TableCell>
-                        <TableCell align="center">API Externa</TableCell>
-                        <TableCell align="center">Kanban</TableCell>
-                        <TableCell align="center">Open.Ai</TableCell>
-                        <TableCell align="center">Integrações</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {records.map((row) => (
-                        <TableRow key={row.id}>
-                            <TableCell align="center" style={{ width: '1%' }}>
-                                <IconButton onClick={() => onSelect(row)} aria-label="delete">
-                                    <EditIcon />
-                                </IconButton>
-                            </TableCell>
-                            <TableCell align="left">{row.name || '-'}</TableCell>
-                            <TableCell align="center">{row.users || '-'}</TableCell>
-                            <TableCell align="center">{row.connections || '-'}</TableCell>
-                            <TableCell align="center">{row.queues || '-'}</TableCell>
-                            <TableCell align="center">{i18n.t("plans.form.money")} {row.value ? row.value.toLocaleString('pt-br', { minimumFractionDigits: 2 }) : '00.00'}</TableCell>
-                            <TableCell align="center">{renderCampaigns(row)}</TableCell>
-                            <TableCell align="center">{renderSchedules(row)}</TableCell>
-                            <TableCell align="center">{renderInternalChat(row)}</TableCell>
-                            <TableCell align="center">{renderExternalApi(row)}</TableCell>
-                            <TableCell align="center">{renderKanban(row)}</TableCell>
-                            <TableCell align="center">{renderOpenAi(row)}</TableCell>
-                            <TableCell align="center">{renderIntegrations(row)}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </Paper>
-    )
+                <Plus size={24} color="#fff" />
+            </IconButton>
+
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                maxWidth="md"
+                fullWidth
+            >
+                <DialogTitle>
+                    {record.id ? 'Editar Plano' : 'Novo Plano'}
+                </DialogTitle>
+                <DialogContent className={classes.modalContent}>
+                    <Stepper activeStep={activeStep}>
+                        {steps.map((label) => (
+                            <Step key={label}>
+                                <StepLabel>{label}</StepLabel>
+                            </Step>
+                        ))}
+                    </Stepper>
+                    <div className={classes.stepContent}>
+                        <Formik
+                            enableReinitialize
+                            initialValues={record}
+                            onSubmit={handleSubmit}
+                        >
+                            {(formikProps) => (
+                                <Form>
+                                    {renderStepContent(activeStep)}
+                                    <DialogActions className={classes.dialogActions}>
+                                        <Button onClick={handleClose}>
+                                            Cancelar
+                                        </Button>
+                                        {record.id && (
+                                            <Button
+                                                color="secondary"
+                                                onClick={() => onDelete(record)}
+                                            >
+                                                Excluir
+                                            </Button>
+                                        )}
+                                        {activeStep > 0 && (
+                                            <Button onClick={handleBack}>
+                                                Voltar
+                                            </Button>
+                                        )}
+                                        {activeStep < steps.length - 1 ? (
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={handleNext}
+                                            >
+                                                Próximo
+                                            </Button>
+                                        ) : (
+                                            <ButtonWithSpinner
+                                                loading={loading}
+                                                type="submit"
+                                                variant="contained"
+                                                color="primary"
+                                            >
+                                                Salvar
+                                            </ButtonWithSpinner>
+                                        )}
+                                    </DialogActions>
+                                </Form>
+                            )}
+                        </Formik>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+}
+
+export function PlansManagerGrid(props) {
+    const { records, onSelect } = props;
+    const classes = useStyles();
+
+    const renderFeature = (enabled, icon, label) => (
+        <div className={classes.featureItem}>
+            {icon}
+            <span className={classes.featureLabel}>{label}</span>
+            <div className={classes.featureValue}>
+                {enabled ? (
+                    <CheckCircle size={16} color="#2e7d32" />
+                ) : (
+                    <XCircle size={16} color="#c62828" />
+                )}
+            </div>
+        </div>
+    );
+
+    return (
+        <Grid container spacing={3}>
+            {records.map((plan) => (
+                <Grid item xs={12} sm={6} md={4} key={plan.id}>
+                    <Paper className={classes.planCard}>
+                        <div className={classes.planHeader}>
+                            <div>
+                                <Typography className={classes.planName}>
+                                    {plan.name}
+                                </Typography>
+                                <div className={classes.planValue}>
+                                    <DollarSign size={24} />
+                                    {plan.value?.toLocaleString('pt-br', { 
+                                        style: 'currency', 
+                                        currency: 'BRL' 
+                                    })}
+                                </div>
+                            </div>
+                            <IconButton onClick={() => onSelect(plan)}>
+                                <EditIcon />
+                            </IconButton>
+                        </div>
+
+                        <Divider />
+
+                        <div className={classes.planFeatures}>
+                            {renderFeature(plan.users > 0, <Users size={18} />, `${plan.users} Usuários`)}
+                            {renderFeature(plan.connections > 0, <Link size={18} />, `${plan.connections} Conexões`)}
+                            {renderFeature(plan.queues > 0, <List size={18} />, `${plan.queues} Filas`)}
+                            {renderFeature(plan.useCampaigns, <Megaphone size={18} />, 'Campanhas')}
+                            {renderFeature(plan.useSchedules, <Calendar size={18} />, 'Agendamentos')}
+                            {renderFeature(plan.useInternalChat, <MessageSquare size={18} />, 'Chat Interno')}
+                            {renderFeature(plan.useExternalApi, <Code size={18} />, 'API Externa')}
+                            {renderFeature(plan.useKanban, <Trello size={18} />, 'Kanban')}
+                            {renderFeature(plan.useOpenAi, <Brain size={18} />, 'Open.Ai')}
+                            {renderFeature(plan.useIntegrations, <GitBranch size={18} />, 'Integrações')}
+                        </div>
+                    </Paper>
+                </Grid>
+            ))}
+        </Grid>
+    );
 }
 
 export default function PlansManager() {

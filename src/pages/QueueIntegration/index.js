@@ -1,49 +1,36 @@
-import React, { useState, useEffect, useReducer, useContext } from "react";
-import { toast } from "react-toastify";
-import { SocketContext } from "../../context/Socket/SocketContext";
-import n8n from "../../assets/n8n.png";
-import dialogflow from "../../assets/dialogflow.png";
-import webhooks from "../../assets/webhook.png";
-import typebot from "../../assets/typebot.jpg";
-
-import { makeStyles } from "@material-ui/core/styles";
-
 import {
   Avatar,
-  Button,
+  Box,
+  Divider,
+  Grid,
   IconButton,
-  InputAdornment,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip
+  Tooltip,
+  Typography,
 } from "@material-ui/core";
-
+import { makeStyles } from "@material-ui/core/styles";
 import {
-  DeleteOutline,
-  Edit
-} from "@material-ui/icons";
-
-import SearchIcon from "@material-ui/icons/Search";
-
-import MainContainer from "../../components/MainContainer";
-import MainHeader from "../../components/MainHeader";
-import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
-import Title from "../../components/Title";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
-import IntegrationModal from "../../components/QueueIntegrationModal";
+  Edit,
+  Plus,
+  Settings,
+  Trash2,
+} from "lucide-react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { toast } from "react-toastify";
+import dialogflow from "../../assets/dialogflow.png";
+import n8n from "../../assets/n8n.png";
+import typebot from "../../assets/typebot.jpg";
+import webhooks from "../../assets/webhook.png";
 import ConfirmationModal from "../../components/ConfirmationModal";
-
+import MainContainer from "../../components/MainContainer";
+import IntegrationModal from "../../components/QueueIntegrationModal";
+import { AuthContext } from "../../context/Auth/AuthContext";
+import { SocketContext } from "../../context/Socket/SocketContext";
+import toastError from "../../errors/toastError";
+import usePlans from "../../hooks/usePlans";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
-import toastError from "../../errors/toastError";
-import { AuthContext } from "../../context/Auth/AuthContext";
-import usePlans from "../../hooks/usePlans";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_INTEGRATIONS") {
@@ -64,7 +51,9 @@ const reducer = (state, action) => {
 
   if (action.type === "UPDATE_INTEGRATIONS") {
     const queueIntegration = action.payload;
-    const integrationIndex = state.findIndex((u) => u.id === queueIntegration.id);
+    const integrationIndex = state.findIndex(
+      (u) => u.id === queueIntegration.id
+    );
 
     if (integrationIndex !== -1) {
       state[integrationIndex] = queueIntegration;
@@ -92,15 +81,169 @@ const reducer = (state, action) => {
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(2),
-    margin: theme.spacing(1),
-    overflowY: "scroll",
-    ...theme.scrollbarStyles,
+    padding: theme.spacing(3),
+    background: "linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)",
+    minHeight: "100vh",
   },
   avatar: {
     width: "140px",
     height: "40px",
-    borderRadius: 4
+    borderRadius: 4,
+  },
+  searchContainer: {
+    flex: 1,
+    maxWidth: 480,
+    display: "flex",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      maxWidth: "100%",
+      marginBottom: theme.spacing(1),
+    },
+  },
+  searchInput: {
+    flex: 1,
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 10,
+    },
+  },
+  addButton: {
+    position: "fixed",
+    bottom: theme.spacing(3),
+    right: theme.spacing(3),
+    borderRadius: "50%",
+    width: 56,
+    height: 56,
+    background: "linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)",
+    boxShadow: "0 4px 12px rgba(93,63,211,0.15)",
+    "&:hover": {
+      background: "linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)",
+    },
+    zIndex: 10,
+  },
+  headerContainer: {
+    display: "flex",
+    alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      alignItems: "flex-start",
+    },
+  },
+  buttonsContainer: {
+    display: "flex",
+    alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
+  },
+  actionButton: {
+    padding: theme.spacing(1),
+    color: "#555",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      backgroundColor: "rgba(93, 63, 211, 0.08)",
+      transform: "scale(1.1)",
+    },
+  },
+  editButton: {
+    color: "#5D3FD3",
+    "&:hover": {
+      color: "#4930A8",
+    },
+  },
+  deleteButton: {
+    color: "#F44336",
+    "&:hover": {
+      color: "#D32F2F",
+    },
+  },
+  noIntegrationsContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: theme.spacing(8),
+    width: "100%",
+  },
+  noIntegrationsIcon: {
+    fontSize: 80,
+    color: "rgba(0, 0, 0, 0.2)",
+    marginBottom: theme.spacing(2),
+  },
+  noIntegrationsText: {
+    color: "rgba(0, 0, 0, 0.5)",
+    fontSize: "1.1rem",
+    maxWidth: 300,
+    textAlign: "center",
+  },
+  pageTitle: {
+    color: "#5D3FD3",
+    fontWeight: 600,
+    fontSize: "1.5rem",
+    marginBottom: theme.spacing(2),
+    position: "relative",
+    display: "inline-block",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      width: "40%",
+      height: 3,
+      bottom: -5,
+      left: 0,
+      backgroundColor: "#5D3FD3",
+      borderRadius: 2,
+    },
+  },
+  titleContainer: {
+    display: "flex",
+    alignItems: "center",
+  },
+  card: {
+    background: "#fff",
+    borderRadius: 22,
+    boxShadow: "0 4px 20px rgba(93,63,211,0.10)",
+    padding: theme.spacing(3),
+    margin: "0 auto",
+    transition: "all 0.3s",
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    "&:hover": {
+      transform: "translateY(-4px)",
+      boxShadow: "0 8px 30px rgba(93,63,211,0.15)",
+    },
+  },
+  cardHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: theme.spacing(2),
+    justifyContent: "space-between",
+  },
+  cardTitle: {
+    fontWeight: 700,
+    fontSize: 20,
+    color: "#5D3FD3",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  },
+  cardType: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    borderRadius: 12,
+    padding: "6px 14px",
+    fontWeight: 600,
+    fontSize: 13,
+    background: "#e3e6fd",
+    color: "#5D3FD3",
+    boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
+  },
+  actions: {
+    display: "flex",
+    gap: 8,
+    marginTop: theme.spacing(2),
   },
 }));
 
@@ -127,9 +270,11 @@ const QueueIntegration = () => {
     async function fetchData() {
       const planConfigs = await getPlanCompany(undefined, companyId);
       if (!planConfigs.plan.useIntegrations) {
-        toast.error("Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.");
+        toast.error(
+          "Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando."
+        );
         setTimeout(() => {
-          history.push(`/`)
+          history.push(`/`);
         }, 1000);
       }
     }
@@ -150,7 +295,10 @@ const QueueIntegration = () => {
           const { data } = await api.get("/queueIntegration/", {
             params: { searchParam, pageNumber },
           });
-          dispatch({ type: "LOAD_INTEGRATIONS", payload: data.queueIntegrations });
+          dispatch({
+            type: "LOAD_INTEGRATIONS",
+            payload: data.queueIntegrations,
+          });
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
@@ -168,7 +316,10 @@ const QueueIntegration = () => {
 
     socket.on(`company-${companyId}-queueIntegration`, (data) => {
       if (data.action === "update" || data.action === "create") {
-        dispatch({ type: "UPDATE_INTEGRATIONS", payload: data.queueIntegration });
+        dispatch({
+          type: "UPDATE_INTEGRATIONS",
+          payload: data.queueIntegration,
+        });
       }
 
       if (data.action === "delete") {
@@ -226,103 +377,98 @@ const QueueIntegration = () => {
 
   return (
     <MainContainer>
-      <ConfirmationModal
-        title={
-          deletingUser &&
-          `${i18n.t("queueIntegration.confirmationModal.deleteTitle")} ${deletingUser.name
-          }?`
-        }
-        open={confirmModalOpen}
-        onClose={setConfirmModalOpen}
-        onConfirm={() => handleDeleteIntegration(deletingUser.id)}
-      >
-        {i18n.t("queueIntegration.confirmationModal.deleteMessage")}
-      </ConfirmationModal>
-      <IntegrationModal
-        open={userModalOpen}
-        onClose={handleCloseIntegrationModal}
-        aria-labelledby="form-dialog-title"
-        integrationId={selectedIntegration && selectedIntegration.id}
-      />
-      <MainHeader>
-        <Title>{i18n.t("queueIntegration.title")} ({queueIntegration.length})</Title>
-        <MainHeaderButtonsWrapper>
-          <TextField
-            placeholder={i18n.t("queueIntegration.searchPlaceholder")}
-            type="search"
-            value={searchParam}
-            onChange={handleSearch}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="secondary" />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenUserModal}
-          >
-            {i18n.t("queueIntegration.buttons.add")}
-          </Button>
-        </MainHeaderButtonsWrapper>
-      </MainHeader>
-      <Paper
-        className={classes.mainPaper}
-        variant="outlined"
-        onScroll={handleScroll}
-      >
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox"></TableCell>
-              <TableCell align="center">{i18n.t("queueIntegration.table.id")}</TableCell>
-              <TableCell align="center">{i18n.t("queueIntegration.table.name")}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <>
-              {queueIntegration.map((integration) => (
-                <TableRow key={integration.id}>
-                  <TableCell >
-                    {integration.type === "dialogflow" && (<Avatar 
-                      src={dialogflow} className={classes.avatar} />)}
-                    {integration.type === "n8n" && (<Avatar
-                      src={n8n} className={classes.avatar} />)}
-                    {integration.type === "webhook" && (<Avatar
-                      src={webhooks} className={classes.avatar} />)}
-                    {integration.type === "typebot" && (<Avatar
-                      src={typebot} className={classes.avatar} />)}
-                  </TableCell>
-
-                  <TableCell align="center">{integration.id}</TableCell>
-                  <TableCell align="center">{integration.name}</TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleEditIntegration(integration)}
-                    >
-                      <Edit color="secondary" />
-                    </IconButton>
-
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        setConfirmModalOpen(true);
-                        setDeletingUser(integration);
-                      }}
-                    >
-                      <DeleteOutline color="secondary" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {loading && <TableRowSkeleton columns={7} />}
-            </>
-          </TableBody>
-        </Table>
+      <Paper className={classes.mainPaper} elevation={0}>
+        <IconButton
+          className={classes.addButton}
+          color="primary"
+          onClick={handleOpenUserModal}
+        >
+          <Plus size={24} color="#fff" />
+        </IconButton>
+        <ConfirmationModal
+          title={deletingUser && `Excluir integração ${deletingUser.name}?`}
+          open={confirmModalOpen}
+          onClose={() => setConfirmModalOpen(false)}
+          onConfirm={() => handleDeleteIntegration(deletingUser.id)}
+        >
+          Essa ação não pode ser desfeita. Deseja continuar?
+        </ConfirmationModal>
+        <IntegrationModal
+          open={userModalOpen}
+          onClose={handleCloseIntegrationModal}
+          integrationId={selectedIntegration && selectedIntegration.id}
+        />
+        <Box mb={4} display="flex" alignItems="center" gap={2}>
+          <Settings size={32} style={{ color: "#5D3FD3" }} />
+          <Typography className={classes.pageTitle} component="h1">
+            Integrações{" "}
+            <span style={{ color: "#888", fontWeight: 400 }}>
+              ({queueIntegration.length})
+            </span>
+          </Typography>
+        </Box>
+        {queueIntegration.length === 0 && !loading ? (
+          <div className={classes.noIntegrationsContainer}>
+            <Settings className={classes.noIntegrationsIcon} />
+            <Typography className={classes.noIntegrationsText}>
+              {searchParam
+                ? "Nenhuma integração encontrada com esse termo."
+                : "Nenhuma integração cadastrada. Clique no botão abaixo para adicionar."}
+            </Typography>
+          </div>
+        ) : (
+          <Grid container spacing={3}>
+            {queueIntegration.map((integration) => (
+              <Grid item xs={12} sm={6} md={4} key={integration.id}>
+                <Paper className={classes.card}>
+                  <div className={classes.cardHeader}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Avatar
+                        src={
+                          integration.type === "dialogflow"
+                            ? dialogflow
+                            : integration.type === "n8n"
+                            ? n8n
+                            : integration.type === "webhook"
+                            ? webhooks
+                            : typebot
+                        }
+                        className={classes.avatar}
+                        variant="rounded"
+                      />
+                      <span className={classes.cardTitle}>
+                        {integration.name}
+                      </span>
+                    </Box>
+                    <span className={classes.cardType}>{integration.type}</span>
+                  </div>
+                  <Divider style={{ margin: "10px 0" }} />
+                  <Box className={classes.actions}>
+                    <Tooltip title="Editar" arrow placement="top">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEditIntegration(integration)}
+                      >
+                        <Edit size={18} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Excluir" arrow placement="top">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setConfirmModalOpen(true);
+                          setDeletingUser(integration);
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Paper>
     </MainContainer>
   );

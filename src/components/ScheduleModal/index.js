@@ -41,11 +41,9 @@ const useStyles = makeStyles(theme => ({
 			marginRight: theme.spacing(1),
 		},
 	},
-
 	btnWrapper: {
 		position: "relative",
 	},
-
 	buttonProgress: {
 		color: green[500],
 		position: "absolute",
@@ -57,6 +55,166 @@ const useStyles = makeStyles(theme => ({
 	formControl: {
 		margin: theme.spacing(1),
 		minWidth: 120,
+	},
+	dialogPaper: {
+		borderRadius: 18,
+		boxShadow: '0 8px 32px rgba(93, 63, 211, 0.15)',
+		overflow: 'hidden',
+	},
+	dialogTitle: {
+		fontSize: 24,
+		fontWeight: 700,
+		color: '#5D3FD3',
+		padding: '28px 32px 10px 32px',
+		letterSpacing: 0.2,
+		[theme.breakpoints.down('xs')]: {
+			padding: '20px 16px 8px 16px',
+			fontSize: 20,
+		},
+	},
+	dialogContent: {
+		padding: '24px 32px',
+		background: '#faf9fd',
+		[theme.breakpoints.down('xs')]: {
+			padding: '16px',
+		},
+	},
+	dialogActions: {
+		padding: '18px 32px 28px 32px',
+		justifyContent: 'flex-end',
+		gap: 16,
+		background: '#faf9fd',
+		[theme.breakpoints.down('xs')]: {
+			padding: '12px 16px 20px 16px',
+			gap: 8,
+		},
+	},
+	input: {
+		'& .MuiOutlinedInput-root': {
+			borderRadius: 12,
+			fontSize: 16,
+			height: 48,
+			background: '#fff',
+			'& fieldset': {
+				borderColor: '#5D3FD3',
+			},
+			'&:hover fieldset': {
+				borderColor: '#5D3FD3',
+			},
+			'&.Mui-focused fieldset': {
+				borderColor: '#5D3FD3',
+				boxShadow: '0 0 0 2px #e5e0fa',
+			},
+		},
+		'& label': {
+			color: '#5D3FD3',
+			fontWeight: 500,
+			fontSize: 15,
+		},
+		'& .MuiInputBase-input': {
+			fontSize: 16,
+		},
+	},
+	textarea: {
+		'& .MuiOutlinedInput-root': {
+			borderRadius: 12,
+			fontSize: 16,
+			background: '#fff',
+			'& fieldset': {
+				borderColor: '#5D3FD3',
+			},
+			'&:hover fieldset': {
+				borderColor: '#5D3FD3',
+			},
+			'&.Mui-focused fieldset': {
+				borderColor: '#5D3FD3',
+				boxShadow: '0 0 0 2px #e5e0fa',
+			},
+		},
+		'& label': {
+			color: '#5D3FD3',
+			fontWeight: 500,
+			fontSize: 15,
+		},
+		'& .MuiInputBase-input': {
+			fontSize: 16,
+		},
+	},
+	buttonOutlined: {
+		borderRadius: 10,
+		borderColor: '#5D3FD3',
+		color: '#5D3FD3',
+		fontWeight: 600,
+		fontSize: 16,
+		padding: '10px 24px',
+		textTransform: 'none',
+		transition: 'all 0.2s',
+		'&:hover': {
+			background: '#f3f0fa',
+			borderColor: '#5D3FD3',
+		},
+		[theme.breakpoints.down('xs')]: {
+			padding: '8px 16px',
+			fontSize: 14,
+		},
+	},
+	buttonContained: {
+		borderRadius: 10,
+		background: '#5D3FD3',
+		color: '#fff',
+		fontWeight: 600,
+		fontSize: 16,
+		padding: '10px 24px',
+		textTransform: 'none',
+		boxShadow: '0 2px 8px rgba(93, 63, 211, 0.15)',
+		transition: 'all 0.2s',
+		'&:hover': {
+			background: '#4b2fc7',
+			boxShadow: '0 4px 12px rgba(93, 63, 211, 0.2)',
+		},
+		[theme.breakpoints.down('xs')]: {
+			padding: '8px 16px',
+			fontSize: 14,
+		},
+	},
+	attachmentButton: {
+		borderRadius: 10,
+		borderColor: '#5D3FD3',
+		color: '#5D3FD3',
+		fontWeight: 600,
+		fontSize: 16,
+		padding: '10px 24px',
+		textTransform: 'none',
+		transition: 'all 0.2s',
+		'&:hover': {
+			background: '#f3f0fa',
+			borderColor: '#5D3FD3',
+		},
+		'& .MuiButton-startIcon': {
+			color: '#5D3FD3',
+		},
+	},
+	attachmentPreview: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: 8,
+		marginTop: 16,
+		padding: '12px 16px',
+		background: '#fff',
+		borderRadius: 12,
+		border: '1px solid #e5e0fa',
+		'& .MuiButton-root': {
+			color: '#5D3FD3',
+			textTransform: 'none',
+			fontWeight: 500,
+		},
+		'& .MuiIconButton-root': {
+			color: '#e53935',
+			padding: 8,
+			'&:hover': {
+				background: '#ffebee',
+			},
+		},
 	},
 }));
 
@@ -232,8 +390,9 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 				maxWidth="xs"
 				fullWidth
 				scroll="paper"
+				classes={{ paper: classes.dialogPaper }}
 			>
-				<DialogTitle id="form-dialog-title">
+				<DialogTitle id="form-dialog-title" className={classes.dialogTitle}>
 					{schedule.status === 'ERRO' ? 'Erro de Envio' : `Mensagem ${capitalize(schedule.status)}`}
 				</DialogTitle>
 				<div style={{ display: "none" }}>
@@ -257,7 +416,7 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 				>
 					{({ touched, errors, isSubmitting, values, setFieldValue }) => (
 						<Form>
-							<DialogContent dividers>
+							<DialogContent dividers className={classes.dialogContent}>
 								<div className={classes.multFieldLine}>
 									<FormControl
 										variant="outlined"
@@ -276,7 +435,14 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 											getOptionSelected={(option, value) => {
 												return value.id === option.id
 											}}
-											renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Contato" />}
+											renderInput={(params) => (
+												<TextField 
+													{...params} 
+													variant="outlined" 
+													placeholder="Contato"
+													className={classes.input}
+												/>
+											)}
 										/>
 									</FormControl>
 								</div>
@@ -294,6 +460,7 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 										variant="outlined"
 										margin="dense"
 										fullWidth
+										className={classes.textarea}
 									/>
 								</div>
 								<Grid item>
@@ -316,48 +483,49 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 										helperText={touched.sendAt && errors.sendAt}
 										variant="outlined"
 										fullWidth
+										className={classes.input}
 									/>
 								</div>
 								{(schedule.mediaPath || attachment) && (
-									<Grid xs={12} item>
+									<div className={classes.attachmentPreview}>
 										<Button startIcon={<AttachFile />}>
 											{attachment ? attachment.name : schedule.mediaName}
 										</Button>
 										<IconButton
 											onClick={() => setConfirmationOpen(true)}
-											color="secondary"
+											size="small"
 										>
-											<DeleteOutline color="secondary" />
+											<DeleteOutline />
 										</IconButton>
-									</Grid>
+									</div>
 								)}
 							</DialogContent>
-							<DialogActions>
+							<DialogActions className={classes.dialogActions}>
 								{!attachment && !schedule.mediaPath && (
 									<Button
-										color="primary"
 										onClick={() => attachmentFile.current.click()}
 										disabled={isSubmitting}
 										variant="outlined"
+										className={classes.attachmentButton}
+										startIcon={<AttachFile />}
 									>
 										{i18n.t("quickMessages.buttons.attach")}
 									</Button>
 								)}
 								<Button
 									onClick={handleClose}
-									color="secondary"
 									disabled={isSubmitting}
 									variant="outlined"
+									className={classes.buttonOutlined}
 								>
 									{i18n.t("scheduleModal.buttons.cancel")}
 								</Button>
 								{(schedule.sentAt === null || schedule.sentAt === "") && (
 									<Button
 										type="submit"
-										color="primary"
 										disabled={isSubmitting}
 										variant="contained"
-										className={classes.btnWrapper}
+										className={`${classes.buttonContained} ${classes.btnWrapper}`}
 									>
 										{scheduleId
 											? `${i18n.t("scheduleModal.buttons.okEdit")}`

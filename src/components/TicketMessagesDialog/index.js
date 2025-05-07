@@ -18,6 +18,7 @@ import { ReplyMessageProvider } from "../../context/ReplyingMessage/ReplyingMess
 import TicketHeader from "../TicketHeader";
 import TicketInfo from "../TicketInfo";
 import { SocketContext } from "../../context/Socket/SocketContext";
+import CloseIcon from '@material-ui/icons/Close';
 
 const drawerWidth = 320;
 
@@ -27,8 +28,38 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     position: "relative",
     overflow: "hidden",
+    background: '#fafbfc',
+    borderBottomLeftRadius: 18,
+    borderBottomRightRadius: 18,
+    padding: theme.spacing(2, 2, 2, 2),
   },
-
+  dialogPaper: {
+    borderRadius: 18,
+    boxShadow: "0 8px 32px rgba(93,63,211,0.12)",
+    background: '#fff',
+  },
+  dialogActions: {
+    padding: theme.spacing(2, 3),
+    justifyContent: 'flex-end',
+    background: '#fafbfc',
+    borderBottomLeftRadius: 18,
+    borderBottomRightRadius: 18,
+  },
+  closeButton: {
+    background: '#5D3FD3',
+    color: '#fff',
+    borderRadius: 10,
+    fontWeight: 600,
+    fontSize: 16,
+    padding: '8px 28px',
+    boxShadow: '0 2px 8px rgba(93,63,211,0.10)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    '&:hover': {
+      background: '#4930A8',
+    },
+  },
   mainWrapper: {
     flex: 1,
     height: "100%",
@@ -172,11 +203,11 @@ export default function TicketMessagesDialog({ open, handleClose, ticketId }) {
   };
 
   return (
-    <Dialog maxWidth="md" onClose={handleClose} open={open}>
+    <Dialog maxWidth="md" onClose={handleClose} open={open} PaperProps={{ className: classes.dialogPaper }}>
       <TicketHeader loading={loading}>{renderTicketInfo()}</TicketHeader>
       <ReplyMessageProvider>{renderMessagesList()}</ReplyMessageProvider>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
+      <DialogActions className={classes.dialogActions}>
+        <Button onClick={handleClose} className={classes.closeButton} startIcon={<CloseIcon />}>
           Fechar
         </Button>
       </DialogActions>

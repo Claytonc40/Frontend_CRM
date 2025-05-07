@@ -24,8 +24,7 @@ import {
 } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import AttachFileIcon from "@material-ui/icons/AttachFile";
+import { Paperclip, Trash2 } from "lucide-react";
 
 import { green } from "@material-ui/core/colors";
 
@@ -51,17 +50,18 @@ const useStyles = makeStyles(theme => ({
         marginRight: theme.spacing(1),
         flex: 1,
     },
-
     extraAttr: {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        marginBottom: 4,
+        background: "#faf9fd",
+        borderRadius: 8,
+        padding: "8px 0 4px 0",
     },
-
     btnWrapper: {
         position: "relative",
     },
-
     buttonProgress: {
         color: green[500],
         position: "absolute",
@@ -70,13 +70,41 @@ const useStyles = makeStyles(theme => ({
         marginTop: -12,
         marginLeft: -12,
     },
-    formControl: {
-        margin: theme.spacing(1),
-        minWidth: 2000,
+    fileIconButton: {
+        padding: 6,
+        color: "#5D3FD3",
+        borderRadius: 8,
+        transition: "background 0.2s",
+        "&:hover": {
+            background: "#f3f0fa",
+        },
     },
-    colorAdorment: {
-        width: 20,
-        height: 20,
+    deleteIconButton: {
+        padding: 6,
+        color: "#e53935",
+        borderRadius: 8,
+        transition: "background 0.2s",
+        "&:hover": {
+            background: "#fbe9e7",
+        },
+    },
+    fileName: {
+        fontSize: 13,
+        color: "#666",
+        marginLeft: 8,
+        fontStyle: "italic",
+        maxWidth: 180,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+    },
+    addOptionButton: {
+        flex: 1,
+        marginTop: 8,
+        borderRadius: 8,
+        textTransform: "none",
+        fontWeight: 600,
+        fontSize: 14,
     },
 }));
 
@@ -93,7 +121,6 @@ const FilesModal = ({ open, onClose, fileListId, reload }) => {
     const { user } = useContext(AuthContext);
     const [ files, setFiles ] = useState([]);
     const [selectedFileNames, setSelectedFileNames] = useState([]);
-
 
     const initialState = {
         name: "",
@@ -244,7 +271,7 @@ const FilesModal = ({ open, onClose, fileListId, reload }) => {
                                                         className={classes.extraAttr}
                                                         key={`${index}-info`}
                                                     >
-                                                        <Grid container  spacing={0}>
+                                                        <Grid container spacing={0} alignItems="center">
                                                             <Grid xs={6} md={10} item> 
                                                                 <Field
                                                                     as={TextField}
@@ -278,19 +305,20 @@ const FilesModal = ({ open, onClose, fileListId, reload }) => {
                                                                     id={`file-upload-${index}`}
                                                                 />
                                                                 <label htmlFor={`file-upload-${index}`}>
-                                                                    <IconButton component="span">
-                                                                        <AttachFileIcon />
+                                                                    <IconButton component="span" className={classes.fileIconButton}>
+                                                                        <Paperclip size={18} />
                                                                     </IconButton>
                                                                 </label>
                                                                 <IconButton
                                                                     size="small"
+                                                                    className={classes.deleteIconButton}
                                                                     onClick={() => remove(index)}
                                                                 >
-                                                                    <DeleteOutlineIcon />
+                                                                    <Trash2 size={18} />
                                                                 </IconButton>    
                                                             </Grid>
                                                             <Grid xs={12} md={12} item>
-                                                                {info.path? info.path : selectedFileNames[index]}                               
+                                                                <span className={classes.fileName}>{info.path ? info.path : selectedFileNames[index]}</span>                               
                                                             </Grid> 
                                                         </Grid>                                                    
                                                 </div>                     
@@ -298,7 +326,7 @@ const FilesModal = ({ open, onClose, fileListId, reload }) => {
                                                 ))}
                                             <div className={classes.extraAttr}>
                                                 <Button
-                                                    style={{ flex: 1, marginTop: 8 }}
+                                                    className={classes.addOptionButton}
                                                     variant="outlined"
                                                     color="primary"
                                                     onClick={() => {push({ name: "", path: ""});

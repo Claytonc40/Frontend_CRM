@@ -1,35 +1,125 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
-
-import { i18n } from "../../translate/i18n";
-import { Button, CircularProgress, Grid, TextField, Typography } from "@material-ui/core";
+import { Button, CircularProgress, Grid, TextField, Typography, Card, CardContent, CardHeader, Divider, Box, InputAdornment } from "@material-ui/core";
 import { Field, Form, Formik } from "formik";
 import toastError from "../../errors/toastError";
 import { toast } from "react-toastify";
-// import api from "../../services/api";
 import axios from "axios";
 import usePlans from "../../hooks/usePlans";
+import { Mail, Send, FileText, Image, KeyRound } from "lucide-react";
+import { useDropzone } from 'react-dropzone';
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
+    padding: theme.spacing(4, 2, 8, 2),
+    background: 'linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)',
+    minHeight: '100vh',
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 18,
+    marginBottom: theme.spacing(3),
+  },
+  headerTitle: {
+    fontWeight: 700,
+    fontSize: 28,
+    color: '#5D3FD3',
+    letterSpacing: 0.2,
+  },
+  headerDesc: {
+    color: '#888',
+    fontSize: 16,
+    fontWeight: 400,
+    marginTop: 2,
+  },
+  card: {
+    borderRadius: 18,
+    boxShadow: '0 4px 24px rgba(93,63,211,0.10)',
+    marginBottom: theme.spacing(4),
+    background: '#fff',
+    overflow: 'hidden',
+  },
+  cardHeader: {
+    background: 'linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)',
+    color: '#fff',
+    padding: theme.spacing(2, 3),
+    fontWeight: 600,
+    fontSize: 20,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+  },
+  cardContent: {
+    padding: theme.spacing(3, 3, 2, 3),
+  },
+  exampleBox: {
+    background: '#f8f7ff',
+    borderRadius: 10,
     padding: theme.spacing(2),
-    paddingBottom: 100
+    margin: theme.spacing(2, 0),
+    fontFamily: 'monospace',
+    fontSize: 15,
+    color: '#5D3FD3',
+    wordBreak: 'break-all',
   },
-  mainHeader: {
-    marginTop: theme.spacing(1),
+  formSection: {
+    marginTop: theme.spacing(2),
+    background: '#f7f8fa',
+    borderRadius: 12,
+    padding: theme.spacing(2, 2, 2, 2),
   },
-  elementMargin: {
-    padding: theme.spacing(2),
-  },
-  formContainer: {
-    maxWidth: 500,
+  btnWrapper: {
+    minWidth: 120,
+    borderRadius: 12,
+    fontWeight: 600,
+    fontSize: 16,
+    textTransform: 'none',
+    background: 'linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)',
+    color: '#fff',
+    boxShadow: '0 4px 12px rgba(93,63,211,0.10)',
+    '&:hover': {
+      background: 'linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)',
+    },
   },
   textRight: {
     textAlign: "right"
-  }
+  },
+  labelIcon: {
+    color: '#5D3FD3',
+    marginRight: 6,
+    verticalAlign: 'middle',
+  },
+  dropzone: {
+    border: '2px dashed #7B68EE',
+    borderRadius: 14,
+    background: '#f8f7ff',
+    padding: theme.spacing(3),
+    textAlign: 'center',
+    color: '#5D3FD3',
+    cursor: 'pointer',
+    transition: 'border-color 0.2s, background 0.2s',
+    outline: 'none',
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+    '&:hover, &.active': {
+      borderColor: '#5D3FD3',
+      background: '#e3e6fd',
+    },
+  },
+  dropzoneIcon: {
+    color: '#7B68EE',
+    marginBottom: 8,
+  },
+  dropzoneFileName: {
+    color: '#444',
+    fontWeight: 500,
+    marginTop: 8,
+    fontSize: 15,
+  },
 }));
 
 const MessagesAPI = () => {
@@ -38,7 +128,7 @@ const MessagesAPI = () => {
 
   const [formMessageTextData,] = useState({ token: '', number: '', body: '' })
   const [formMessageMediaData,] = useState({ token: '', number: '', medias: '' })
-  const [file, setFile] = useState({})
+  const [file, setFile] = useState(null);
 
   const { getPlanCompany } = usePlans();
 
@@ -82,11 +172,14 @@ const MessagesAPI = () => {
 
   const handleSendMediaMessage = async (values) => {
     try {
-      const firstFile = file[0];
+      if (!file) {
+        toast.error('Selecione um arquivo para enviar.');
+        return;
+      }
       const data = new FormData();
       data.append('number', values.number);
-      data.append('body', firstFile.name);
-      data.append('medias', firstFile);
+      data.append('body', file.name);
+      data.append('medias', file);
       await axios.request({
         url: getEndpoint(),
         method: 'POST',
@@ -97,10 +190,20 @@ const MessagesAPI = () => {
         }
       })
       toast.success('Mensagem enviada com sucesso');
+      setFile(null);
     } catch (err) {
       toastError(err);
     }
   }
+
+  const onDrop = useCallback((acceptedFiles) => {
+    setFile(acceptedFiles[0]);
+  }, []);
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive
+  } = useDropzone({ onDrop, multiple: false });
 
   const renderFormMessageText = () => {
     return (
@@ -114,48 +217,43 @@ const MessagesAPI = () => {
             actions.resetForm()
           }, 400);
         }}
-        className={classes.elementMargin}
       >
         {({ isSubmitting }) => (
-          <Form className={classes.formContainer}>
+          <Form>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <Field
                   as={TextField}
-                  label={i18n.t("messagesAPI.textMessage.token")}
+                  label={<><KeyRound className={classes.labelIcon} size={16}/>Token</>}
                   name="token"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
-                  className={classes.textField}
                   required
                 />
               </Grid>
               <Grid item xs={12} md={6}>
                 <Field
                   as={TextField}
-                  label={i18n.t("messagesAPI.textMessage.number")}
+                  label={<><Mail className={classes.labelIcon} size={16}/>Número</>}
                   name="number"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
-                  className={classes.textField}
                   required
                 />
               </Grid>
               <Grid item xs={12}>
                 <Field
                   as={TextField}
-                  label={i18n.t("messagesAPI.textMessage.body")}
+                  label={<><FileText className={classes.labelIcon} size={16}/>Mensagem</>}
                   name="body"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
-                  className={classes.textField}
                   required
+                  multiline
+                  minRows={2}
                 />
               </Grid>
               <Grid item xs={12} className={classes.textRight}>
@@ -164,12 +262,9 @@ const MessagesAPI = () => {
                   color="primary"
                   variant="contained"
                   className={classes.btnWrapper}
-                >
+                  startIcon={<Send size={18}/>}>
                   {isSubmitting ? (
-                    <CircularProgress
-                      size={24}
-                      className={classes.buttonProgress}
-                    />
+                    <CircularProgress size={24} />
                   ) : 'Enviar'}
                 </Button>
               </Grid>
@@ -189,44 +284,54 @@ const MessagesAPI = () => {
           setTimeout(async () => {
             await handleSendMediaMessage(values);
             actions.setSubmitting(false);
-            actions.resetForm()
-            document.getElementById('medias').files = null
-            document.getElementById('medias').value = null
+            actions.resetForm();
+            setFile(null);
           }, 400);
         }}
-        className={classes.elementMargin}
       >
         {({ isSubmitting }) => (
-          <Form className={classes.formContainer}>
+          <Form>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <Field
                   as={TextField}
-                  label={i18n.t("messagesAPI.mediaMessage.token")}
+                  label={<><KeyRound className={classes.labelIcon} size={16}/>Token</>}
                   name="token"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
-                  className={classes.textField}
                   required
                 />
               </Grid>
               <Grid item xs={12} md={6}>
                 <Field
                   as={TextField}
-                  label={i18n.t("messagesAPI.mediaMessage.number")}
+                  label={<><Mail className={classes.labelIcon} size={16}/>Número</>}
                   name="number"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
-                  className={classes.textField}
                   required
                 />
               </Grid>
               <Grid item xs={12}>
-                <input type="file" name="medias" id="medias" required onChange={(e) => setFile(e.target.files)} />
+                <div {...getRootProps({ className: `${classes.dropzone} ${isDragActive ? 'active' : ''}` })}>
+                  <input {...getInputProps()} />
+                  <Image size={36} className={classes.dropzoneIcon} />
+                  {isDragActive ? (
+                    <Typography variant="body2">Solte o arquivo aqui...</Typography>
+                  ) : (
+                    <>
+                      <Typography variant="body2">Arraste e solte um arquivo aqui, ou clique para selecionar</Typography>
+                      <Typography variant="caption" color="textSecondary">Formatos aceitos: imagem, PDF, doc, etc.</Typography>
+                    </>
+                  )}
+                  {file && (
+                    <div className={classes.dropzoneFileName}>
+                      <b>Arquivo selecionado:</b> {file.name}
+                    </div>
+                  )}
+                </div>
               </Grid>
               <Grid item xs={12} className={classes.textRight}>
                 <Button
@@ -234,12 +339,11 @@ const MessagesAPI = () => {
                   color="primary"
                   variant="contained"
                   className={classes.btnWrapper}
+                  startIcon={<Send size={18}/>}
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <CircularProgress
-                      size={24}
-                      className={classes.buttonProgress}
-                    />
+                    <CircularProgress size={24} />
                   ) : 'Enviar'}
                 </Button>
               </Grid>
@@ -251,89 +355,71 @@ const MessagesAPI = () => {
   }
 
   return (
-    <Paper
-      className={classes.mainPaper}
-      style={{marginLeft: "5px"}}
-      // className={classes.elementMargin}
-      variant="outlined"
-    >
-      <Typography variant="h5">
-        Documentação para envio de mensagens
-      </Typography>
-      <Typography variant="h6" color="primary" className={classes.elementMargin}>
-        Métodos de Envio
-      </Typography>
-      <Typography component="div">
-        <ol>
-          <li>Mensagens de Texto</li>
-          <li>Mensagens de Media</li>
-        </ol>
-      </Typography>
-      <Typography variant="h6" color="primary" className={classes.elementMargin}>
-        Instruções
-      </Typography>
-      <Typography className={classes.elementMargin} component="div">
-        <b>Observações importantes</b><br />
-        <ul>
-          <li>Antes de enviar mensagens, é necessário o cadastro do token vinculado à conexão que enviará as mensagens. <br />Para realizar o cadastro acesse o menu "Conexões", clique no botão editar da conexão e insira o token no devido campo.</li>
-          <li>
-            O número para envio não deve ter mascara ou caracteres especiais e deve ser composto por:
-            <ul>
-              <li>Código do país</li>
-              <li>DDD</li>
-              <li>Número</li>
-            </ul>
-          </li>
-        </ul>
-      </Typography>
-      <Typography variant="h6" color="primary" className={classes.elementMargin}>
-        1. Mensagens de Texto
-      </Typography>
-      <Grid container>
-        <Grid item xs={12} sm={6}>
-          <Typography className={classes.elementMargin} component="div">
-            <p>Seguem abaixo a lista de informações necessárias para envio das mensagens de texto:</p>
-            <b>Endpoint: </b> {getEndpoint()} <br />
-            <b>Método: </b> POST <br />
-            <b>Headers: </b> Authorization (Bearer token) e Content-Type (application/json) <br />
-            <b>Body: </b> {"{ \"number\": \"595985523065\", \"body\": \"Sua mensagem\" }"}
-          </Typography>
+    <Paper className={classes.mainPaper} variant="outlined">
+      <div className={classes.header}>
+        <Send size={36} style={{ color: '#5D3FD3' }} />
+        <div>
+          <div className={classes.headerTitle}>Envio de Mensagens via API</div>
+          <div className={classes.headerDesc}>Utilize os métodos abaixo para enviar mensagens de texto ou mídia via integração direta.</div>
+        </div>
+      </div>
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={6}>
+          <Card className={classes.card} elevation={0}>
+            <div className={classes.cardHeader}><Send size={20}/> Mensagem de Texto</div>
+            <CardContent className={classes.cardContent}>
+              <Typography variant="body1" gutterBottom>
+                Envie mensagens de texto simples para um número de WhatsApp.
+              </Typography>
+              <Divider style={{ margin: '16px 0' }} />
+              <Typography variant="subtitle2" color="primary">Exemplo de Requisição</Typography>
+              <div className={classes.exampleBox}>
+                Endpoint: <b>{getEndpoint()}</b><br />
+                Método: <b>POST</b><br />
+                Headers: <b>Authorization</b> (Bearer token), <b>Content-Type</b> (application/json)<br />
+                Body:<br />
+                {`{
+  "number": "5599999999999",
+  "body": "Sua mensagem"
+}`}
+              </div>
+              <Typography variant="subtitle2" color="primary" style={{marginTop: 16}}>Teste de Envio</Typography>
+              <div className={classes.formSection}>{renderFormMessageText()}</div>
+            </CardContent>
+          </Card>
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <Typography className={classes.elementMargin}>
-            <b>Teste de Envio</b>
-          </Typography>
-          {renderFormMessageText()}
-        </Grid>
-      </Grid>
-      <Typography variant="h6" color="primary" className={classes.elementMargin}>
-        2. Mensagens de Media
-      </Typography>
-      <Grid container>
-        <Grid item xs={12} sm={6}>
-          <Typography className={classes.elementMargin} component="div">
-            <p>Seguem abaixo a lista de informações necessárias para envio das mensagens de texto:</p>
-            <b>Endpoint: </b> {getEndpoint()} <br />
-            <b>Método: </b> POST <br />
-            <b>Headers: </b> Authorization (Bearer token) e Content-Type (multipart/form-data) <br />
-            <b>FormData: </b> <br />
-            <ul>
-              <li>
-                <b>number: </b> 5599999999999
-              </li>
-              <li>
-                <b>medias: </b> arquivo
-              </li>
-            </ul>
-          </Typography>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Typography className={classes.elementMargin}>
-            <b>Teste de Envio</b>
-          </Typography>
-          {renderFormMessageMedia()}
+        <Grid item xs={12} md={6}>
+          <Card className={classes.card} elevation={0}>
+            <div className={classes.cardHeader}><Image size={20}/> Mensagem de Mídia</div>
+            <CardContent className={classes.cardContent}>
+              <Typography variant="body1" gutterBottom>
+                Envie arquivos de mídia (imagens, documentos, etc) para um número de WhatsApp.
+              </Typography>
+              <Divider style={{ margin: '16px 0' }} />
+              <Typography variant="subtitle2" color="primary">Exemplo de Requisição</Typography>
+              <div className={classes.exampleBox}>
+                Endpoint: <b>{getEndpoint()}</b><br />
+                Método: <b>POST</b><br />
+                Headers: <b>Authorization</b> (Bearer token), <b>Content-Type</b> (multipart/form-data)<br />
+                FormData:<br />
+                <ul style={{margin:0, paddingLeft:18}}>
+                  <li><b>number:</b> 5599999999999</li>
+                  <li><b>medias:</b> arquivo</li>
+                </ul>
+              </div>
+              <Typography variant="subtitle2" color="primary" style={{marginTop: 16}}>Teste de Envio</Typography>
+              <div className={classes.formSection}>{renderFormMessageMedia()}</div>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
+      <Box mt={6}>
+        <Typography variant="body2" color="textSecondary">
+          <b>Observações importantes:</b><br />
+          - Antes de enviar mensagens, cadastre o token vinculado à conexão no menu "Conexões".<br />
+          - O número deve conter apenas dígitos: código do país + DDD + número.<br />
+        </Typography>
+      </Box>
     </Paper>
   );
 };

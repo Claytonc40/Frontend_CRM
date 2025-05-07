@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-import { Avatar, CardHeader } from "@material-ui/core";
+import { Avatar, CardHeader, Typography, Box } from "@material-ui/core";
+import { PersonRounded } from "@material-ui/icons";
 
 import { i18n } from "../../translate/i18n";
 
@@ -33,12 +34,41 @@ const TicketInfo = ({ contact, ticket, onClick }) => {
 	return (
 		<CardHeader
 			onClick={onClick}
-			style={{ cursor: "pointer" }}
+			style={{ cursor: "pointer", transition: 'box-shadow 0.2s', borderRadius: 12, boxShadow: '0 1px 4px rgba(93,63,211,0.07)' }}
 			titleTypographyProps={{ noWrap: true }}
 			subheaderTypographyProps={{ noWrap: true }}
-			avatar={<Avatar src={contact.profilePicUrl} alt="contact_image" />}
-			title={`${contactName} #${ticket.id}`}
-			subheader={ticket.user && `${userName}`}
+			avatar={
+				<Avatar
+					src={contact.profilePicUrl}
+					alt="contact_image"
+					style={{
+						width: 52,
+						height: 52,
+						border: '2.5px solid #5D3FD3',
+						boxShadow: '0 2px 8px rgba(93,63,211,0.10)'
+					}}
+				/>
+			}
+			title={
+				<Box display="flex" alignItems="center" gap={1}>
+					<Typography style={{ color: '#5D3FD3', fontWeight: 700, fontSize: 18 }}>
+						{contactName}
+					</Typography>
+					<Typography style={{ color: '#888', fontWeight: 500, fontSize: 13, marginLeft: 8 }}>
+						#{ticket.id}
+					</Typography>
+				</Box>
+			}
+			subheader={
+				ticket.user && (
+					<Box display="flex" alignItems="center" gap={1}>
+						<PersonRounded style={{ fontSize: 18, color: '#5D3FD3', marginRight: 4 }} />
+						<Typography style={{ color: '#666', fontWeight: 500, fontSize: 15 }}>
+							{userName}
+						</Typography>
+					</Box>
+				)
+			}
 		/>
 	);
 };

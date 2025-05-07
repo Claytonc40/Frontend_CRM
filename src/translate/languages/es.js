@@ -169,10 +169,10 @@ contacts: {
     importMessage: "¿Desea importar todos los contactos del teléfono?",
   },
   buttons: {
-    import: "Importar Contactos",
-    add: "Agregar Contacto",
-    export: "Exportar Contactos",
-    delete: "Eliminar Todos Contactos",
+    import: "Importar",
+    add: "Agregar",
+    export: "Exportar",
+    delete: "Eliminar",
   },
   table: {
     name: "Nombre",

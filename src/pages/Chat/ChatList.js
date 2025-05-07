@@ -7,15 +7,13 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   makeStyles,
+  Tooltip,
+  Box
 } from "@material-ui/core";
-
 import { useHistory, useParams } from "react-router-dom";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { useDate } from "../../hooks/useDate";
-
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
-
+import { Edit3, Trash2 } from 'lucide-react';
 import ConfirmationModal from "../../components/ConfirmationModal";
 import api from "../../services/api";
 
@@ -40,6 +38,50 @@ const useStyles = makeStyles((theme) => ({
   },
   listItem: {
     cursor: "pointer",
+    borderRadius: 10,
+    margin: theme.spacing(0.5, 1),
+    transition: 'background 0.2s, box-shadow 0.2s',
+    '&:hover': {
+      background: 'rgba(93,63,211,0.07)',
+      boxShadow: '0 2px 8px rgba(93,63,211,0.08)',
+    },
+  },
+  selectedItem: {
+    borderLeft: '6px solid #5D3FD3',
+    background: 'rgba(93,63,211,0.04)',
+  },
+  chip: {
+    marginLeft: 5,
+    fontWeight: 600,
+    background: '#5D3FD3',
+    color: '#fff',
+  },
+  actionButton: {
+    color: '#5D3FD3',
+    '&:hover': {
+      color: '#4930A8',
+      background: 'rgba(93,63,211,0.08)',
+    },
+    marginRight: 5,
+  },
+  deleteButton: {
+    color: '#F44336',
+    '&:hover': {
+      color: '#D32F2F',
+      background: 'rgba(244,67,54,0.08)',
+    },
+  },
+  primaryText: {
+    fontWeight: 600,
+    color: '#222',
+    fontSize: 15,
+    display: 'flex',
+    alignItems: 'center',
+  },
+  secondaryText: {
+    color: '#666',
+    fontSize: 13,
+    marginTop: 2,
   },
 }));
 
@@ -55,10 +97,8 @@ export default function ChatList({
   const history = useHistory();
   const { user } = useContext(AuthContext);
   const { datetimeToClient } = useDate();
-
   const [confirmationModal, setConfirmModalOpen] = useState(false);
   const [selectedChat, setSelectedChat] = useState({});
-
   const { id } = useParams();
 
   const goToMessages = async (chat) => {
@@ -67,7 +107,6 @@ export default function ChatList({
         await api.post(`/chats/${chat.id}/read`, { userId: user.id });
       } catch (err) {}
     }
-
     if (id !== chat.uuid) {
       history.push(`/chats/${chat.uuid}`);
       handleSelectChat(chat);
@@ -87,31 +126,30 @@ export default function ChatList({
     const mainText = chat.title;
     const unreads = unreadMessages(chat);
     return (
-      <>
+      <span className={classes.primaryText}>
         {mainText}
         {unreads > 0 && (
           <Chip
             size="small"
-            style={{ marginLeft: 5 }}
             label={unreads}
-            color="secondary"
+            className={classes.chip}
           />
         )}
-      </>
+      </span>
     );
   };
 
   const getSecondaryText = (chat) => {
     return chat.lastMessage !== ""
-      ? `${datetimeToClient(chat.updatedAt)}: ${chat.lastMessage}`
-      : "";
+      ? (
+        <span className={classes.secondaryText}>
+          {datetimeToClient(chat.updatedAt)}: {chat.lastMessage}
+        </span>
+      ) : "";
   };
 
   const getItemStyle = (chat) => {
-    return {
-      borderLeft: chat.uuid === id ? "6px solid #002d6e" : null,
-      backgroundColor: chat.uuid === id ? "theme.palette.chatlist" : null,
-    };
+    return chat.uuid === id ? classes.selectedItem : '';
   };
 
   return (
@@ -133,8 +171,7 @@ export default function ChatList({
                 <ListItem
                   onClick={() => goToMessages(chat)}
                   key={key}
-                  className={classes.listItem}
-                  style={getItemStyle(chat)}
+                  className={`${classes.listItem} ${getItemStyle(chat)}`}
                   button
                 >
                   <ListItemText
@@ -143,30 +180,35 @@ export default function ChatList({
                   />
                   {chat.ownerId === user.id && (
                     <ListItemSecondaryAction>
-                      <IconButton
-                        onClick={() => {
-                          goToMessages(chat).then(() => {
-                            handleEditChat(chat);
-                          });
-                        }}
-                        edge="end"
-                        aria-label="delete"
-                        size="small"
-                        style={{ marginRight: 5 }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => {
-                          setSelectedChat(chat);
-                          setConfirmModalOpen(true);
-                        }}
-                        edge="end"
-                        aria-label="delete"
-                        size="small"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                      <Tooltip title="Editar" arrow>
+                        <IconButton
+                          onClick={() => {
+                            goToMessages(chat).then(() => {
+                              handleEditChat(chat);
+                            });
+                          }}
+                          edge="end"
+                          aria-label="edit"
+                          size="small"
+                          className={classes.actionButton}
+                        >
+                          <Edit3 size={18} />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Excluir" arrow>
+                        <IconButton
+                          onClick={() => {
+                            setSelectedChat(chat);
+                            setConfirmModalOpen(true);
+                          }}
+                          edge="end"
+                          aria-label="delete"
+                          size="small"
+                          className={classes.deleteButton}
+                        >
+                          <Trash2 size={18} />
+                        </IconButton>
+                      </Tooltip>
                     </ListItemSecondaryAction>
                   )}
                 </ListItem>

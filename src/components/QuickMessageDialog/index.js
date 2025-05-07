@@ -13,9 +13,21 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Typography from "@material-ui/core/Typography";
+import Paper from "@material-ui/core/Paper";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+import SaveIcon from "@material-ui/icons/Save";
+import AddIcon from "@material-ui/icons/Add";
+import Divider from "@material-ui/core/Divider";
+import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
+import Tooltip from "@material-ui/core/Tooltip";
+import FormatQuoteIcon from "@material-ui/icons/FormatQuote";
+import Fade from "@material-ui/core/Fade";
+import Chip from "@material-ui/core/Chip";
+
 import { i18n } from "../../translate/i18n";
 import { head } from "lodash";
 import api from "../../services/api";
@@ -30,6 +42,7 @@ import {
     InputLabel,
     MenuItem,
     Select,
+    Box,
 } from "@material-ui/core";
 import ConfirmationModal from "../ConfirmationModal";
 
@@ -40,17 +53,36 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         flexWrap: "wrap",
     },
+    dialog: {
+        borderRadius: 12,
+        padding: theme.spacing(1),
+    },
+    dialogTitle: {
+        background: "linear-gradient(90deg, #5D3FD3 0%, #6A5ACD 100%)",
+        color: "#ffffff",
+        padding: theme.spacing(2),
+        marginBottom: theme.spacing(2),
+        borderRadius: "12px 12px 0 0",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
+    closeButton: {
+        color: "white",
+    },
+    titleText: {
+        fontWeight: 600,
+        fontSize: "1.2rem",
+    },
     multFieldLine: {
         display: "flex",
         "& > *:not(:last-child)": {
             marginRight: theme.spacing(1),
         },
     },
-
     btnWrapper: {
         position: "relative",
     },
-
     buttonProgress: {
         color: green[500],
         position: "absolute",
@@ -67,12 +99,143 @@ const useStyles = makeStyles((theme) => ({
         width: 20,
         height: 20,
     },
+    shortcodeInput: {
+        "& .MuiOutlinedInput-root": {
+            borderRadius: 10,
+            "&:hover fieldset": {
+                borderColor: "#5D3FD3",
+            },
+            "&.Mui-focused fieldset": {
+                borderColor: "#5D3FD3",
+            },
+        },
+        "& .MuiFormLabel-root.Mui-focused": {
+            color: "#5D3FD3",
+        },
+    },
+    messageInput: {
+        "& .MuiOutlinedInput-root": {
+            borderRadius: 10,
+            "&:hover fieldset": {
+                borderColor: "#5D3FD3",
+            },
+            "&.Mui-focused fieldset": {
+                borderColor: "#5D3FD3",
+            },
+        },
+        "& .MuiFormLabel-root.Mui-focused": {
+            color: "#5D3FD3",
+        },
+    },
+    attachButton: {
+        backgroundColor: "#5D3FD3",
+        color: "white",
+        borderRadius: 10,
+        padding: theme.spacing(1, 2),
+        transition: "all 0.3s ease",
+        "&:hover": {
+            backgroundColor: "#4b32a8",
+            transform: "translateY(-2px)",
+            boxShadow: theme.shadows[3],
+        },
+    },
+    cancelButton: {
+        borderRadius: 10,
+        padding: theme.spacing(1, 2),
+        transition: "all 0.3s ease",
+        "&:hover": {
+            backgroundColor: "rgba(244, 67, 54, 0.08)",
+            transform: "translateY(-2px)",
+        },
+    },
+    saveButton: {
+        backgroundColor: "#5D3FD3",
+        color: "white",
+        borderRadius: 10,
+        padding: theme.spacing(1, 2),
+        transition: "all 0.3s ease",
+        "&:hover": {
+            backgroundColor: "#4b32a8",
+            transform: "translateY(-2px)",
+            boxShadow: theme.shadows[3],
+        },
+    },
+    dialogActions: {
+        padding: theme.spacing(2),
+        justifyContent: "space-between",
+    },
+    filePreview: {
+        backgroundColor: "rgba(93, 63, 211, 0.08)",
+        borderRadius: 10,
+        padding: theme.spacing(1, 2),
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginTop: theme.spacing(1),
+    },
+    fileName: {
+        display: "flex",
+        alignItems: "center",
+        color: "#5D3FD3",
+        fontWeight: 500,
+        "& svg": {
+            marginRight: theme.spacing(1),
+            color: "#5D3FD3",
+        },
+    },
+    deleteButton: {
+        color: "#F44336",
+        "&:hover": {
+            backgroundColor: "rgba(244, 67, 54, 0.08)",
+        },
+    },
+    variablesSection: {
+        marginTop: theme.spacing(2),
+        padding: theme.spacing(2),
+        backgroundColor: "#f8f9fa",
+        borderRadius: 10,
+        border: "1px dashed #5D3FD3",
+    },
+    variablesTitle: {
+        display: "flex",
+        alignItems: "center",
+        fontSize: "0.9rem",
+        color: "#555",
+        marginBottom: theme.spacing(1),
+        "& svg": {
+            marginRight: theme.spacing(1),
+            color: "#5D3FD3",
+        },
+    },
+    variableChips: {
+        display: "flex",
+        flexWrap: "wrap",
+        "& > *": {
+            margin: theme.spacing(0.5),
+            backgroundColor: "rgba(93, 63, 211, 0.08)",
+            color: "#5D3FD3",
+            fontWeight: 500,
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+            "&:hover": {
+                backgroundColor: "rgba(93, 63, 211, 0.15)",
+                transform: "translateY(-2px)",
+            },
+        },
+    },
 }));
 
 const QuickeMessageSchema = Yup.object().shape({
     shortcode: Yup.string().required("Obrigatório"),
     //   message: Yup.string().required("Obrigatório"),
 });
+
+const VARIABLES = [
+    { label: "Nome do Contato", value: "{contact.name}" },
+    { label: "Nome do Atendente", value: "{user.name}" },
+    { label: "Saudação", value: "{greeting}" },
+    { label: "Empresa", value: "{company.name}" },
+];
 
 const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
     const classes = useStyles();
@@ -149,7 +312,6 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
             }
             toast.success(i18n.t("quickMessages.toasts.success"));
             if (typeof reload == "function") {
-
                 reload();
             }
         } catch (err) {
@@ -172,7 +334,6 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
             }));
             toast.success(i18n.t("quickMessages.toasts.deleted"));
             if (typeof reload == "function") {
-
                 reload();
             }
         }
@@ -203,14 +364,25 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
             <Dialog
                 open={open}
                 onClose={handleClose}
-                maxWidth="xs"
+                maxWidth="sm"
                 fullWidth
                 scroll="paper"
+                PaperProps={{ 
+                    className: classes.dialog,
+                    elevation: 8
+                }}
+                TransitionComponent={Fade}
+                transitionDuration={300}
             >
-                <DialogTitle id="form-dialog-title">
-                    {quickemessageId
-                        ? `${i18n.t("quickMessages.dialog.edit")}`
-                        : `${i18n.t("quickMessages.dialog.add")}`}
+                <DialogTitle disableTypography className={classes.dialogTitle}>
+                    <Typography className={classes.titleText}>
+                        {quickemessageId
+                            ? i18n.t("quickMessages.dialog.edit")
+                            : i18n.t("quickMessages.dialog.add")}
+                    </Typography>
+                    <IconButton onClick={handleClose} className={classes.closeButton}>
+                        <CloseIcon />
+                    </IconButton>
                 </DialogTitle>
                 <div style={{ display: "none" }}>
                     <input
@@ -232,8 +404,8 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                 >
                     {({ touched, errors, isSubmitting, setFieldValue, values }) => (
                         <Form>
-                            <DialogContent dividers>
-                                <Grid spacing={2} container>
+                            <DialogContent>
+                                <Grid spacing={3} container>
                                     <Grid xs={12} item>
                                         <Field
                                             as={TextField}
@@ -243,8 +415,15 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                                             error={touched.shortcode && Boolean(errors.shortcode)}
                                             helperText={touched.shortcode && errors.shortcode}
                                             variant="outlined"
-                                            margin="dense"
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <Typography variant="h6" style={{ color: "#5D3FD3", marginRight: 8 }}>
+                                                        !
+                                                    </Typography>
+                                                ),
+                                            }}
                                             fullWidth
+                                            className={classes.shortcodeInput}
                                         />
                                     </Grid>
                                     <Grid xs={12} item>
@@ -256,70 +435,121 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                                             error={touched.message && Boolean(errors.message)}
                                             helperText={touched.message && errors.message}
                                             variant="outlined"
-                                            margin="dense"
                                             multiline={true}
                                             rows={7}
                                             fullWidth
-                                        // disabled={quickemessage.mediaPath || attachment ? true : false}
+                                            className={classes.messageInput}
+                                            placeholder={i18n.t("quickMessages.dialog.messagePlaceholder")}
                                         />
                                     </Grid>
-                                    <Grid item>
-                                        <MessageVariablesPicker
-                                            disabled={isSubmitting}
-                                            onClick={value => handleClickMsgVar(value, setFieldValue)}
-                                        />
+                                    
+                                    <Grid xs={12} item>
+                                        <Box className={classes.variablesSection}>
+                                            <Typography className={classes.variablesTitle}>
+                                                <FormatQuoteIcon />
+                                                {i18n.t("messageVariablesPicker.label")}
+                                            </Typography>
+                                            <Box className={classes.variableChips}>
+                                                <Tooltip title="{name}" arrow placement="top">
+                                                    <Chip
+                                                        label={i18n.t("messageVariablesPicker.vars.contactName")}
+                                                        onClick={() => handleClickMsgVar("{{name}}", setFieldValue)}
+                                                    />
+                                                </Tooltip>
+                                                <Tooltip title="{{firstName}}" arrow placement="top">
+                                                    <Chip
+                                                        label={i18n.t("messageVariablesPicker.vars.contactFirstName")}
+                                                        onClick={() => handleClickMsgVar("{{firstName}}", setFieldValue)}
+                                                    />
+                                                </Tooltip>
+                                                <Tooltip title="{{ms}}" arrow placement="top">
+                                                    <Chip
+                                                        label={i18n.t("messageVariablesPicker.vars.greeting")}
+                                                        onClick={() => handleClickMsgVar("{{ms}}", setFieldValue)}
+                                                    />
+                                                </Tooltip>
+                                                <Tooltip title="{{protocol}}" arrow placement="top">
+                                                    <Chip
+                                                        label={i18n.t("messageVariablesPicker.vars.protocolNumber")}
+                                                        onClick={() => handleClickMsgVar("{{protocol}}", setFieldValue)}
+                                                    />
+                                                </Tooltip>
+                                                <Tooltip title="{{date}}" arrow placement="top">
+                                                    <Chip
+                                                        label={i18n.t("messageVariablesPicker.vars.date")}
+                                                        onClick={() => handleClickMsgVar("{{date}}", setFieldValue)}
+                                                    />
+                                                </Tooltip>
+                                                <Tooltip title="{{hour}}" arrow placement="top">
+                                                    <Chip
+                                                        label={i18n.t("messageVariablesPicker.vars.hour")}
+                                                        onClick={() => handleClickMsgVar("{{hour}}", setFieldValue)}
+                                                    />
+                                                </Tooltip>
+                                            </Box>
+                                        </Box>
                                     </Grid>
+                                    
                                     {(quickemessage.mediaPath || attachment) && (
                                         <Grid xs={12} item>
-                                            <Button startIcon={<AttachFileIcon />}>
-                                                {attachment ? attachment.name : quickemessage.mediaName}
-                                            </Button>
-                                            <IconButton
-                                                onClick={() => setConfirmationOpen(true)}
-                                                color="secondary"
-                                            >
-                                                <DeleteOutlineIcon color="secondary" />
-                                            </IconButton>
+                                            <Paper elevation={0} className={classes.filePreview}>
+                                                <Typography className={classes.fileName}>
+                                                    <AttachFileIcon />
+                                                    {attachment ? attachment.name : quickemessage.mediaName}
+                                                </Typography>
+                                                <IconButton
+                                                    onClick={() => setConfirmationOpen(true)}
+                                                    className={classes.deleteButton}
+                                                    size="small"
+                                                >
+                                                    <DeleteOutlineIcon />
+                                                </IconButton>
+                                            </Paper>
                                         </Grid>
                                     )}
                                 </Grid>
                             </DialogContent>
-                            <DialogActions>
-                                {!attachment && !quickemessage.mediaPath && (
-                                    <Button
-                                        color="primary"
-                                        onClick={() => attachmentFile.current.click()}
-                                        disabled={isSubmitting}
-                                        variant="outlined"
-                                    >
-                                        {i18n.t("quickMessages.buttons.attach")}
-                                    </Button>
-                                )}
-                                <Button
-                                    onClick={handleClose}
-                                    color="secondary"
-                                    disabled={isSubmitting}
-                                    variant="outlined"
-                                >
-                                    {i18n.t("quickMessages.buttons.cancel")}
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    color="primary"
-                                    disabled={isSubmitting}
-                                    variant="contained"
-                                    className={classes.btnWrapper}
-                                >
-                                    {quickemessageId
-                                        ? `${i18n.t("quickMessages.buttons.edit")}`
-                                        : `${i18n.t("quickMessages.buttons.add")}`}
-                                    {isSubmitting && (
-                                        <CircularProgress
-                                            size={24}
-                                            className={classes.buttonProgress}
-                                        />
+                            <Divider />
+                            <DialogActions className={classes.dialogActions}>
+                                <div>
+                                    {!attachment && !quickemessage.mediaPath && (
+                                        <Button
+                                            color="primary"
+                                            onClick={() => attachmentFile.current.click()}
+                                            disabled={isSubmitting}
+                                            className={classes.attachButton}
+                                            startIcon={<AttachFileIcon />}
+                                        >
+                                            {i18n.t("quickMessages.buttons.attach")}
+                                        </Button>
                                     )}
-                                </Button>
+                                </div>
+                                <div>
+                                    <Button
+                                        onClick={handleClose}
+                                        disabled={isSubmitting}
+                                        className={classes.cancelButton}
+                                        style={{ marginRight: 8 }}
+                                    >
+                                        {i18n.t("quickMessages.buttons.cancel")}
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className={classes.saveButton}
+                                        startIcon={quickemessageId ? <SaveIcon /> : <AddIcon />}
+                                    >
+                                        {quickemessageId
+                                            ? i18n.t("quickMessages.buttons.edit")
+                                            : i18n.t("quickMessages.buttons.add")}
+                                        {isSubmitting && (
+                                            <CircularProgress
+                                                size={24}
+                                                className={classes.buttonProgress}
+                                            />
+                                        )}
+                                    </Button>
+                                </div>
                             </DialogActions>
                         </Form>
                     )}
