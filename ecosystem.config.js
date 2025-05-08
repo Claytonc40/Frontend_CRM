@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "frontend",
       script: "serve",
-      args: "-s build -l 3000",
+      args: "-s build -p 3000",
       env: {
         NODE_ENV: "production",
         PM2_SERVE_PATH: "build",
