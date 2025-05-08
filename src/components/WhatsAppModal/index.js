@@ -1,51 +1,47 @@
-import React, { useState, useEffect } from "react";
-import * as Yup from "yup";
-import { Formik, Form, Field } from "formik";
+import { Field, Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import * as Yup from "yup";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { green } from "@material-ui/core/colors";
 
 import {
+  Box,
+  Button,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
-  Button,
-  DialogActions,
-  CircularProgress,
-  TextField,
-  Switch,
+  Divider,
+  FormControl,
   FormControlLabel,
   Grid,
-  FormControl,
-  InputLabel,
-  Select,
+  IconButton,
   MenuItem,
-  Stepper,
+  Select,
   Step,
   StepLabel,
-  Paper,
+  Stepper,
+  Switch,
+  TextField,
   Typography,
-  Box,
-  IconButton,
-  Divider,
 } from "@material-ui/core";
 
 import {
-  WhatsApp as WhatsAppIcon,
-  Message as MessageIcon,
-  Settings as SettingsIcon,
-  SwapHoriz as SwapHorizIcon,
-  ArrowBack as ArrowBackIcon,
-  ArrowForward as ArrowForwardIcon,
-  Save as SaveIcon,
-  Visibility,
-  VisibilityOff,
-} from "@material-ui/icons";
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  MessageCircle,
+  MessageSquare,
+  RefreshCw,
+  Save,
+  Settings,
+} from "lucide-react";
 
+import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
-import toastError from "../../errors/toastError";
 import QueueSelect from "../QueueSelect";
 
 const useStyles = makeStyles((theme) => ({
@@ -219,13 +215,13 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     expiresInactiveMessage: "",
     expiresTicket: 0,
     timeUseBotQueues: 0,
-    maxUseBotQueues: 3
+    maxUseBotQueues: 3,
   };
   const [whatsApp, setWhatsApp] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
   const [queues, setQueues] = useState([]);
-  const [selectedQueueId, setSelectedQueueId] = useState(null);
-  const [selectedPrompt, setSelectedPrompt] = useState(null);
+  const [selectedQueueId, setSelectedQueueId] = useState(undefined);
+  const [selectedPrompt, setSelectedPrompt] = useState(undefined);
   const [prompts, setPrompts] = useState([]);
   const [activeStep, setActiveStep] = useState(0);
   const [showGreeting, setShowGreeting] = useState(false);
@@ -233,26 +229,26 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   const [showOutOfHours, setShowOutOfHours] = useState(false);
   const [showRating, setShowRating] = useState(false);
   const [showToken, setShowToken] = useState(false);
-  
+
   const steps = [
     {
-      label: 'Básico',
-      icon: <WhatsAppIcon />
+      label: "Básico",
+      icon: <MessageCircle size={24} />,
     },
     {
-      label: 'Mensagens',
-      icon: <MessageIcon />
+      label: "Mensagens",
+      icon: <MessageSquare size={24} />,
     },
     {
-      label: 'Integrações',
-      icon: <SettingsIcon />
+      label: "Integrações",
+      icon: <Settings size={24} />,
     },
     {
-      label: 'Filas',
-      icon: <SwapHorizIcon />
-    }
+      label: "Filas",
+      icon: <RefreshCw size={24} />,
+    },
   ];
-    
+
   useEffect(() => {
     const fetchSession = async () => {
       if (!whatsAppId) return;
@@ -261,9 +257,9 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
         const { data } = await api.get(`whatsapp/${whatsAppId}?session=0`);
         setWhatsApp(data);
 
-        const whatsQueueIds = data.queues?.map((queue) => queue.id);
+        const whatsQueueIds = data.queues?.map((queue) => queue.id) || [];
         setSelectedQueueIds(whatsQueueIds);
-        setSelectedQueueId(data.transferQueueId);
+        setSelectedQueueId(data.transferQueueId || undefined);
       } catch (err) {
         toastError(err);
       }
@@ -295,8 +291,10 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 
   const handleSaveWhatsApp = async (values) => {
     const whatsappData = {
-      ...values, queueIds: selectedQueueIds, transferQueueId: selectedQueueId,
-      promptId: selectedPrompt ? selectedPrompt : null
+      ...values,
+      queueIds: selectedQueueIds,
+      transferQueueId: selectedQueueId || null,
+      promptId: selectedPrompt || null,
     };
     delete whatsappData["queues"];
     delete whatsappData["session"];
@@ -315,20 +313,21 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   };
 
   const handleChangeQueue = (e) => {
-    setSelectedQueueIds(e);
-    setSelectedPrompt(null);
+    setSelectedQueueIds(e || []);
+    setSelectedPrompt(undefined);
   };
 
   const handleChangePrompt = (e) => {
-    setSelectedPrompt(e.target.value);
+    setSelectedPrompt(e.target.value || undefined);
     setSelectedQueueIds([]);
   };
 
   const handleClose = () => {
     onClose();
     setWhatsApp(initialState);
-    setSelectedQueueId(null);
+    setSelectedQueueId(undefined);
     setSelectedQueueIds([]);
+    setSelectedPrompt(undefined);
     setActiveStep(0);
   };
 
@@ -351,7 +350,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
             <Typography className={classes.infoText}>
               Configure as informações básicas da conexão WhatsApp
             </Typography>
-            
+
             <Grid container spacing={2}>
               <Grid item xs={12} sm={8}>
                 <Field
@@ -369,18 +368,26 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                   InputProps={{
                     style: {
                       borderRadius: 12,
-                      boxShadow: touched.name && errors.name ? '0 0 0 2px #ff1744' : '0 1px 4px rgba(93,63,211,0.07)',
-                      background: '#fff',
+                      boxShadow:
+                        touched.name && errors.name
+                          ? "0 0 0 2px #ff1744"
+                          : "0 1px 4px rgba(93,63,211,0.07)",
+                      background: "#fff",
                       height: 52,
                       fontSize: 17,
-                      padding: '0 14px',
-                      alignItems: 'center',
-                      display: 'flex',
+                      padding: "0 14px",
+                      alignItems: "center",
+                      display: "flex",
                     },
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4} style={{ display: "flex", alignItems: "center" }}>
+              <Grid
+                item
+                xs={12}
+                sm={4}
+                style={{ display: "flex", alignItems: "center" }}
+              >
                 <FormControlLabel
                   control={
                     <Field
@@ -407,23 +414,28 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                   InputProps={{
                     style: {
                       borderRadius: 12,
-                      boxShadow: touched.token && errors.token ? '0 0 0 2px #ff1744' : '0 1px 4px rgba(93,63,211,0.07)',
-                      background: '#fff',
+                      boxShadow:
+                        touched.token && errors.token
+                          ? "0 0 0 2px #ff1744"
+                          : "0 1px 4px rgba(93,63,211,0.07)",
+                      background: "#fff",
                       height: 52,
                       fontSize: 17,
-                      padding: '0 14px',
-                      alignItems: 'center',
-                      display: 'flex',
+                      padding: "0 14px",
+                      alignItems: "center",
+                      display: "flex",
                     },
                     endAdornment: (
                       <IconButton
-                        aria-label={showToken ? "Ocultar token" : "Revelar token"}
+                        aria-label={
+                          showToken ? "Ocultar token" : "Revelar token"
+                        }
                         onClick={() => setShowToken((prev) => !prev)}
                         edge="end"
                         size="small"
                         tabIndex={-1}
                       >
-                        {showToken ? <VisibilityOff /> : <Visibility />}
+                        {showToken ? <EyeOff size={20} /> : <Eye size={20} />}
                       </IconButton>
                     ),
                   }}
@@ -441,11 +453,17 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
             <Typography className={classes.infoText}>
               Configure as mensagens automáticas enviadas aos contatos
             </Typography>
-            
+
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Switch checked={showGreeting} onChange={() => setShowGreeting(v => !v)} color="primary" />}
+                  control={
+                    <Switch
+                      checked={showGreeting}
+                      onChange={() => setShowGreeting((v) => !v)}
+                      color="primary"
+                    />
+                  }
                   label="Ativar mensagem de saudação"
                 />
                 {showGreeting && (
@@ -457,8 +475,12 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     rows={4}
                     fullWidth
                     name="greetingMessage"
-                    error={touched.greetingMessage && Boolean(errors.greetingMessage)}
-                    helperText={touched.greetingMessage && errors.greetingMessage}
+                    error={
+                      touched.greetingMessage && Boolean(errors.greetingMessage)
+                    }
+                    helperText={
+                      touched.greetingMessage && errors.greetingMessage
+                    }
                     variant="outlined"
                     margin="dense"
                     className={classes.textField}
@@ -466,13 +488,16 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     InputProps={{
                       style: {
                         borderRadius: 12,
-                        boxShadow: touched.greetingMessage && errors.greetingMessage ? '0 0 0 2px #ff1744' : '0 1px 4px rgba(93,63,211,0.07)',
-                        background: '#fff',
+                        boxShadow:
+                          touched.greetingMessage && errors.greetingMessage
+                            ? "0 0 0 2px #ff1744"
+                            : "0 1px 4px rgba(93,63,211,0.07)",
+                        background: "#fff",
                         minHeight: 52,
                         fontSize: 17,
-                        padding: '0 14px',
-                        alignItems: 'center',
-                        display: 'flex',
+                        padding: "0 14px",
+                        alignItems: "center",
+                        display: "flex",
                       },
                     }}
                   />
@@ -480,7 +505,13 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Switch checked={showComplation} onChange={() => setShowComplation(v => !v)} color="primary" />}
+                  control={
+                    <Switch
+                      checked={showComplation}
+                      onChange={() => setShowComplation((v) => !v)}
+                      color="primary"
+                    />
+                  }
                   label="Ativar mensagem de conclusão"
                 />
                 {showComplation && (
@@ -492,8 +523,13 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     rows={4}
                     fullWidth
                     name="complationMessage"
-                    error={touched.complationMessage && Boolean(errors.complationMessage)}
-                    helperText={touched.complationMessage && errors.complationMessage}
+                    error={
+                      touched.complationMessage &&
+                      Boolean(errors.complationMessage)
+                    }
+                    helperText={
+                      touched.complationMessage && errors.complationMessage
+                    }
                     variant="outlined"
                     margin="dense"
                     className={classes.textField}
@@ -501,13 +537,16 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     InputProps={{
                       style: {
                         borderRadius: 12,
-                        boxShadow: touched.complationMessage && errors.complationMessage ? '0 0 0 2px #ff1744' : '0 1px 4px rgba(93,63,211,0.07)',
-                        background: '#fff',
+                        boxShadow:
+                          touched.complationMessage && errors.complationMessage
+                            ? "0 0 0 2px #ff1744"
+                            : "0 1px 4px rgba(93,63,211,0.07)",
+                        background: "#fff",
                         minHeight: 52,
                         fontSize: 17,
-                        padding: '0 14px',
-                        alignItems: 'center',
-                        display: 'flex',
+                        padding: "0 14px",
+                        alignItems: "center",
+                        display: "flex",
                       },
                     }}
                   />
@@ -515,7 +554,13 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Switch checked={showOutOfHours} onChange={() => setShowOutOfHours(v => !v)} color="primary" />}
+                  control={
+                    <Switch
+                      checked={showOutOfHours}
+                      onChange={() => setShowOutOfHours((v) => !v)}
+                      color="primary"
+                    />
+                  }
                   label="Ativar mensagem de fora de expediente"
                 />
                 {showOutOfHours && (
@@ -527,8 +572,13 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     rows={4}
                     fullWidth
                     name="outOfHoursMessage"
-                    error={touched.outOfHoursMessage && Boolean(errors.outOfHoursMessage)}
-                    helperText={touched.outOfHoursMessage && errors.outOfHoursMessage}
+                    error={
+                      touched.outOfHoursMessage &&
+                      Boolean(errors.outOfHoursMessage)
+                    }
+                    helperText={
+                      touched.outOfHoursMessage && errors.outOfHoursMessage
+                    }
                     variant="outlined"
                     margin="dense"
                     className={classes.textField}
@@ -536,13 +586,16 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     InputProps={{
                       style: {
                         borderRadius: 12,
-                        boxShadow: touched.outOfHoursMessage && errors.outOfHoursMessage ? '0 0 0 2px #ff1744' : '0 1px 4px rgba(93,63,211,0.07)',
-                        background: '#fff',
+                        boxShadow:
+                          touched.outOfHoursMessage && errors.outOfHoursMessage
+                            ? "0 0 0 2px #ff1744"
+                            : "0 1px 4px rgba(93,63,211,0.07)",
+                        background: "#fff",
                         minHeight: 52,
                         fontSize: 17,
-                        padding: '0 14px',
-                        alignItems: 'center',
-                        display: 'flex',
+                        padding: "0 14px",
+                        alignItems: "center",
+                        display: "flex",
                       },
                     }}
                   />
@@ -550,7 +603,13 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Switch checked={showRating} onChange={() => setShowRating(v => !v)} color="primary" />}
+                  control={
+                    <Switch
+                      checked={showRating}
+                      onChange={() => setShowRating((v) => !v)}
+                      color="primary"
+                    />
+                  }
                   label="Ativar mensagem de avaliação"
                 />
                 {showRating && (
@@ -562,7 +621,9 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     rows={4}
                     fullWidth
                     name="ratingMessage"
-                    error={touched.ratingMessage && Boolean(errors.ratingMessage)}
+                    error={
+                      touched.ratingMessage && Boolean(errors.ratingMessage)
+                    }
                     helperText={touched.ratingMessage && errors.ratingMessage}
                     variant="outlined"
                     margin="dense"
@@ -571,13 +632,16 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     InputProps={{
                       style: {
                         borderRadius: 12,
-                        boxShadow: touched.ratingMessage && errors.ratingMessage ? '0 0 0 2px #ff1744' : '0 1px 4px rgba(93,63,211,0.07)',
-                        background: '#fff',
+                        boxShadow:
+                          touched.ratingMessage && errors.ratingMessage
+                            ? "0 0 0 2px #ff1744"
+                            : "0 1px 4px rgba(93,63,211,0.07)",
+                        background: "#fff",
                         minHeight: 52,
                         fontSize: 17,
-                        padding: '0 14px',
-                        alignItems: 'center',
-                        display: 'flex',
+                        padding: "0 14px",
+                        alignItems: "center",
+                        display: "flex",
                       },
                     }}
                   />
@@ -595,10 +659,13 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
             <Typography className={classes.infoText}>
               Configure as integrações para esta conexão de WhatsApp
             </Typography>
-            
+
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Typography variant="subtitle2" style={{ marginBottom: "8px", color: "#666" }}>
+                <Typography
+                  variant="subtitle2"
+                  style={{ marginBottom: "8px", color: "#666" }}
+                >
                   Filas
                 </Typography>
                 <QueueSelect
@@ -607,20 +674,27 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                   className={classes.selectField}
                   style={{
                     borderRadius: 12,
-                    boxShadow: '0 1px 4px rgba(93,63,211,0.07)',
-                    background: '#fff',
+                    boxShadow: "0 1px 4px rgba(93,63,211,0.07)",
+                    background: "#fff",
                     height: 52,
                     fontSize: 17,
-                    padding: '0 14px',
-                    alignItems: 'center',
-                    display: 'flex',
+                    padding: "0 14px",
+                    alignItems: "center",
+                    display: "flex",
                     marginTop: 8,
                   }}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
-                <Typography variant="subtitle2" style={{ marginBottom: "8px", color: "#666", marginTop: "16px" }}>
+                <Typography
+                  variant="subtitle2"
+                  style={{
+                    marginBottom: "8px",
+                    color: "#666",
+                    marginTop: "16px",
+                  }}
+                >
                   Prompt
                 </Typography>
                 <FormControl
@@ -651,24 +725,24 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     }}
                     style={{
                       borderRadius: 12,
-                      boxShadow: '0 1px 4px rgba(93,63,211,0.07)',
-                      background: '#fff',
+                      boxShadow: "0 1px 4px rgba(93,63,211,0.07)",
+                      background: "#fff",
                       height: 52,
                       fontSize: 17,
-                      padding: '0 14px',
-                      alignItems: 'center',
-                      display: 'flex',
+                      padding: "0 14px",
+                      alignItems: "center",
+                      display: "flex",
                     }}
                     inputProps={{
                       style: {
                         borderRadius: 12,
-                        padding: '0 14px',
+                        padding: "0 14px",
                         height: 52,
                         fontSize: 17,
-                        display: 'flex',
-                        alignItems: 'center',
-                        background: '#fff',
-                      }
+                        display: "flex",
+                        alignItems: "center",
+                        background: "#fff",
+                      },
                     }}
                   >
                     <MenuItem value="">
@@ -696,9 +770,10 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
               Redirecionamento de Fila
             </Typography>
             <Typography className={classes.infoText}>
-              Selecione uma fila para os contatos que não possuem fila serem redirecionados
+              Selecione uma fila para os contatos que não possuem fila serem
+              redirecionados
             </Typography>
-            
+
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Field
@@ -707,12 +782,16 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                   as={TextField}
                   label="Transferir após x (minutos)"
                   name="timeToTransfer"
-                  error={touched.timeToTransfer && Boolean(errors.timeToTransfer)}
+                  error={
+                    touched.timeToTransfer && Boolean(errors.timeToTransfer)
+                  }
                   helperText={touched.timeToTransfer && errors.timeToTransfer}
                   variant="outlined"
                   margin="dense"
                   className={classes.textField}
-                  InputLabelProps={{ shrink: values.timeToTransfer ? true : false }}
+                  InputLabelProps={{
+                    shrink: values.timeToTransfer ? true : false,
+                  }}
                 />
               </Grid>
 
@@ -720,25 +799,25 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                 <QueueSelect
                   selectedQueueIds={selectedQueueId}
                   onChange={(selectedId) => {
-                    setSelectedQueueId(selectedId)
+                    setSelectedQueueId(selectedId || undefined);
                   }}
                   multiple={false}
                   title="Fila de Transferência"
                   className={classes.selectField}
                   style={{
                     borderRadius: 12,
-                    boxShadow: '0 1px 4px rgba(93,63,211,0.07)',
-                    background: '#fff',
+                    boxShadow: "0 1px 4px rgba(93,63,211,0.07)",
+                    background: "#fff",
                     height: 52,
                     fontSize: 17,
-                    padding: '0 14px',
-                    alignItems: 'center',
-                    display: 'flex',
+                    padding: "0 14px",
+                    alignItems: "center",
+                    display: "flex",
                     marginTop: 8,
                   }}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Divider className={classes.sectionDivider} />
                 <Typography className={classes.sectionTitle}>
@@ -747,7 +826,10 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
               </Grid>
 
               <Grid item xs={12}>
-                <Typography variant="subtitle2" style={{ marginBottom: "8px", color: "#666" }}>
+                <Typography
+                  variant="subtitle2"
+                  style={{ marginBottom: "8px", color: "#666" }}
+                >
                   Encerrar chats abertos após x minutos
                 </Typography>
                 <Field
@@ -761,7 +843,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                   helperText={touched.expiresTicket && errors.expiresTicket}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Field
                   as={TextField}
@@ -770,8 +852,14 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                   rows={4}
                   fullWidth
                   name="expiresInactiveMessage"
-                  error={touched.expiresInactiveMessage && Boolean(errors.expiresInactiveMessage)}
-                  helperText={touched.expiresInactiveMessage && errors.expiresInactiveMessage}
+                  error={
+                    touched.expiresInactiveMessage &&
+                    Boolean(errors.expiresInactiveMessage)
+                  }
+                  helperText={
+                    touched.expiresInactiveMessage &&
+                    errors.expiresInactiveMessage
+                  }
                   variant="outlined"
                   margin="dense"
                   className={classes.textField}
@@ -796,12 +884,14 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
         classes={{ paper: classes.dialogPaper }}
       >
         <DialogTitle className={classes.dialogTitle}>
-          <Typography variant="h6" className={classes.dialogTitleText}>
-            <WhatsAppIcon />
-            {whatsAppId
-              ? i18n.t("whatsappModal.title.edit")
-              : i18n.t("whatsappModal.title.add")}
-          </Typography>
+          <Box className={classes.dialogTitleText}>
+            <MessageCircle size={24} />
+            <Typography variant="h6" component="div">
+              {whatsAppId
+                ? i18n.t("whatsappModal.title.edit")
+                : i18n.t("whatsappModal.title.add")}
+            </Typography>
+          </Box>
         </DialogTitle>
         <Formik
           initialValues={whatsApp}
@@ -816,20 +906,31 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
             }
           }}
         >
-          {({ values, touched, errors, isSubmitting, handleSubmit, setFieldValue }) => (
+          {({
+            values,
+            touched,
+            errors,
+            isSubmitting,
+            handleSubmit,
+            setFieldValue,
+          }) => (
             <Form>
               <DialogContent dividers>
-                <Stepper activeStep={activeStep} className={classes.stepper} alternativeLabel>
+                <Stepper
+                  activeStep={activeStep}
+                  className={classes.stepper}
+                  alternativeLabel
+                >
                   {steps.map((step) => (
                     <Step key={step.label}>
-                      <StepLabel 
+                      <StepLabel
                         className={classes.stepLabel}
                         StepIconProps={{
                           classes: {
                             root: classes.stepIcon,
                             active: classes.activeStep,
                             completed: classes.completedStep,
-                          }
+                          },
                         }}
                       >
                         {step.label}
@@ -837,25 +938,25 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     </Step>
                   ))}
                 </Stepper>
-                
+
                 {getStepContent(activeStep, values, touched, errors)}
-                
+
                 <div className={classes.stepperButtons}>
                   <Button
                     disabled={activeStep === 0}
                     onClick={handleBack}
                     variant="outlined"
                     className={`${classes.stepButton} ${classes.backButton}`}
-                    startIcon={<ArrowBackIcon />}
+                    startIcon={<ArrowLeft size={20} />}
                   >
                     VOLTAR
                   </Button>
-                  
+
                   {activeStep === steps.length - 1 ? (
                     <Button
                       variant="contained"
                       className={`${classes.stepButton} ${classes.nextButton}`}
-                      startIcon={<SaveIcon />}
+                      startIcon={<Save size={20} />}
                       disabled={isSubmitting}
                       onClick={(e) => {
                         e.preventDefault();
@@ -865,7 +966,10 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     >
                       SALVAR
                       {isSubmitting && (
-                        <CircularProgress size={24} className={classes.buttonProgress} />
+                        <CircularProgress
+                          size={24}
+                          className={classes.buttonProgress}
+                        />
                       )}
                     </Button>
                   ) : (
@@ -877,7 +981,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                         handleNext();
                       }}
                       className={`${classes.stepButton} ${classes.nextButton}`}
-                      endIcon={<ArrowForwardIcon />}
+                      endIcon={<ArrowRight size={20} />}
                     >
                       PRÓXIMO
                     </Button>
