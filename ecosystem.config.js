@@ -1,9 +1,9 @@
 module.exports = {
   apps: [
     {
-      name: "backend",
-      script: "serve",
-      args: "-s build",
+      name: "frontend",
+      script: "npm",
+      args: "start",
       exec_mode: "cluster",
       instances: "1",
       env: {
