@@ -1,65 +1,65 @@
-import React, { useState, useEffect, useReducer, useContext, useRef } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 
-import { toast } from "react-toastify";
-import { useHistory } from "react-router-dom";
-import { Tooltip } from "@material-ui/core";
+import Avatar from "@material-ui/core/Avatar";
+import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import Chip from "@material-ui/core/Chip";
+import Grid from "@material-ui/core/Grid";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-import Button from "@material-ui/core/Button";
-import Avatar from "@material-ui/core/Avatar";
-import WhatsAppIcon from "@material-ui/icons/WhatsApp";
-import SearchIcon from "@material-ui/icons/Search";
 import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Grid from "@material-ui/core/Grid";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
-import Chip from "@material-ui/core/Chip";
-import IconButton from "@material-ui/core/IconButton";
+import AddIcon from "@material-ui/icons/Add";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
-import GridOnIcon from "@material-ui/icons/GridOn";
-import ViewListIcon from "@material-ui/icons/ViewList";
 import EmailIcon from "@material-ui/icons/Email";
-import PhoneIcon from "@material-ui/icons/Phone";
+import FilterListIcon from "@material-ui/icons/FilterList";
+import GetAppIcon from "@material-ui/icons/GetApp";
+import GridOnIcon from "@material-ui/icons/GridOn";
+import InfoIcon from "@material-ui/icons/Info";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import MenuItem from "@material-ui/core/MenuItem";
-import Menu from "@material-ui/core/Menu";
-import Select from "@material-ui/core/Select";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import AddIcon from '@material-ui/icons/Add';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import Flag from 'react-world-flags';
-import InfoIcon from '@material-ui/icons/Info';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import Box from '@material-ui/core/Box';
+import PhoneIcon from "@material-ui/icons/Phone";
+import SearchIcon from "@material-ui/icons/Search";
+import ViewListIcon from "@material-ui/icons/ViewList";
+import WhatsAppIcon from "@material-ui/icons/WhatsApp";
+import { useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
+import Flag from "react-world-flags";
 
-import api from "../../services/api";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
-import ContactModal from "../../components/ContactModal";
-import ContactDetailsModal from "../../components/ContactDetailsModal";
 import ConfirmationModal from "../../components/ConfirmationModal/";
-import { TagsFilter } from "../../components/TagsFilter";
+import ContactDetailsModal from "../../components/ContactDetailsModal";
+import ContactModal from "../../components/ContactModal";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
 import TagModal from "../../components/TagModal";
+import { TagsFilter } from "../../components/TagsFilter";
+import api from "../../services/api";
 
-import { i18n } from "../../translate/i18n";
-import MainHeader from "../../components/MainHeader";
-import Title from "../../components/Title";
-import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
-import MainContainer from "../../components/MainContainer";
-import toastError from "../../errors/toastError";
-import { AuthContext } from "../../context/Auth/AuthContext";
 import { Can } from "../../components/Can";
+import MainContainer from "../../components/MainContainer";
+import MainHeader from "../../components/MainHeader";
 import NewTicketModal from "../../components/NewTicketModal";
+import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
+import toastError from "../../errors/toastError";
+import { i18n } from "../../translate/i18n";
 
 import { CSVLink } from "react-csv";
 
@@ -124,7 +124,7 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       transform: "translateY(-4px)",
       boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-    }
+    },
   },
   contactCardContent: {
     paddingTop: theme.spacing(1.5),
@@ -177,7 +177,7 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       transform: "translateY(-2px)",
       boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-    }
+    },
   },
   viewButtons: {
     display: "flex",
@@ -186,7 +186,7 @@ const useStyles = makeStyles((theme) => ({
   },
   viewButton: {
     padding: theme.spacing(0.5),
-    minWidth: 'auto',
+    minWidth: "auto",
     color: theme.palette.text.secondary,
     "&.active": {
       color: "#5D3FD3",
@@ -212,12 +212,12 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: "rgba(0, 0, 0, 0.02)",
       "&:hover": {
         backgroundColor: "rgba(0, 0, 0, 0.04)",
-      }
+      },
     },
     "& .MuiSelect-select": {
       paddingTop: 9,
       paddingBottom: 9,
-    }
+    },
   },
   emailPhone: {
     display: "flex",
@@ -363,7 +363,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(0.75),
     width: 16,
     height: 12,
-    boxShadow: '0 0 1px rgba(0,0,0,0.2)',
+    boxShadow: "0 0 1px rgba(0,0,0,0.2)",
     borderRadius: 2,
   },
   phoneWithFlag: {
@@ -404,7 +404,7 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       backgroundColor: "rgba(93, 63, 211, 0.08)",
       borderColor: "#5D3FD3",
-    }
+    },
   },
   tagFilterContainer: {
     padding: theme.spacing(2),
@@ -457,7 +457,7 @@ const Contacts = () => {
   useEffect(() => {
     const loadAllTags = async () => {
       try {
-        const { data } = await api.get('/tags/list');
+        const { data } = await api.get("/tags/list");
         setTags(data);
       } catch (err) {
         toastError(err);
@@ -475,7 +475,10 @@ const Contacts = () => {
             params: {
               searchParam,
               pageNumber,
-              tags: selectedTags.length > 0 ? selectedTags.map(tag => tag.id) : undefined
+              tags:
+                selectedTags.length > 0
+                  ? selectedTags.map((tag) => tag.id)
+                  : undefined,
             },
           });
           dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
@@ -556,7 +559,7 @@ const Contacts = () => {
     setSearchParam("");
     setPageNumber(1);
   };
-  
+
   const handleimportContact = async () => {
     try {
       if (!!fileUploadRef.current.files[0]) {
@@ -615,7 +618,7 @@ const Contacts = () => {
   const formatPhoneNumber = (number) => {
     if (!number) return "-";
 
-    if (number.startsWith('+')) {
+    if (number.startsWith("+")) {
       return number;
     }
 
@@ -649,9 +652,15 @@ const Contacts = () => {
     let nationalNumber = formattedNumber.substring(countryCode.length);
     if (nationalNumber.length > 8) {
       if (countryCode === "55" && nationalNumber.length === 11) {
-        return `+${countryCode} ${nationalNumber.substring(0, 2)} ${nationalNumber.substring(2, 7)}-${nationalNumber.substring(7)}`;
+        return `+${countryCode} ${nationalNumber.substring(
+          0,
+          2
+        )} ${nationalNumber.substring(2, 7)}-${nationalNumber.substring(7)}`;
       }
-      return `+${countryCode} ${nationalNumber.replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3")}`;
+      return `+${countryCode} ${nationalNumber.replace(
+        /(\d{3})(\d{3})(\d{4})/,
+        "$1 $2 $3"
+      )}`;
     }
 
     return `+${countryCode} ${nationalNumber}`;
@@ -685,7 +694,7 @@ const Contacts = () => {
 
   const handleTagsFilter = (tags) => {
     setSelectedTags(tags);
-    
+
     if (tags && tags.length > 0) {
       const fetchContacts = async () => {
         try {
@@ -694,8 +703,8 @@ const Contacts = () => {
             params: {
               searchParam,
               pageNumber: 1,
-              tags: tags.map(tag => tag.id)
-            }
+              tags: tags.map((tag) => tag.id),
+            },
           });
           dispatch({ type: "RESET" });
           dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
@@ -743,7 +752,8 @@ const Contacts = () => {
       <ConfirmationModal
         title={
           deletingContact
-            ? `${i18n.t("contacts.confirmationModal.deleteTitle")} ${deletingContact.name
+            ? `${i18n.t("contacts.confirmationModal.deleteTitle")} ${
+                deletingContact.name
               }?`
             : `${i18n.t("contacts.confirmationModal.importTitlte")}`
         }
@@ -769,13 +779,17 @@ const Contacts = () => {
             </div>
             <div className={classes.viewButtons}>
               <IconButton
-                className={`${classes.viewButton} ${viewMode === "cards" ? "active" : ""}`}
+                className={`${classes.viewButton} ${
+                  viewMode === "cards" ? "active" : ""
+                }`}
                 onClick={() => setViewMode("cards")}
               >
                 <GridOnIcon />
               </IconButton>
               <IconButton
-                className={`${classes.viewButton} ${viewMode === "table" ? "active" : ""}`}
+                className={`${classes.viewButton} ${
+                  viewMode === "table" ? "active" : ""
+                }`}
                 onClick={() => setViewMode("table")}
               >
                 <ViewListIcon />
@@ -785,35 +799,43 @@ const Contacts = () => {
 
           <div className={classes.controlsContainer}>
             <div className={classes.searchAndFilterContainer}>
-          <TextField
-            placeholder={i18n.t("contacts.searchPlaceholder")}
-            type="search"
-            value={searchParam}
-            onChange={handleSearch}
+              <TextField
+                placeholder={i18n.t("contacts.searchPlaceholder")}
+                type="search"
+                value={searchParam}
+                onChange={handleSearch}
                 className={classes.searchInput}
                 variant="outlined"
                 size="small"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon style={{ color: "gray" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon style={{ color: "gray" }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
               <Button
                 variant="outlined"
                 color="primary"
                 className={classes.tagFilterButton}
-                startIcon={<FilterListIcon style={{ 
-                  transform: showTagsFilter ? 'rotate(180deg)' : 'rotate(0)', 
-                  transition: 'transform 0.3s'
-                }} />}
+                startIcon={
+                  <FilterListIcon
+                    style={{
+                      transform: showTagsFilter
+                        ? "rotate(180deg)"
+                        : "rotate(0)",
+                      transition: "transform 0.3s",
+                    }}
+                  />
+                }
                 onClick={() => setShowTagsFilter(!showTagsFilter)}
                 size="small"
                 style={{
-                  backgroundColor: showTagsFilter ? "rgba(93, 63, 211, 0.12)" : "rgba(93, 63, 211, 0.04)"
+                  backgroundColor: showTagsFilter
+                    ? "rgba(93, 63, 211, 0.12)"
+                    : "rgba(93, 63, 211, 0.04)",
                 }}
               >
                 Filtrar por Tags
@@ -821,7 +843,7 @@ const Contacts = () => {
 
               {selectedTags.length > 0 && (
                 <Box display="flex" alignItems="center" flexWrap="wrap">
-                  {selectedTags.map(tag => (
+                  {selectedTags.map((tag) => (
                     <Chip
                       key={tag.id}
                       label={tag.name}
@@ -834,7 +856,9 @@ const Contacts = () => {
                         textShadow: "1px 1px 1px rgba(0,0,0,0.5)",
                       }}
                       onDelete={() => {
-                        const updatedTags = selectedTags.filter(t => t.id !== tag.id);
+                        const updatedTags = selectedTags.filter(
+                          (t) => t.id !== tag.id
+                        );
                         handleTagsFilter(updatedTags);
                       }}
                     />
@@ -872,53 +896,55 @@ const Contacts = () => {
                 Nova Tag
               </Button>
 
-          <Button
-            variant="contained"
-            color="primary"
+              <Button
+                variant="contained"
+                color="primary"
                 className={`${classes.actionButton} ${classes.importButton}`}
-            onClick={(e) => setConfirmOpen(true)}
+                onClick={(e) => setConfirmOpen(true)}
                 startIcon={<CloudUploadIcon className={classes.buttonIcon} />}
                 size="small"
-          >
+              >
                 Importar
-          </Button>
+              </Button>
 
-          <Button
-          variant="contained"
-          color="primary"
+              <Button
+                variant="contained"
+                color="primary"
                 className={`${classes.actionButton} ${classes.importExcelButton}`}
-          onClick={() => {
-            fileUploadRef.current.value = null;
-            fileUploadRef.current.click();
-          }}
+                onClick={() => {
+                  fileUploadRef.current.value = null;
+                  fileUploadRef.current.click();
+                }}
                 startIcon={<CloudUploadIcon className={classes.buttonIcon} />}
                 size="small"
-      >
+              >
                 Importar Excel
-      </Button>
+              </Button>
 
               <CSVLink
-                style={{ textDecoration: 'none' }}
+                style={{ textDecoration: "none" }}
                 separator=";"
-                filename={'CRM_Evolution_Pro.csv'}
+                filename={"varity_crm.csv"}
                 data={contacts.map((contact) => ({
                   name: contact.name,
                   number: formatPhoneNumber(contact.number),
                   email: contact.email,
                   status: contact.status || "Customer",
-                  company: contact.extraInfo?.company || contact.name.split(" ")[0] + " Enterprises"
+                  company:
+                    contact.extraInfo?.company ||
+                    contact.name.split(" ")[0] + " Enterprises",
                 }))}
               >
-          <Button
-            variant="contained"
-            color="primary"
+                <Button
+                  variant="contained"
+                  color="primary"
                   className={`${classes.actionButton} ${classes.exportButton}`}
                   startIcon={<GetAppIcon className={classes.buttonIcon} />}
                   size="small"
                 >
                   Exportar
-          </Button>
-          </CSVLink>		  
+                </Button>
+              </CSVLink>
             </div>
           </div>
         </div>
@@ -937,15 +963,15 @@ const Contacts = () => {
       >
         <>
           <input
-              style={{ display: "none" }}
-              id="upload"
-              name="file"
-              type="file"
-              accept=".xls,.xlsx"
-              onChange={() => {
-                setConfirmOpen(true);
-              }}
-              ref={fileUploadRef}
+            style={{ display: "none" }}
+            id="upload"
+            name="file"
+            type="file"
+            accept=".xls,.xlsx"
+            onChange={() => {
+              setConfirmOpen(true);
+            }}
+            ref={fileUploadRef}
           />
         </>
 
@@ -964,14 +990,14 @@ const Contacts = () => {
                         <Typography variant="h6" component="h2">
                           {contact.name}
                         </Typography>
-                        <Typography
-                          className={classes.jobTitle}
-                        >
-                          {contact.extraInfo?.jobTitle || "CEO"} at {contact.extraInfo?.company || contact.name.split(" ")[0] + " Enterprises"}
+                        <Typography className={classes.jobTitle}>
+                          {contact.extraInfo?.jobTitle || "CEO"} at{" "}
+                          {contact.extraInfo?.company ||
+                            contact.name.split(" ")[0] + " Enterprises"}
                         </Typography>
                       </div>
-                      <IconButton 
-                        size="small" 
+                      <IconButton
+                        size="small"
                         onClick={(e) => handleOpenMenu(e, contact)}
                         aria-controls={`contact-menu-${contact.id}`}
                         aria-haspopup="true"
@@ -983,61 +1009,75 @@ const Contacts = () => {
                         id={`contact-menu-${contact.id}`}
                         anchorEl={anchorEl}
                         keepMounted
-                        open={Boolean(anchorEl) && contactTicket.id === contact.id}
+                        open={
+                          Boolean(anchorEl) && contactTicket.id === contact.id
+                        }
                         onClose={handleCloseMenu}
                         transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'right',
+                          vertical: "top",
+                          horizontal: "right",
                         }}
                         PaperProps={{
                           className: classes.menuPaper,
-                          elevation: 2
+                          elevation: 2,
                         }}
                       >
-                        <MenuItem 
+                        <MenuItem
                           onClick={() => {
                             handleOpenContactDetailsModal(contact.id);
                             handleCloseMenu();
                           }}
                           className={classes.actionMenuItem}
                         >
-                          <InfoIcon fontSize="small" style={{ marginRight: 8, color: '#2196F3' }} />
+                          <InfoIcon
+                            fontSize="small"
+                            style={{ marginRight: 8, color: "#2196F3" }}
+                          />
                           Detalhes do Contato
                         </MenuItem>
-                        <MenuItem 
+                        <MenuItem
                           onClick={() => {
                             setNewTicketModalOpen(true);
                             handleCloseMenu();
                           }}
                           className={classes.actionMenuItem}
                         >
-                          <WhatsAppIcon fontSize="small" style={{ marginRight: 8, color: '#25D366' }} />
+                          <WhatsAppIcon
+                            fontSize="small"
+                            style={{ marginRight: 8, color: "#25D366" }}
+                          />
                           Enviar mensagem
                         </MenuItem>
-                        <MenuItem 
+                        <MenuItem
                           onClick={() => {
                             hadleEditContact(contact.id);
                             handleCloseMenu();
                           }}
                           className={classes.actionMenuItem}
                         >
-                          <EditIcon fontSize="small" style={{ marginRight: 8, color: '#5D3FD3' }} />
+                          <EditIcon
+                            fontSize="small"
+                            style={{ marginRight: 8, color: "#5D3FD3" }}
+                          />
                           Editar contato
                         </MenuItem>
                         <Can
                           role={user.profile}
                           perform="contacts-page:deleteContact"
                           yes={() => (
-                            <MenuItem 
+                            <MenuItem
                               onClick={(e) => {
                                 setConfirmOpen(true);
                                 setDeletingContact(contact);
                                 handleCloseMenu();
                               }}
-                              style={{ color: '#f44336' }}
+                              style={{ color: "#f44336" }}
                               className={classes.actionMenuItem}
                             >
-                              <DeleteOutlineIcon fontSize="small" style={{ marginRight: 8 }} />
+                              <DeleteOutlineIcon
+                                fontSize="small"
+                                style={{ marginRight: 8 }}
+                              />
                               Excluir contato
                             </MenuItem>
                           )}
@@ -1048,11 +1088,13 @@ const Contacts = () => {
                     <div className={classes.tagsContainer}>
                       {contact.tags && contact.tags.length > 0 ? (
                         contact.tags.map((tag) => {
-                          const tagInfo = tags.find(t => t.id === tag.id || t.id === tag) || { 
-                            name: tag.name || tag, 
-                            color: tag.color || "#5D3FD3" 
+                          const tagInfo = tags.find(
+                            (t) => t.id === tag.id || t.id === tag
+                          ) || {
+                            name: tag.name || tag,
+                            color: tag.color || "#5D3FD3",
                           };
-                          
+
                           return (
                             <Chip
                               key={tagInfo.id || tag}
@@ -1063,7 +1105,7 @@ const Contacts = () => {
                                 backgroundColor: tagInfo.color,
                                 color: "#fff",
                                 fontWeight: "bold",
-                                textShadow: "0px 1px 1px rgba(0,0,0,0.5)"
+                                textShadow: "0px 1px 1px rgba(0,0,0,0.5)",
                               }}
                               onClick={() => handleTagsFilter([tagInfo])}
                             />
@@ -1080,8 +1122,13 @@ const Contacts = () => {
                       <div className={classes.emailPhone}>
                         <PhoneIcon fontSize="small" />
                         <div className={classes.phoneWithFlag}>
-                          <Flag code={getCountryCode(contact.number)} className={classes.countryFlag} />
-                          <Typography variant="body2">{formatPhoneNumber(contact.number)}</Typography>
+                          <Flag
+                            code={getCountryCode(contact.number)}
+                            className={classes.countryFlag}
+                          />
+                          <Typography variant="body2">
+                            {formatPhoneNumber(contact.number)}
+                          </Typography>
                         </div>
                       </div>
                       <div className={classes.emailPhone}>
@@ -1091,7 +1138,8 @@ const Contacts = () => {
 
                       {contact.extraInfo?.revenue && (
                         <Typography variant="body2" className={classes.revenue}>
-                          Average Revenue: ${contact.extraInfo.revenue || "15.000"}
+                          Average Revenue: $
+                          {contact.extraInfo.revenue || "15.000"}
                         </Typography>
                       )}
                     </div>
@@ -1107,9 +1155,9 @@ const Contacts = () => {
           </Grid>
         ) : (
           <div className={classes.tableContainer}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
                   <TableCell>Nome</TableCell>
                   <TableCell>Email</TableCell>
                   <TableCell>Empresa</TableCell>
@@ -1117,21 +1165,32 @@ const Contacts = () => {
                   <TableCell align="center">Tags</TableCell>
                   <TableCell align="center" className={classes.actionsColumn}>
                     Ações
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {filteredContacts.map((contact) => (
-                <TableRow key={contact.id}>
+                  <TableRow key={contact.id}>
                     <TableCell className={classes.nameColumn}>
                       <div style={{ display: "flex", alignItems: "center" }}>
-                        <Avatar src={contact.profilePicUrl} style={{ marginRight: 8 }} />
+                        <Avatar
+                          src={contact.profilePicUrl}
+                          style={{ marginRight: 8 }}
+                        />
                         <div>
-                          <Typography variant="body1" style={{ fontWeight: 500 }}>
+                          <Typography
+                            variant="body1"
+                            style={{ fontWeight: 500 }}
+                          >
                             {contact.name}
                           </Typography>
-                          <div style={{ display: "flex", alignItems: "center" }}>
-                            <Flag code={getCountryCode(contact.number)} className={classes.countryFlag} />
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <Flag
+                              code={getCountryCode(contact.number)}
+                              className={classes.countryFlag}
+                            />
                             <Typography variant="body2" color="textSecondary">
                               {formatPhoneNumber(contact.number)}
                             </Typography>
@@ -1141,28 +1200,40 @@ const Contacts = () => {
                     </TableCell>
                     <TableCell>{contact.email}</TableCell>
                     <TableCell>
-                      {contact.extraInfo?.company || contact.name.split(" ")[0] + " Enterprises"}
+                      {contact.extraInfo?.company ||
+                        contact.name.split(" ")[0] + " Enterprises"}
                     </TableCell>
                     <TableCell align="center">
                       <Chip
                         label={getStatusLabel(contact.status || "Customer")}
                         size="small"
                         style={{
-                          backgroundColor: getStatusColor(contact.status || "Customer"),
+                          backgroundColor: getStatusColor(
+                            contact.status || "Customer"
+                          ),
                           color: "#fff",
-                          fontWeight: "bold"
+                          fontWeight: "bold",
                         }}
                       />
                     </TableCell>
                     <TableCell align="center">
-                      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 4 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          justifyContent: "center",
+                          gap: 4,
+                        }}
+                      >
                         {contact.tags && contact.tags.length > 0 ? (
                           contact.tags.map((tag) => {
-                            const tagInfo = tags.find(t => t.id === tag.id || t.id === tag) || { 
-                              name: tag.name || tag, 
-                              color: tag.color || "#5D3FD3" 
+                            const tagInfo = tags.find(
+                              (t) => t.id === tag.id || t.id === tag
+                            ) || {
+                              name: tag.name || tag,
+                              color: tag.color || "#5D3FD3",
                             };
-                            
+
                             return (
                               <Chip
                                 key={tagInfo.id || tag}
@@ -1173,7 +1244,7 @@ const Contacts = () => {
                                   backgroundColor: tagInfo.color,
                                   color: "#fff",
                                   fontWeight: "bold",
-                                  textShadow: "0px 1px 1px rgba(0,0,0,0.5)"
+                                  textShadow: "0px 1px 1px rgba(0,0,0,0.5)",
                                 }}
                                 onClick={() => handleTagsFilter([tagInfo])}
                               />
@@ -1185,10 +1256,10 @@ const Contacts = () => {
                           </Typography>
                         )}
                       </div>
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      size="small"
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton
+                        size="small"
                         aria-controls={`contact-menu-${contact.id}`}
                         aria-haspopup="true"
                         onClick={(e) => handleOpenMenu(e, contact)}
@@ -1200,72 +1271,86 @@ const Contacts = () => {
                         id={`contact-menu-${contact.id}`}
                         anchorEl={anchorEl}
                         keepMounted
-                        open={Boolean(anchorEl) && contactTicket.id === contact.id}
+                        open={
+                          Boolean(anchorEl) && contactTicket.id === contact.id
+                        }
                         onClose={handleCloseMenu}
                         transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'right',
+                          vertical: "top",
+                          horizontal: "right",
                         }}
                         PaperProps={{
                           className: classes.menuPaper,
-                          elevation: 2
+                          elevation: 2,
                         }}
                       >
-                        <MenuItem 
+                        <MenuItem
                           onClick={() => {
                             handleOpenContactDetailsModal(contact.id);
                             handleCloseMenu();
                           }}
                           className={classes.actionMenuItem}
                         >
-                          <InfoIcon fontSize="small" style={{ marginRight: 8, color: '#2196F3' }} />
+                          <InfoIcon
+                            fontSize="small"
+                            style={{ marginRight: 8, color: "#2196F3" }}
+                          />
                           Detalhes do Contato
                         </MenuItem>
-                        <MenuItem 
-                      onClick={() => {
-                        setNewTicketModalOpen(true);
+                        <MenuItem
+                          onClick={() => {
+                            setNewTicketModalOpen(true);
                             handleCloseMenu();
-                      }}
+                          }}
                           className={classes.actionMenuItem}
-                    >
-                          <WhatsAppIcon fontSize="small" style={{ marginRight: 8, color: '#25D366' }} />
+                        >
+                          <WhatsAppIcon
+                            fontSize="small"
+                            style={{ marginRight: 8, color: "#25D366" }}
+                          />
                           Enviar mensagem
                         </MenuItem>
-                        <MenuItem 
+                        <MenuItem
                           onClick={() => {
                             hadleEditContact(contact.id);
                             handleCloseMenu();
                           }}
                           className={classes.actionMenuItem}
-                    >
-                          <EditIcon fontSize="small" style={{ marginRight: 8, color: '#5D3FD3' }} />
+                        >
+                          <EditIcon
+                            fontSize="small"
+                            style={{ marginRight: 8, color: "#5D3FD3" }}
+                          />
                           Editar contato
                         </MenuItem>
-                    <Can
-                      role={user.profile}
-                      perform="contacts-page:deleteContact"
-                      yes={() => (
-                            <MenuItem 
-                          onClick={(e) => {
-                            setConfirmOpen(true);
-                            setDeletingContact(contact);
+                        <Can
+                          role={user.profile}
+                          perform="contacts-page:deleteContact"
+                          yes={() => (
+                            <MenuItem
+                              onClick={(e) => {
+                                setConfirmOpen(true);
+                                setDeletingContact(contact);
                                 handleCloseMenu();
-                          }}
-                              style={{ color: '#f44336' }}
+                              }}
+                              style={{ color: "#f44336" }}
                               className={classes.actionMenuItem}
-                        >
-                              <DeleteOutlineIcon fontSize="small" style={{ marginRight: 8 }} />
+                            >
+                              <DeleteOutlineIcon
+                                fontSize="small"
+                                style={{ marginRight: 8 }}
+                              />
                               Excluir contato
                             </MenuItem>
-                      )}
-                    />
+                          )}
+                        />
                       </Menu>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                  </TableRow>
+                ))}
                 {loading && <TableRowSkeleton avatar columns={6} />}
-          </TableBody>
-        </Table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </Paper>

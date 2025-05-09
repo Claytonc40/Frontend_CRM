@@ -611,7 +611,7 @@ const SignUp = () => {
 				<CssBaseline />
 				<div className={classes.paper}>
 					<Typography className={classes.title} component="h1" variant="h5">
-						CRM<span style={{ color: "#4C3FD9" }}>Pro</span>
+						Verity<span style={{ color: "#4C3FD9" }}>CRM</span>
 					</Typography>
 					<Typography className={classes.subtitle} component="p">
 						{i18n.t("signup.title")}

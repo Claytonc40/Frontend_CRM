@@ -1,39 +1,37 @@
-import React, { useState } from "react";
-import qs from "query-string";
-import IconButton from "@material-ui/core/IconButton";
-import VisibilityIcon from "@material-ui/icons/Visibility";
-import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import * as Yup from "yup";
-import { useHistory } from "react-router-dom";
-import { Link as RouterLink } from "react-router-dom";
-import { Formik, Form, Field } from "formik";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import Link from "@material-ui/core/Link";
-import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
+import Container from "@material-ui/core/Container";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Grid from "@material-ui/core/Grid";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Link from "@material-ui/core/Link";
+import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
+import EmailIcon from "@material-ui/icons/Email";
+import LockIcon from "@material-ui/icons/Lock";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import VpnKeyIcon from "@material-ui/icons/VpnKey";
+import { Field, Form, Formik } from "formik";
+import moment from "moment";
+import qs from "query-string";
+import React, { useState } from "react";
+import { Link as RouterLink, useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import * as Yup from "yup";
+import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
-import moment from "moment";
-import logo from "../../assets/logo.png";
-import { toast } from 'react-toastify'; 
-import toastError from '../../errors/toastError';
-import 'react-toastify/dist/ReactToastify.css';
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import EmailIcon from "@material-ui/icons/Email";
-import VpnKeyIcon from "@material-ui/icons/VpnKey";
-import LockIcon from "@material-ui/icons/Lock";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100vw",
     height: "100vh",
-    background: "linear-gradient(to right,rgb(244, 244, 246),rgb(141, 145, 254))",
+    background:
+      "linear-gradient(to right,rgb(244, 244, 246),rgb(141, 145, 254))",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -75,13 +73,13 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "16px",
     "&:hover": {
       backgroundColor: "#4C3FD9",
-    }
+    },
   },
   textField: {
     marginBottom: "15px",
     "& .MuiOutlinedInput-root": {
       borderRadius: "6px",
-    }
+    },
   },
   inputIcon: {
     color: "#6151FF",
@@ -93,7 +91,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "500",
     "&:hover": {
       textDecoration: "underline",
-    }
+    },
   },
 }));
 
@@ -136,24 +134,24 @@ const ForgetPassword = () => {
   const [user] = useState(initialState);
   const dueDate = moment().add(3, "day").format();
 
-const handleSendEmail = async (values) => {
-  const email = values.email;
-  try {
-    const response = await api.post(
-      `${process.env.REACT_APP_BACKEND_URL}/forgetpassword/${email}`
-    );
-    console.log("API Response:", response.data);
+  const handleSendEmail = async (values) => {
+    const email = values.email;
+    try {
+      const response = await api.post(
+        `${process.env.REACT_APP_BACKEND_URL}/forgetpassword/${email}`
+      );
+      console.log("API Response:", response.data);
 
-    if (response.data.status === 404) {
-      toast.error("Email não encontrado");
-    } else {
-      toast.success(i18n.t("Email enviado com sucesso!"));
+      if (response.data.status === 404) {
+        toast.error("Email não encontrado");
+      } else {
+        toast.success(i18n.t("Email enviado com sucesso!"));
+      }
+    } catch (err) {
+      console.log("API Error:", err);
+      toastError(err);
     }
-  } catch (err) {
-    console.log("API Error:", err);
-    toastError(err);
-  }
-};
+  };
 
   const handleResetPassword = async (values) => {
     const email = values.email;
@@ -201,7 +199,7 @@ const handleSendEmail = async (values) => {
         <CssBaseline />
         <div className={classes.paper}>
           <Typography className={classes.title} component="h1" variant="h5">
-            CRM<span style={{ color: "#4C3FD9" }}>Pro</span>
+            Verity<span style={{ color: "#4C3FD9" }}>CRM</span>
           </Typography>
           <Typography className={classes.subtitle} component="p">
             {i18n.t("Redefinir senha")}
@@ -287,12 +285,9 @@ const handleSendEmail = async (values) => {
                           label="Nova senha"
                           name="newPassword"
                           error={
-                            touched.newPassword &&
-                            Boolean(errors.newPassword)
+                            touched.newPassword && Boolean(errors.newPassword)
                           }
-                          helperText={
-                            touched.newPassword && errors.newPassword
-                          }
+                          helperText={touched.newPassword && errors.newPassword}
                           autoComplete="off"
                           required
                           InputProps={{
@@ -303,9 +298,7 @@ const handleSendEmail = async (values) => {
                             ),
                             endAdornment: (
                               <InputAdornment position="end">
-                                <IconButton
-                                  onClick={togglePasswordVisibility}
-                                >
+                                <IconButton onClick={togglePasswordVisibility}>
                                   {showPassword ? (
                                     <VisibilityIcon />
                                   ) : (
@@ -332,8 +325,7 @@ const handleSendEmail = async (values) => {
                             Boolean(errors.confirmPassword)
                           }
                           helperText={
-                            touched.confirmPassword &&
-                            errors.confirmPassword
+                            touched.confirmPassword && errors.confirmPassword
                           }
                           autoComplete="off"
                           required

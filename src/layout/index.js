@@ -1,47 +1,44 @@
-import React, { useState, useContext, useEffect } from "react";
-import clsx from "clsx";
-import moment from "moment";
-import { useLocation } from "react-router-dom";
 import {
-  makeStyles,
-  Drawer,
   AppBar,
-  Toolbar,
-  List,
-  Typography,
   Divider,
-  MenuItem,
+  Drawer,
   IconButton,
+  List,
+  makeStyles,
   Menu,
-  useTheme,
+  MenuItem,
+  Toolbar,
+  Typography,
   useMediaQuery,
+  useTheme,
 } from "@material-ui/core";
+import clsx from "clsx";
+import React, { useContext, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
-import MenuIcon from "@material-ui/icons/Menu";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import CachedIcon from "@material-ui/icons/Cached";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import MenuIcon from "@material-ui/icons/Menu";
 
-import MainListItems from "./MainListItems";
+import AnnouncementsPopover from "../components/AnnouncementsPopover";
+import BackdropLoading from "../components/BackdropLoading";
 import NotificationsPopOver from "../components/NotificationsPopOver";
 import NotificationsVolume from "../components/NotificationsVolume";
 import UserModal from "../components/UserModal";
 import { AuthContext } from "../context/Auth/AuthContext";
-import BackdropLoading from "../components/BackdropLoading";
-import DarkMode from "../components/DarkMode";
-import { i18n } from "../translate/i18n";
 import toastError from "../errors/toastError";
-import AnnouncementsPopover from "../components/AnnouncementsPopover";
+import { i18n } from "../translate/i18n";
+import MainListItems from "./MainListItems";
 
-import logo from "../assets/logo.png";
 import { SocketContext } from "../context/Socket/SocketContext";
 import ChatPopover from "../pages/Chat/ChatPopover";
 
 import { useDate } from "../hooks/useDate";
 
+import Brightness4Icon from "@material-ui/icons/Brightness4";
+import Brightness7Icon from "@material-ui/icons/Brightness7";
 import ColorModeContext from "../layout/themeContext";
-import Brightness4Icon from '@material-ui/icons/Brightness4';
-import Brightness7Icon from '@material-ui/icons/Brightness7';
 
 const drawerWidth = 280;
 const closedDrawerWidth = 80;
@@ -54,14 +51,14 @@ const useStyles = makeStyles((theme) => ({
       height: "calc(100vh - 56px)",
     },
     backgroundColor: theme.palette.fancyBackground,
-    '& .MuiButton-outlinedPrimary': {
-      color: theme.palette.type === 'light' ? '#FFF' : '#FFF',
-	  backgroundColor: theme.palette.type === 'light' ? '#5D3FD3' : '#1c1c1c',
+    "& .MuiButton-outlinedPrimary": {
+      color: theme.palette.type === "light" ? "#FFF" : "#FFF",
+      backgroundColor: theme.palette.type === "light" ? "#5D3FD3" : "#1c1c1c",
       //border: theme.palette.type === 'light' ? '1px solid rgba(0 124 102)' : '1px solid rgba(255, 255, 255, 0.5)',
     },
-    '& .MuiTab-textColorPrimary.Mui-selected': {
-      color: theme.palette.type === 'light' ? '#5D3FD3' : '#FFF',
-    }
+    "& .MuiTab-textColorPrimary.Mui-selected": {
+      color: theme.palette.type === "light" ? "#5D3FD3" : "#FFF",
+    },
   },
   avatar: {
     width: "100%",
@@ -69,11 +66,11 @@ const useStyles = makeStyles((theme) => ({
   toolbar: {
     paddingRight: 24,
     color: theme.palette.dark.main,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
     height: 64,
-    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
     [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(0, 1),
       minHeight: 56,
@@ -87,8 +84,8 @@ const useStyles = makeStyles((theme) => ({
     padding: "0 8px",
     minHeight: "48px",
     [theme.breakpoints.down("sm")]: {
-      height: "48px"
-    }
+      height: "48px",
+    },
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
@@ -96,10 +93,17 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.fancyBackground : '#FFFFFF',
-    color: theme.palette.type === 'dark' ? '#FFFFFF' : '#5D3FD3',
-    boxShadow: theme.palette.type === 'dark' ? '0 1px 3px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.08)',
-    borderBottom: theme.palette.type === 'dark' ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.06)',
+    backgroundColor:
+      theme.palette.type === "dark" ? theme.palette.fancyBackground : "#FFFFFF",
+    color: theme.palette.type === "dark" ? "#FFFFFF" : "#5D3FD3",
+    boxShadow:
+      theme.palette.type === "dark"
+        ? "0 1px 3px rgba(0,0,0,0.15)"
+        : "0 1px 3px rgba(0,0,0,0.08)",
+    borderBottom:
+      theme.palette.type === "dark"
+        ? "1px solid rgba(255,255,255,0.05)"
+        : "1px solid rgba(0,0,0,0.06)",
   },
   appBarShift: {
     marginLeft: drawerWidth,
@@ -109,8 +113,8 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     [theme.breakpoints.down("sm")]: {
-      display: "none"
-    }
+      display: "none",
+    },
   },
   menuButton: {
     marginRight: 36,
@@ -121,7 +125,7 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
     fontSize: 15,
-    color: theme.palette.type === 'dark' ? '#FFFFFF' : '#333',
+    color: theme.palette.type === "dark" ? "#FFFFFF" : "#333",
     fontWeight: 500,
     [theme.breakpoints.down("xs")]: {
       fontSize: 13,
@@ -155,7 +159,7 @@ const useStyles = makeStyles((theme) => ({
     },
     backgroundColor: theme.palette.background.paper,
     borderRight: `1px solid ${theme.palette.divider}`,
-    boxShadow: '2px 0 8px rgba(0,0,0,0.04)',
+    boxShadow: "2px 0 8px rgba(0,0,0,0.04)",
   },
   drawerPaperClose: {
     overflowX: "hidden",
@@ -168,8 +172,8 @@ const useStyles = makeStyles((theme) => ({
       width: closedDrawerWidth,
     },
     [theme.breakpoints.down("sm")]: {
-      width: "100%"
-    }
+      width: "100%",
+    },
   },
   appBarSpacer: {
     minHeight: "48px",
@@ -177,7 +181,6 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flex: 1,
     overflow: "auto",
-
   },
   container: {
     paddingTop: theme.spacing(4),
@@ -187,7 +190,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     display: "flex",
     overflow: "auto",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   containerWithScroll: {
     flex: 1,
@@ -223,9 +226,13 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     padding: theme.spacing(2, 2.5),
     borderBottom: `1px solid ${theme.palette.divider}`,
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.fancyBackground : '#FFFFFF',
+    backgroundColor:
+      theme.palette.type === "dark" ? theme.palette.fancyBackground : "#FFFFFF",
     minHeight: 70,
-    boxShadow: theme.palette.type === 'dark' ? '0 2px 4px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.03)',
+    boxShadow:
+      theme.palette.type === "dark"
+        ? "0 2px 4px rgba(0,0,0,0.2)"
+        : "0 2px 4px rgba(0,0,0,0.03)",
   },
   drawerLogoBox: {
     display: "flex",
@@ -234,122 +241,131 @@ const useStyles = makeStyles((theme) => ({
   },
   logoText: {
     fontWeight: 600,
-    fontSize: '26px',
-    color: theme.palette.type === 'dark' ? '#FFFFFF' : '#5D3FD3',
-    letterSpacing: '-0.5px',
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      color: theme.palette.type === 'dark' ? '#e0e0e0' : '#4930A8',
-      transform: 'scale(1.02)',
+    fontSize: "26px",
+    color: theme.palette.type === "dark" ? "#FFFFFF" : "#5D3FD3",
+    letterSpacing: "-0.5px",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      color: theme.palette.type === "dark" ? "#e0e0e0" : "#4930A8",
+      transform: "scale(1.02)",
     },
   },
   drawerToggleIcon: {
     color: "#757575",
     padding: 6,
-    transition: 'all 0.2s ease',
-    borderRadius: '50%',
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,0.04)',
-      transform: 'rotate(-180deg)',
+    transition: "all 0.2s ease",
+    borderRadius: "50%",
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0,0.04)",
+      transform: "rotate(-180deg)",
     },
   },
   appBarButton: {
-    color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3',
+    color: theme.palette.type === "dark" ? "#5D3FD3" : "#5D3FD3",
     margin: theme.spacing(0, 0.5),
     padding: theme.spacing(1),
     borderRadius: theme.spacing(1),
-    transition: 'all 0.2s ease',
+    transition: "all 0.2s ease",
     [theme.breakpoints.down("xs")]: {
       margin: theme.spacing(0, 0.2),
       padding: theme.spacing(0.7),
     },
-    '&:hover': {
-      backgroundColor: theme.palette.type === 'dark' ? 'rgba(93, 63, 211, 0.12)' : 'rgba(93, 63, 211, 0.08)',
-      transform: 'translateY(-1px)',
+    "&:hover": {
+      backgroundColor:
+        theme.palette.type === "dark"
+          ? "rgba(93, 63, 211, 0.12)"
+          : "rgba(93, 63, 211, 0.08)",
+      transform: "translateY(-1px)",
     },
   },
   userButton: {
-    color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3',
+    color: theme.palette.type === "dark" ? "#5D3FD3" : "#5D3FD3",
     borderRadius: theme.spacing(1),
     padding: theme.spacing(0.5),
     marginLeft: theme.spacing(1),
-    transition: 'all 0.2s ease',
+    transition: "all 0.2s ease",
     [theme.breakpoints.down("xs")]: {
       marginLeft: theme.spacing(0.3),
       padding: theme.spacing(0.4),
     },
-    '&:hover': {
-      backgroundColor: theme.palette.type === 'dark' ? 'rgba(93, 63, 211, 0.12)' : 'rgba(93, 63, 211, 0.08)',
-      transform: 'scale(1.05)',
+    "&:hover": {
+      backgroundColor:
+        theme.palette.type === "dark"
+          ? "rgba(93, 63, 211, 0.12)"
+          : "rgba(93, 63, 211, 0.08)",
+      transform: "scale(1.05)",
     },
   },
   greetingText: {
     fontSize: 15,
     fontWeight: 500,
-    color: theme.palette.type === 'dark' ? '#FFFFFF' : '#333',
+    color: theme.palette.type === "dark" ? "#FFFFFF" : "#333",
     [theme.breakpoints.down("xs")]: {
       fontSize: 13,
     },
   },
   companyText: {
     fontWeight: 600,
-    color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3',
-    transition: 'color 0.2s ease',
-    '&:hover': {
-      color: theme.palette.type === 'dark' ? '#7058e6' : '#4930A8',
+    color: theme.palette.type === "dark" ? "#5D3FD3" : "#5D3FD3",
+    transition: "color 0.2s ease",
+    "&:hover": {
+      color: theme.palette.type === "dark" ? "#7058e6" : "#4930A8",
     },
   },
   dueDateText: {
     fontSize: 13,
     opacity: 0.8,
-    color: theme.palette.type === 'dark' ? '#CCCCCC' : '#666',
+    color: theme.palette.type === "dark" ? "#CCCCCC" : "#666",
     [theme.breakpoints.down("xs")]: {
       fontSize: 11,
     },
   },
   menuIconOnly: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: "flex",
+    justifyContent: "center",
     padding: theme.spacing(1.2),
-    width: '100%',
-    color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3',
-    '& svg': {
+    width: "100%",
+    color: theme.palette.type === "dark" ? "#5D3FD3" : "#5D3FD3",
+    "& svg": {
       fontSize: 28,
     },
-    transition: 'all 0.2s ease',
-    '&:hover': {
-      backgroundColor: theme.palette.type === 'dark' ? 'rgba(93, 63, 211, 0.12)' : 'rgba(93, 63, 211, 0.04)',
+    transition: "all 0.2s ease",
+    "&:hover": {
+      backgroundColor:
+        theme.palette.type === "dark"
+          ? "rgba(93, 63, 211, 0.12)"
+          : "rgba(93, 63, 211, 0.04)",
     },
   },
   headerSection: {
-    display: 'flex',
-    alignItems: 'center',
-    '& > *': {
-      transition: 'all 0.2s ease',
+    display: "flex",
+    alignItems: "center",
+    "& > *": {
+      transition: "all 0.2s ease",
     },
     [theme.breakpoints.down("xs")]: {
-      '& > *:not(:last-child)': {
+      "& > *:not(:last-child)": {
         marginRight: -6,
       },
     },
   },
   mobileHeaderSection: {
     [theme.breakpoints.down("xs")]: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      width: '100%',
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      width: "100%",
     },
   },
   rightIconsSection: {
-    display: 'flex',
-    alignItems: 'center',
-    marginLeft: 'auto',
-    '& > *': {
-      transition: 'all 0.2s ease',
+    display: "flex",
+    alignItems: "center",
+    marginLeft: "auto",
+    "& > *": {
+      transition: "all 0.2s ease",
     },
     [theme.breakpoints.down("xs")]: {
-      '& > *:not(:last-child)': {
+      "& > *:not(:last-child)": {
         marginRight: -6,
       },
     },
@@ -378,7 +394,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   // Função para obter o título da página com base na rota atual
   const getPageTitle = () => {
     const path = location.pathname;
-    
+
     // Mapeamento de rotas para títulos
     const routeTitles = {
       "/": i18n.t("mainDrawer.listItems.dashboard"),
@@ -403,18 +419,18 @@ const LoggedInLayout = ({ children, themeToggle }) => {
       "/prompts": i18n.t("mainDrawer.listItems.prompts"),
       "/queue-integration": i18n.t("mainDrawer.listItems.queueIntegration"),
     };
-    
+
     // Verifica se a rota existe no mapeamento
     const exactMatch = routeTitles[path];
     if (exactMatch) return exactMatch;
-    
+
     // Para rotas que possuem parâmetros, verificamos parcialmente
     for (const route in routeTitles) {
       if (path.startsWith(route) && route !== "/") {
         return routeTitles[route];
       }
     }
-    
+
     // Se não encontrou nenhum título, retorna o padrão
     return i18n.t("mainDrawer.appBar.pageTitle");
   };
@@ -490,7 +506,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
 
   const handleRefreshPage = () => {
     window.location.reload(false);
-  }
+  };
 
   const handleMenuItemClick = () => {
     const { innerWidth: width } = window;
@@ -501,7 +517,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
 
   const toggleColorMode = () => {
     colorMode.toggleColorMode();
-  }
+  };
 
   if (loading) {
     return <BackdropLoading />;
@@ -524,23 +540,27 @@ const LoggedInLayout = ({ children, themeToggle }) => {
           {drawerOpen ? (
             <>
               <Typography variant="h6" className={classes.logoText}>
-                CRMPro
+                Verity CRM
               </Typography>
-              <IconButton 
+              <IconButton
                 size="small"
-                onClick={() => setDrawerOpen(!drawerOpen)} 
+                onClick={() => setDrawerOpen(!drawerOpen)}
                 className={classes.drawerToggleIcon}
               >
                 <ChevronLeftIcon fontSize="small" />
               </IconButton>
             </>
           ) : (
-            <IconButton 
+            <IconButton
               className={classes.menuIconOnly}
-              onClick={() => setDrawerOpen(!drawerOpen)} 
+              onClick={() => setDrawerOpen(!drawerOpen)}
             >
-              <MenuIcon style={{ color: theme.palette.type === 'dark' ? '#5D3FD3' : '#5D3FD3' }} />
-          </IconButton>
+              <MenuIcon
+                style={{
+                  color: theme.palette.type === "dark" ? "#5D3FD3" : "#5D3FD3",
+                }}
+              />
+            </IconButton>
           )}
         </div>
         <Divider />
@@ -560,29 +580,32 @@ const LoggedInLayout = ({ children, themeToggle }) => {
       >
         <Toolbar variant="dense" className={classes.toolbar}>
           <div className={classes.headerSection}>
-          <IconButton
-            edge="start"
-            variant="contained"
-            aria-label="open drawer"
-            onClick={() => setDrawerOpen(!drawerOpen)}
-            className={clsx(
+            <IconButton
+              edge="start"
+              variant="contained"
+              aria-label="open drawer"
+              onClick={() => setDrawerOpen(!drawerOpen)}
+              className={clsx(
                 classes.appBarButton,
-              classes.menuButton,
-              drawerOpen && classes.menuButtonHidden
-            )}
-          >
-            <MenuIcon />
-          </IconButton>
-
+                classes.menuButton,
+                drawerOpen && classes.menuButtonHidden
+              )}
+            >
+              <MenuIcon />
+            </IconButton>
           </div>
-          
+
           <div className={classes.rightIconsSection}>
-            <IconButton 
+            <IconButton
               onClick={toggleColorMode}
               className={classes.appBarButton}
               size="medium"
             >
-              {theme.palette.type === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              {theme.palette.type === "dark" ? (
+                <Brightness7Icon />
+              ) : (
+                <Brightness4Icon />
+              )}
             </IconButton>
 
             <IconButton
@@ -592,85 +615,82 @@ const LoggedInLayout = ({ children, themeToggle }) => {
               size="medium"
             >
               <CachedIcon />
-          </IconButton>
+            </IconButton>
 
             {!greaterThenSm ? null : (
-          <NotificationsVolume
-            setVolume={setVolume}
-            volume={volume}
-          />
+              <NotificationsVolume setVolume={setVolume} volume={volume} />
             )}
 
-          {user.id && <NotificationsPopOver volume={volume} />}
+            {user.id && <NotificationsPopOver volume={volume} />}
 
-          <AnnouncementsPopover />
+            <AnnouncementsPopover />
 
             {!greaterThenSm ? null : <ChatPopover />}
 
-          <div>
-            <IconButton
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenu}
-              variant="contained"
+            <div>
+              <IconButton
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                variant="contained"
                 className={classes.userButton}
                 size="medium"
-            >
-              <AccountCircle />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              getContentAnchorEl={null}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={menuOpen}
-              onClose={handleCloseMenu}
+              >
+                <AccountCircle />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                getContentAnchorEl={null}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={menuOpen}
+                onClose={handleCloseMenu}
                 PaperProps={{
                   style: {
                     borderRadius: 8,
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+                    boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
                     marginTop: 8,
-                    border: '1px solid rgba(93, 63, 211, 0.1)'
-                  }
+                    border: "1px solid rgba(93, 63, 211, 0.1)",
+                  },
                 }}
                 MenuListProps={{
                   style: {
-                    padding: '8px 4px'
-                  }
+                    padding: "8px 4px",
+                  },
                 }}
               >
-                <MenuItem 
+                <MenuItem
                   onClick={handleOpenUserModal}
                   style={{
-                    margin: '0 4px',
-                    padding: '8px 16px',
+                    margin: "0 4px",
+                    padding: "8px 16px",
                     borderRadius: 4,
-                    transition: 'all 0.2s ease',
+                    transition: "all 0.2s ease",
                   }}
                 >
-                {i18n.t("mainDrawer.appBar.user.profile")}
-              </MenuItem>
-                <MenuItem 
+                  {i18n.t("mainDrawer.appBar.user.profile")}
+                </MenuItem>
+                <MenuItem
                   onClick={handleClickLogout}
                   style={{
-                    margin: '0 4px',
-                    padding: '8px 16px',
+                    margin: "0 4px",
+                    padding: "8px 16px",
                     borderRadius: 4,
-                    transition: 'all 0.2s ease',
-                    color: '#F44336'
+                    transition: "all 0.2s ease",
+                    color: "#F44336",
                   }}
                 >
-                {i18n.t("mainDrawer.appBar.user.logout")}
-              </MenuItem>
-            </Menu>
+                  {i18n.t("mainDrawer.appBar.user.logout")}
+                </MenuItem>
+              </Menu>
             </div>
           </div>
         </Toolbar>

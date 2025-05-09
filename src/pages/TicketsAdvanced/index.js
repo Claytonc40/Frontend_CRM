@@ -63,7 +63,7 @@ const TicketAdvanced = (props) => {
         <div className={classes.placeholderItem}>
           {i18n.t("chat.noTicketMessage")}
         </div>
-        //CRM Evolution Pro//
+        //Verity CRM//
         <div>
           <center>
             <img
@@ -73,7 +73,7 @@ const TicketAdvanced = (props) => {
             />
           </center>
         </div>
-        //CRM Evolution Pro//
+        //Verity CRM//
         <br />
         <Button
           onClick={() => setOption(1)}
