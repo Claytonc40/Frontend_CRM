@@ -1,54 +1,43 @@
-import React, { useState, useEffect } from "react";
-import qs from 'query-string'
+import qs from 'query-string';
+import React, { useEffect, useState } from "react";
 
-import * as Yup from "yup";
-import { useHistory } from "react-router-dom";
-import { Link as RouterLink } from "react-router-dom";
-import { toast } from "react-toastify";
-import { Formik, Form, Field } from "formik";
-import usePlans from "../../hooks/usePlans";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import Link from "@material-ui/core/Link";
-import Grid from "@material-ui/core/Grid";
+import {
+	CircularProgress,
+	Divider
+} from "@material-ui/core";
 import Box from "@material-ui/core/Box";
-import Paper from "@material-ui/core/Paper";
-import Stepper from "@material-ui/core/Stepper";
-import Step from "@material-ui/core/Step";
-import StepLabel from "@material-ui/core/StepLabel";
+import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
-import CardActions from "@material-ui/core/CardActions";
-import InputMask from 'react-input-mask';
-import {
-	FormControl,
-	InputLabel,
-	MenuItem,
-	Select,
-	Divider,
-	CircularProgress,
-	Radio,
-	RadioGroup,
-	FormControlLabel,
-} from "@material-ui/core";
+import Container from "@material-ui/core/Container";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Grid from "@material-ui/core/Grid";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Link from "@material-ui/core/Link";
+import Paper from "@material-ui/core/Paper";
+import Step from "@material-ui/core/Step";
+import StepLabel from "@material-ui/core/StepLabel";
+import Stepper from "@material-ui/core/Stepper";
+import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import EmailIcon from "@material-ui/icons/Email";
-import PersonIcon from "@material-ui/icons/Person";
-import PhoneIcon from "@material-ui/icons/Phone";
-import LockIcon from "@material-ui/icons/Lock";
 import BusinessIcon from "@material-ui/icons/Business";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import logo from "../../assets/logo.png";
+import EmailIcon from "@material-ui/icons/Email";
+import LockIcon from "@material-ui/icons/Lock";
+import PhoneIcon from "@material-ui/icons/Phone";
+import { Field, Form, Formik } from "formik";
+import InputMask from 'react-input-mask';
+import { Link as RouterLink, useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
+import usePlans from "../../hooks/usePlans";
 import { i18n } from "../../translate/i18n";
 
-import { openApi } from "../../services/api";
-import toastError from "../../errors/toastError";
 import moment from "moment";
+import toastError from "../../errors/toastError";
+import { openApi } from "../../services/api";
 
 const Copyright = () => {
 	return (

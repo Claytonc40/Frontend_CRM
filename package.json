@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "versionSystem": "10.7.0",
-  "nomeEmpresa": "CRM Evolution Pro",
+  "nomeEmpresa": "Verity CRM",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "^2.14.0",

@@ -216,6 +216,9 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     expiresTicket: 0,
     timeUseBotQueues: 0,
     maxUseBotQueues: 3,
+    promptId: "",
+    queueIds: [],
+    transferQueueId: null,
   };
   const [whatsApp, setWhatsApp] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
@@ -255,11 +258,17 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 
       try {
         const { data } = await api.get(`whatsapp/${whatsAppId}?session=0`);
-        setWhatsApp(data);
+        setWhatsApp({
+          ...initialState,
+          ...data,
+          promptId: data.promptId || "",
+          queueIds: data.queueIds || [],
+          transferQueueId: data.transferQueueId || null,
+        });
 
         const whatsQueueIds = data.queues?.map((queue) => queue.id) || [];
         setSelectedQueueIds(whatsQueueIds);
-        setSelectedQueueId(data.transferQueueId || undefined);
+        setSelectedQueueId(data.transferQueueId || null);
       } catch (err) {
         toastError(err);
       }
