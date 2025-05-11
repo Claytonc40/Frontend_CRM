@@ -19,7 +19,6 @@ import moment from "moment";
 import qs from "query-string";
 import React, { useState } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
 import { toast } from "sonner";
 import * as Yup from "yup";
 
