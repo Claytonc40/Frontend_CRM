@@ -1,9 +1,9 @@
 import React, {
-  useContext,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
+	useContext,
+	useEffect,
+	useReducer,
+	useRef,
+	useState,
 } from "react";
 
 import Avatar from "@material-ui/core/Avatar";
@@ -41,8 +41,8 @@ import SearchIcon from "@material-ui/icons/Search";
 import ViewListIcon from "@material-ui/icons/ViewList";
 import WhatsAppIcon from "@material-ui/icons/WhatsApp";
 import { useHistory } from "react-router-dom";
-import { toast } from "react-toastify";
 import Flag from "react-world-flags";
+import { toast } from "sonner";
 
 import ConfirmationModal from "../../components/ConfirmationModal/";
 import ContactDetailsModal from "../../components/ContactDetailsModal";
@@ -58,7 +58,7 @@ import MainHeader from "../../components/MainHeader";
 import NewTicketModal from "../../components/NewTicketModal";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
-import toastError from "../../errors/toastError";
+
 import { i18n } from "../../translate/i18n";
 
 import { CSVLink } from "react-csv";
@@ -460,7 +460,7 @@ const Contacts = () => {
         const { data } = await api.get("/tags/list");
         setTags(data);
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
     };
     loadAllTags();
@@ -485,7 +485,7 @@ const Contacts = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          toastError(err);
+          toast.error(err.message);
         }
       };
       fetchContacts();
@@ -553,7 +553,7 @@ const Contacts = () => {
       await api.delete(`/contacts/${contactId}`);
       toast.success(i18n.t("contacts.toasts.deleted"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setDeletingContact(null);
     setSearchParam("");
@@ -575,7 +575,7 @@ const Contacts = () => {
       }
       history.go(0);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
@@ -711,7 +711,7 @@ const Contacts = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          toastError(err);
+          toast.error(err.message);
           setLoading(false);
         }
       };

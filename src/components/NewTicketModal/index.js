@@ -1,154 +1,153 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
+import TextField from "@material-ui/core/TextField";
 
+import CircularProgress from "@material-ui/core/CircularProgress";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Autocomplete, {
-	createFilterOptions,
+  createFilterOptions,
 } from "@material-ui/lab/Autocomplete";
-import CircularProgress from "@material-ui/core/CircularProgress";
 
-import { i18n } from "../../translate/i18n";
+import { Grid, ListItemText, MenuItem, Select } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
+import { toast } from "sonner";
+import { AuthContext } from "../../context/Auth/AuthContext";
+
 import api from "../../services/api";
+import { i18n } from "../../translate/i18n";
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import ContactModal from "../ContactModal";
-import toastError from "../../errors/toastError";
-import { makeStyles } from "@material-ui/core/styles";
-import { AuthContext } from "../../context/Auth/AuthContext";
-import {  WhatsApp } from "@material-ui/icons";
-import { Grid, ListItemText, MenuItem, Select } from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
-import { toast } from "react-toastify";
 //import ShowTicketOpen from "../ShowTicketOpenModal";
 
 const useStyles = makeStyles((theme) => ({
   online: {
     fontSize: 11,
-    color: "#25d366"
+    color: "#25d366",
   },
   offline: {
     fontSize: 11,
-    color: "#e1306c"
+    color: "#e1306c",
   },
   dialogPaper: {
     borderRadius: 18,
-    boxShadow: '0 8px 32px rgba(93, 63, 211, 0.15)',
-    overflow: 'hidden',
+    boxShadow: "0 8px 32px rgba(93, 63, 211, 0.15)",
+    overflow: "hidden",
   },
   dialogTitle: {
     fontSize: 24,
     fontWeight: 700,
-    color: '#5D3FD3',
-    padding: '28px 32px 10px 32px',
+    color: "#5D3FD3",
+    padding: "28px 32px 10px 32px",
     letterSpacing: 0.2,
-    [theme.breakpoints.down('xs')]: {
-      padding: '20px 16px 8px 16px',
+    [theme.breakpoints.down("xs")]: {
+      padding: "20px 16px 8px 16px",
       fontSize: 20,
     },
   },
   dialogContent: {
-    padding: '24px 32px',
-    background: '#faf9fd',
-    [theme.breakpoints.down('xs')]: {
-      padding: '16px',
+    padding: "24px 32px",
+    background: "#faf9fd",
+    [theme.breakpoints.down("xs")]: {
+      padding: "16px",
     },
   },
   dialogActions: {
-    padding: '18px 32px 28px 32px',
-    justifyContent: 'flex-end',
+    padding: "18px 32px 28px 32px",
+    justifyContent: "flex-end",
     gap: 16,
-    background: '#faf9fd',
-    [theme.breakpoints.down('xs')]: {
-      padding: '12px 16px 20px 16px',
+    background: "#faf9fd",
+    [theme.breakpoints.down("xs")]: {
+      padding: "12px 16px 20px 16px",
       gap: 8,
     },
   },
   input: {
-    '& .MuiOutlinedInput-root': {
+    "& .MuiOutlinedInput-root": {
       borderRadius: 12,
       fontSize: 16,
       height: 48,
-      background: '#fff',
-      '& fieldset': {
-        borderColor: '#5D3FD3',
+      background: "#fff",
+      "& fieldset": {
+        borderColor: "#5D3FD3",
       },
-      '&:hover fieldset': {
-        borderColor: '#5D3FD3',
+      "&:hover fieldset": {
+        borderColor: "#5D3FD3",
       },
-      '&.Mui-focused fieldset': {
-        borderColor: '#5D3FD3',
-        boxShadow: '0 0 0 2px #e5e0fa',
+      "&.Mui-focused fieldset": {
+        borderColor: "#5D3FD3",
+        boxShadow: "0 0 0 2px #e5e0fa",
       },
     },
-    '& label': {
-      color: '#5D3FD3',
+    "& label": {
+      color: "#5D3FD3",
       fontWeight: 500,
       fontSize: 15,
     },
-    '& .MuiInputBase-input': {
+    "& .MuiInputBase-input": {
       fontSize: 16,
     },
   },
   select: {
-    '& .MuiOutlinedInput-root': {
+    "& .MuiOutlinedInput-root": {
       borderRadius: 12,
       fontSize: 16,
       height: 48,
-      background: '#fff',
-      '& fieldset': {
-        borderColor: '#5D3FD3',
+      background: "#fff",
+      "& fieldset": {
+        borderColor: "#5D3FD3",
       },
-      '&:hover fieldset': {
-        borderColor: '#5D3FD3',
+      "&:hover fieldset": {
+        borderColor: "#5D3FD3",
       },
-      '&.Mui-focused fieldset': {
-        borderColor: '#5D3FD3',
-        boxShadow: '0 0 0 2px #e5e0fa',
+      "&.Mui-focused fieldset": {
+        borderColor: "#5D3FD3",
+        boxShadow: "0 0 0 2px #e5e0fa",
       },
     },
-    '& .MuiSelect-select': {
+    "& .MuiSelect-select": {
       fontSize: 16,
-      padding: '14px 12px',
+      padding: "14px 12px",
     },
   },
   buttonOutlined: {
     borderRadius: 10,
-    borderColor: '#5D3FD3',
-    color: '#5D3FD3',
+    borderColor: "#5D3FD3",
+    color: "#5D3FD3",
     fontWeight: 600,
     fontSize: 16,
-    padding: '10px 24px',
-    textTransform: 'none',
-    transition: 'all 0.2s',
-    '&:hover': {
-      background: '#f3f0fa',
-      borderColor: '#5D3FD3',
+    padding: "10px 24px",
+    textTransform: "none",
+    transition: "all 0.2s",
+    "&:hover": {
+      background: "#f3f0fa",
+      borderColor: "#5D3FD3",
     },
-    [theme.breakpoints.down('xs')]: {
-      padding: '8px 16px',
+    [theme.breakpoints.down("xs")]: {
+      padding: "8px 16px",
       fontSize: 14,
     },
   },
   buttonContained: {
     borderRadius: 10,
-    background: '#5D3FD3',
-    color: '#fff',
+    background: "#5D3FD3",
+    color: "#fff",
     fontWeight: 600,
     fontSize: 16,
-    padding: '10px 24px',
-    textTransform: 'none',
-    boxShadow: '0 2px 8px rgba(93, 63, 211, 0.15)',
-    transition: 'all 0.2s',
-    '&:hover': {
-      background: '#4b2fc7',
-      boxShadow: '0 4px 12px rgba(93, 63, 211, 0.2)',
+    padding: "10px 24px",
+    textTransform: "none",
+    boxShadow: "0 2px 8px rgba(93, 63, 211, 0.15)",
+    transition: "all 0.2s",
+    "&:hover": {
+      background: "#4b2fc7",
+      boxShadow: "0 4px 12px rgba(93, 63, 211, 0.2)",
     },
-    [theme.breakpoints.down('xs')]: {
-      padding: '8px 16px',
+    [theme.breakpoints.down("xs")]: {
+      padding: "8px 16px",
       fontSize: 14,
     },
   },
@@ -173,9 +172,9 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
   const { user } = useContext(AuthContext);
   const { companyId, whatsappId } = user;
 
-  const [ openAlert, setOpenAlert ] = useState(false);
-	const [ userTicketOpen, setUserTicketOpen] = useState("");
-	const [ queueTicketOpen, setQueueTicketOpen] = useState("");
+  const [openAlert, setOpenAlert] = useState(false);
+  const [userTicketOpen, setUserTicketOpen] = useState("");
+  const [queueTicketOpen, setQueueTicketOpen] = useState("");
 
   useEffect(() => {
     if (initialContact?.id !== undefined) {
@@ -193,18 +192,18 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
           .then(({ data }) => setWhatsapps(data));
       };
 
-      if (whatsappId !== null && whatsappId!== undefined) {
-        setSelectedWhatsapp(whatsappId)
+      if (whatsappId !== null && whatsappId !== undefined) {
+        setSelectedWhatsapp(whatsappId);
       }
 
       if (user.queues.length === 1) {
-        setSelectedQueue(user.queues[0].id)
+        setSelectedQueue(user.queues[0].id);
       }
       fetchContacts();
       setLoading(false);
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (!modalOpen || searchParam.length < 3) {
@@ -222,7 +221,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          toastError(err);
+          toast.error(err.message);
         }
       };
       fetchContacts();
@@ -260,13 +259,13 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
     setQueueTicketOpen("");
   };
 
-  const handleSaveTicket = async contactId => {
+  const handleSaveTicket = async (contactId) => {
     if (!contactId) return;
-    if (selectedQueue === "" && user.profile !== 'admin') {
+    if (selectedQueue === "" && user.profile !== "admin") {
       toast.error("Selecione uma fila");
       return;
     }
-    
+
     setLoading(true);
     try {
       const queueId = selectedQueue !== "" ? selectedQueue : null;
@@ -277,12 +276,11 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
         whatsappId,
         userId: user.id,
         status: "open",
-      });      
+      });
 
       onClose(ticket);
     } catch (err) {
-      
-      const ticket  = JSON.parse(err.response.data.error);
+      const ticket = JSON.parse(err.response.data.error);
 
       if (ticket.userId !== user?.id) {
         setOpenAlert(true);
@@ -295,7 +293,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
         setLoading(false);
         onClose(ticket);
       }
-    }  
+    }
     setLoading(false);
   };
 
@@ -309,10 +307,10 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
   };
 
   const handleCloseContactModal = () => {
-    setContactModalOpen(false);    
+    setContactModalOpen(false);
   };
 
-  const handleAddNewContactTicket = contact => {
+  const handleAddNewContactTicket = (contact) => {
     handleSaveTicket(contact.id);
   };
 
@@ -326,20 +324,31 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
     return filtered;
   };
 
-  const renderOption = option => {
+  const renderOption = (option) => {
     if (option.number) {
-      return <>
-        {/* {IconChannel(option.channel)} */}
-        <Typography component="span" style={{ fontSize: 14, marginLeft: "10px", display: "inline-flex", alignItems: "center", lineHeight: "2" }}>
-          {option.name} - {option.number}
-        </Typography>
-      </>
+      return (
+        <>
+          {/* {IconChannel(option.channel)} */}
+          <Typography
+            component="span"
+            style={{
+              fontSize: 14,
+              marginLeft: "10px",
+              display: "inline-flex",
+              alignItems: "center",
+              lineHeight: "2",
+            }}
+          >
+            {option.name} - {option.number}
+          </Typography>
+        </>
+      );
     } else {
       return `${i18n.t("newTicketModal.add")} ${option.name}`;
     }
   };
 
-  const renderOptionLabel = option => {
+  const renderOptionLabel = (option) => {
     if (option.number) {
       return `${option.name} - ${option.number}`;
     } else {
@@ -363,14 +372,14 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
             renderOption={renderOption}
             filterOptions={createAddContactOption}
             onChange={(e, newValue) => handleSelectOption(e, newValue)}
-            renderInput={params => (
+            renderInput={(params) => (
               <TextField
                 {...params}
                 label={i18n.t("newTicketModal.fieldLabel")}
                 variant="outlined"
                 autoFocus
-                onChange={e => setSearchParam(e.target.value)}
-                onKeyPress={e => {
+                onChange={(e) => setSearchParam(e.target.value)}
+                onKeyPress={(e) => {
                   if (loading || !selectedContact) return;
                   else if (e.key === "Enter") {
                     handleSaveTicket(selectedContact.id);
@@ -391,10 +400,10 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
             )}
           />
         </Grid>
-      )
+      );
     }
     return null;
-  }
+  };
 
   return (
     <>
@@ -404,7 +413,11 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
         onClose={handleCloseContactModal}
         onSave={handleAddNewContactTicket}
       ></ContactModal>
-      <Dialog open={modalOpen} onClose={handleClose} classes={{ paper: classes.dialogPaper }}>
+      <Dialog
+        open={modalOpen}
+        onClose={handleClose}
+        classes={{ paper: classes.dialogPaper }}
+      >
         <DialogTitle id="form-dialog-title" className={classes.dialogTitle}>
           {i18n.t("newTicketModal.title")}
         </DialogTitle>
@@ -421,7 +434,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
                 variant="outlined"
                 value={selectedQueue}
                 onChange={(e) => {
-                  setSelectedQueue(e.target.value)
+                  setSelectedQueue(e.target.value);
                 }}
                 MenuProps={{
                   anchorOrigin: {
@@ -436,20 +449,24 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
                 }}
                 renderValue={() => {
                   if (selectedQueue === "") {
-                    return "Selecione uma fila"
+                    return "Selecione uma fila";
                   }
-                  const queue = user.queues.find(q => q.id === selectedQueue)
-                  return queue.name
+                  const queue = user.queues.find((q) => q.id === selectedQueue);
+                  return queue.name;
                 }}
                 className={classes.select}
               >
                 {user.queues?.length > 0 &&
                   user.queues.map((queue, key) => (
-                    <MenuItem dense key={key} value={queue.id} style={{ borderRadius: 8 }}>
+                    <MenuItem
+                      dense
+                      key={key}
+                      value={queue.id}
+                      style={{ borderRadius: 8 }}
+                    >
                       <ListItemText primary={queue.name} />
                     </MenuItem>
-                  ))
-                }
+                  ))}
               </Select>
             </Grid>
             {/* CONEXAO */}
@@ -461,7 +478,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
                 variant="outlined"
                 value={selectedWhatsapp}
                 onChange={(e) => {
-                  setSelectedWhatsapp(e.target.value)
+                  setSelectedWhatsapp(e.target.value);
                 }}
                 MenuProps={{
                   anchorOrigin: {
@@ -476,22 +493,47 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
                 }}
                 renderValue={() => {
                   if (selectedWhatsapp === "") {
-                    return "Selecione uma Conexão"
+                    return "Selecione uma Conexão";
                   }
-                  const whatsapp = whatsapps.find(w => w.id === selectedWhatsapp)
-                  return whatsapp.name
+                  const whatsapp = whatsapps.find(
+                    (w) => w.id === selectedWhatsapp
+                  );
+                  return whatsapp.name;
                 }}
                 className={classes.select}
               >
                 {whatsapps?.length > 0 &&
                   whatsapps.map((whatsapp, key) => (
-                    <MenuItem dense key={key} value={whatsapp.id} style={{ borderRadius: 8 }}>
+                    <MenuItem
+                      dense
+                      key={key}
+                      value={whatsapp.id}
+                      style={{ borderRadius: 8 }}
+                    >
                       <ListItemText
                         primary={
                           <>
                             {/* {IconChannel(whatsapp.channel)} */}
-                            <Typography component="span" style={{ fontSize: 14, marginLeft: "10px", display: "inline-flex", alignItems: "center", lineHeight: "2" }}>
-                              {whatsapp.name} &nbsp; <p className={(whatsapp.status) === 'CONNECTED' ? classes.online : classes.offline} >({whatsapp.status})</p>
+                            <Typography
+                              component="span"
+                              style={{
+                                fontSize: 14,
+                                marginLeft: "10px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                lineHeight: "2",
+                              }}
+                            >
+                              {whatsapp.name} &nbsp;{" "}
+                              <p
+                                className={
+                                  whatsapp.status === "CONNECTED"
+                                    ? classes.online
+                                    : classes.offline
+                                }
+                              >
+                                ({whatsapp.status})
+                              </p>
                             </Typography>
                           </>
                         }
@@ -530,7 +572,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
           user={userTicketOpen}
           queue={queueTicketOpen}
 			  /> */}
-      </Dialog >
+      </Dialog>
     </>
   );
 };

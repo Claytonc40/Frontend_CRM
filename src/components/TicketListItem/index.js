@@ -1,44 +1,42 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { useHistory, useParams } from "react-router-dom";
-import { parseISO, format, isSameDay } from "date-fns";
-import clsx from "clsx";
-import { makeStyles } from "@material-ui/core/styles";
+import { Tooltip } from "@material-ui/core";
+import Avatar from "@material-ui/core/Avatar";
 import { green } from "@material-ui/core/colors";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import Avatar from "@material-ui/core/Avatar";
-import Badge from "@material-ui/core/Badge";
+import ListItemText from "@material-ui/core/ListItemText";
+import { makeStyles } from "@material-ui/core/styles";
+import clsx from "clsx";
+import { format, isSameDay, parseISO } from "date-fns";
 import { CheckCircle } from "lucide-react";
-import { i18n } from "../../translate/i18n";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
+import { AuthContext } from "../../context/Auth/AuthContext";
 import api from "../../services/api";
+import { i18n } from "../../translate/i18n";
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import MarkdownWrapper from "../MarkdownWrapper";
-import { Tooltip } from "@material-ui/core";
-import { AuthContext } from "../../context/Auth/AuthContext";
-import toastError from "../../errors/toastError";
 
 const useStyles = makeStyles((theme) => ({
   ticket: {
     position: "relative",
     borderRadius: 8,
-    margin: '6px 0',
-    boxShadow: '0 1px 4px rgba(93,63,211,0.04)',
-    transition: 'all 0.2s',
-    border: '1px solid transparent',
-    '&:hover': {
-      boxShadow: '0 2px 8px rgba(93,63,211,0.08)',
-      border: '1px solid #5D3FD3',
+    margin: "6px 0",
+    boxShadow: "0 1px 4px rgba(93,63,211,0.04)",
+    transition: "all 0.2s",
+    border: "1px solid transparent",
+    "&:hover": {
+      boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
+      border: "1px solid #5D3FD3",
     },
-    '&.Mui-selected': {
-      border: '1px solid #5D3FD3',
-      boxShadow: '0 2px 8px rgba(93,63,211,0.12)',
-      background: '#f7f7fa',
+    "&.Mui-selected": {
+      border: "1px solid #5D3FD3",
+      boxShadow: "0 2px 8px rgba(93,63,211,0.12)",
+      background: "#f7f7fa",
     },
-    background: '#fff',
+    background: "#fff",
     minHeight: 64,
-    alignItems: 'center',
-    padding: '0 6px',
+    alignItems: "center",
+    padding: "0 6px",
   },
 
   pendingTicket: {
@@ -72,58 +70,58 @@ const useStyles = makeStyles((theme) => ({
   contactNameWrapper: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: 'center',
-    width: '100%',
+    alignItems: "center",
+    width: "100%",
   },
 
   contactName: {
-    color: '#5D3FD3',
+    color: "#5D3FD3",
     fontWeight: 600,
     fontSize: 14,
     maxWidth: 140,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 
   lastMessageTime: {
-    color: '#666',
+    color: "#666",
     fontSize: 12,
     marginLeft: 8,
     minWidth: 48,
-    textAlign: 'right',
+    textAlign: "right",
   },
 
   closedBadge: {
     alignSelf: "center",
     marginLeft: 6,
-    background: '#5D3FD3',
-    color: '#fff',
+    background: "#5D3FD3",
+    color: "#fff",
     fontWeight: 600,
     fontSize: 11,
     borderRadius: 4,
-    padding: '1px 8px',
+    padding: "1px 8px",
   },
 
   contactLastMessage: {
-    color: '#666',
+    color: "#666",
     fontSize: 13,
     maxWidth: 180,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 
   newMessagesCount: {
     marginLeft: 8,
-    background: '#5D3FD3',
-    color: '#fff',
+    background: "#5D3FD3",
+    color: "#fff",
     fontWeight: 600,
     fontSize: 12,
     borderRadius: 4,
-    padding: '1px 6px',
+    padding: "1px 6px",
     minWidth: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
 
   badgeStyle: {
@@ -134,19 +132,19 @@ const useStyles = makeStyles((theme) => ({
   acceptButton: {
     position: "absolute",
     left: "50%",
-    transform: 'translateX(-50%)',
-    background: '#5D3FD3',
-    color: '#fff',
+    transform: "translateX(-50%)",
+    background: "#5D3FD3",
+    color: "#fff",
     borderRadius: 6,
     fontWeight: 600,
     fontSize: 13,
-    boxShadow: '0 1px 4px rgba(93,63,211,0.10)',
-    padding: '6px 16px',
-    display: 'flex',
-    alignItems: 'center',
+    boxShadow: "0 1px 4px rgba(93,63,211,0.10)",
+    padding: "6px 16px",
+    display: "flex",
+    alignItems: "center",
     gap: 6,
-    '&:hover': {
-      background: '#4930A8',
+    "&:hover": {
+      background: "#4930A8",
     },
   },
 
@@ -185,8 +183,9 @@ const TicketListItem = ({ ticket }) => {
       });
     } catch (err) {
       setLoading(false);
-      toastError(err);
+      toast.error(err.message);
     }
+    toast.error;
     if (isMounted.current) {
       setLoading(false);
     }
@@ -228,10 +227,10 @@ const TicketListItem = ({ ticket }) => {
             style={{
               width: 40,
               height: 40,
-              border: '1px solid #5D3FD3',
-              borderRadius: '50%',
-              objectFit: 'cover',
-              background: '#fff',
+              border: "1px solid #5D3FD3",
+              borderRadius: "50%",
+              objectFit: "cover",
+              background: "#fff",
             }}
           />
         </ListItemAvatar>
@@ -268,7 +267,9 @@ const TicketListItem = ({ ticket }) => {
                 )}
               </span>
               {ticket.unreadMessages > 0 && (
-                <span className={classes.newMessagesCount}>{ticket.unreadMessages}</span>
+                <span className={classes.newMessagesCount}>
+                  {ticket.unreadMessages}
+                </span>
               )}
             </span>
           }

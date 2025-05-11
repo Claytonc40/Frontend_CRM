@@ -1,43 +1,39 @@
-import React, { useEffect, useReducer, useState, useContext } from "react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 
 import {
+  Box,
   Button,
+  Card,
+  CardActions,
+  CardContent,
+  Chip,
+  Fade,
+  Grid,
   IconButton,
   makeStyles,
   Paper,
-  Typography,
   Tooltip,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-  Box,
-  Fade,
-  Chip
+  Typography,
 } from "@material-ui/core";
 
+import CircularProgress from "@material-ui/core/CircularProgress";
+import {
+  Chat as ChatIcon,
+  DeleteOutline,
+  Edit,
+  FormatAlignLeft as OrderIcon,
+  Settings as SettingsIcon,
+  AccessTime as TimeIcon,
+} from "@material-ui/icons";
+import { toast } from "sonner";
+import ConfirmationModal from "../../components/ConfirmationModal";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
-import Title from "../../components/Title";
-import { i18n } from "../../translate/i18n";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import toastError from "../../errors/toastError";
-import api from "../../services/api";
-import {
-  DeleteOutline,
-  Edit,
-  Settings as SettingsIcon,
-  People as PeopleIcon,
-  FormatAlignLeft as OrderIcon,
-  Chat as ChatIcon,
-  AccessTime as TimeIcon
-} from "@material-ui/icons";
 import QueueModal from "../../components/QueueModal";
-import { toast } from "react-toastify";
-import ConfirmationModal from "../../components/ConfirmationModal";
 import { SocketContext } from "../../context/Socket/SocketContext";
+
+import api from "../../services/api";
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
@@ -277,7 +273,7 @@ const Queues = () => {
 
         setLoading(false);
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
         setLoading(false);
       }
     })();
@@ -327,7 +323,7 @@ const Queues = () => {
       await api.delete(`/queue/${queueId}`);
       toast.success("Fila excluída com sucesso!");
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setSelectedQueue(null);
   };
@@ -335,10 +331,7 @@ const Queues = () => {
   return (
     <MainContainer>
       <ConfirmationModal
-        title={
-          selectedQueue &&
-          `Excluir fila ${selectedQueue.name}?`
-        }
+        title={selectedQueue && `Excluir fila ${selectedQueue.name}?`}
         open={confirmModalOpen}
         onClose={handleCloseConfirmationModal}
         onConfirm={() => handleDeleteQueue(selectedQueue.id)}
@@ -421,10 +414,17 @@ const Queues = () => {
                           {queue.greetingMessage && (
                             <Box className={classes.propertyItem}>
                               <ChatIcon />
-                              <Tooltip title={queue.greetingMessage} arrow placement="top">
+                              <Tooltip
+                                title={queue.greetingMessage}
+                                arrow
+                                placement="top"
+                              >
                                 <Typography className={classes.truncate}>
                                   {queue.greetingMessage.length > 60
-                                    ? `${queue.greetingMessage.substring(0, 60)}...`
+                                    ? `${queue.greetingMessage.substring(
+                                        0,
+                                        60
+                                      )}...`
                                     : queue.greetingMessage}
                                 </Typography>
                               </Tooltip>
@@ -434,10 +434,17 @@ const Queues = () => {
                           {queue.outOfHoursMessage && (
                             <Box className={classes.propertyItem}>
                               <TimeIcon />
-                              <Tooltip title={queue.outOfHoursMessage} arrow placement="top">
+                              <Tooltip
+                                title={queue.outOfHoursMessage}
+                                arrow
+                                placement="top"
+                              >
                                 <Typography className={classes.truncate}>
                                   {queue.outOfHoursMessage.length > 60
-                                    ? `${queue.outOfHoursMessage.substring(0, 60)}...`
+                                    ? `${queue.outOfHoursMessage.substring(
+                                        0,
+                                        60
+                                      )}...`
                                     : queue.outOfHoursMessage}
                                 </Typography>
                               </Tooltip>

@@ -1,38 +1,37 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
 import withWidth, { isWidthUp } from "@material-ui/core/withWidth";
-import "emoji-mart/css/emoji-mart.css";
-import { Picker } from "emoji-mart";
-import MicRecorder from "mic-recorder-to-mp3";
 import clsx from "clsx";
+import { Picker } from "emoji-mart";
+import "emoji-mart/css/emoji-mart.css";
 import { isNil } from "lodash";
-
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import InputBase from "@material-ui/core/InputBase";
+import MicRecorder from "mic-recorder-to-mp3";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { FormControlLabel, Switch } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { green } from "@material-ui/core/colors";
-import AttachFileIcon from "@material-ui/icons/AttachFile";
 import IconButton from "@material-ui/core/IconButton";
+import InputBase from "@material-ui/core/InputBase";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
+import AttachFileIcon from "@material-ui/icons/AttachFile";
+import CancelIcon from "@material-ui/icons/Cancel";
+import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
+import ClearIcon from "@material-ui/icons/Clear";
+import HighlightOffIcon from "@material-ui/icons/HighlightOff";
+import MicIcon from "@material-ui/icons/Mic";
 import MoodIcon from "@material-ui/icons/Mood";
 import SendIcon from "@material-ui/icons/Send";
-import CancelIcon from "@material-ui/icons/Cancel";
-import ClearIcon from "@material-ui/icons/Clear";
-import MicIcon from "@material-ui/icons/Mic";
-import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
-import HighlightOffIcon from "@material-ui/icons/HighlightOff";
-import { FormControlLabel, Switch } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { isString, isEmpty, isObject, has } from "lodash";
+import { has, isEmpty, isObject, isString } from "lodash";
 
-import { i18n } from "../../translate/i18n";
-import api from "../../services/api";
 import axios from "axios";
+import api from "../../services/api";
+import { i18n } from "../../translate/i18n";
 
-import RecordingTimer from "./RecordingTimer";
-import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import { AuthContext } from "../../context/Auth/AuthContext";
+import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
-import toastError from "../../errors/toastError";
+import RecordingTimer from "./RecordingTimer";
 
 import useQuickMessages from "../../hooks/useQuickMessages";
 
@@ -396,7 +395,6 @@ const CustomInput = (props) => {
     return i18n.t("messagesInput.placeholderClosed");
   };
 
-
   const setInputRef = (input) => {
     if (input) {
       input.focus();
@@ -421,13 +419,16 @@ const CustomInput = (props) => {
           }
         }}
         onChange={(event, opt) => {
-         
           if (isObject(opt) && has(opt, "value") && isNil(opt.mediaPath)) {
             setInputMessage(opt.value);
             setTimeout(() => {
               inputRef.current.scrollTop = inputRef.current.scrollHeight;
             }, 200);
-          } else if (isObject(opt) && has(opt, "value") && !isNil(opt.mediaPath)) {
+          } else if (
+            isObject(opt) &&
+            has(opt, "value") &&
+            !isNil(opt.mediaPath)
+          ) {
             handleQuickAnswersClick(opt);
 
             setTimeout(() => {
@@ -529,17 +530,17 @@ const MessageInputCustom = (props) => {
       const formData = new FormData();
       const filename = `${new Date().getTime()}.${extension}`;
       formData.append("medias", blob, filename);
-      formData.append("body",  message);
+      formData.append("body", message);
       formData.append("fromMe", true);
 
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-      toastError(err);
+      toast.errorr(err.message);
       setLoading(false);
     }
     setLoading(false);
   };
-  
+
   const handleQuickAnswersClick = async (value) => {
     if (value.mediaPath) {
       try {
@@ -552,7 +553,7 @@ const MessageInputCustom = (props) => {
         return;
         //  handleChangeMedias(response)
       } catch (err) {
-        toastError(err);
+        toast.errorr(err.message);
       }
     }
 
@@ -574,7 +575,7 @@ const MessageInputCustom = (props) => {
     try {
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-      toastError(err);
+      toast.errorr(err.message);
     }
 
     setLoading(false);
@@ -597,7 +598,7 @@ const MessageInputCustom = (props) => {
     try {
       await api.post(`/messages/${ticketId}`, message);
     } catch (err) {
-      toastError(err);
+      toast.errorr(err.message);
     }
 
     setInputMessage("");
@@ -614,7 +615,7 @@ const MessageInputCustom = (props) => {
       setRecording(true);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      toast.errorr(err.message);
       setLoading(false);
     }
   };
@@ -637,7 +638,7 @@ const MessageInputCustom = (props) => {
 
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-      toastError(err);
+      toast.errorr(err.message);
     }
 
     setRecording(false);
@@ -649,7 +650,7 @@ const MessageInputCustom = (props) => {
       await Mp3Recorder.stop().getMp3();
       setRecording(false);
     } catch (err) {
-      toastError(err);
+      toast.errorr(err.message);
     }
   };
 

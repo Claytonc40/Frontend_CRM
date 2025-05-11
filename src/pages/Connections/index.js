@@ -1,28 +1,28 @@
 import { format, parseISO } from "date-fns";
 import React, { useCallback, useContext, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import {
-  Box,
-  Button,
-  Card,
-  CircularProgress,
-  Fade,
-  Paper,
-  Tooltip,
-  Typography,
+	Box,
+	Button,
+	Card,
+	CircularProgress,
+	Fade,
+	Paper,
+	Tooltip,
+	Typography,
 } from "@material-ui/core";
 import { green } from "@material-ui/core/colors";
 import { makeStyles } from "@material-ui/core/styles";
 import {
-  CheckCircle2,
-  MessageSquare,
-  Pencil,
-  Plus as PlusIcon,
-  QrCode,
-  RefreshCw,
-  Trash2,
-  WifiOff,
+	CheckCircle2,
+	MessageSquare,
+	Pencil,
+	Plus as PlusIcon,
+	QrCode,
+	RefreshCw,
+	Trash2,
+	WifiOff,
 } from "lucide-react";
 
 import MainContainer from "../../components/MainContainer";
@@ -33,7 +33,7 @@ import ConfirmationModal from "../../components/ConfirmationModal";
 import QrcodeModal from "../../components/QrcodeModal";
 import WhatsAppModal from "../../components/WhatsAppModal";
 import { WhatsAppsContext } from "../../context/WhatsApp/WhatsAppsContext";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
@@ -326,7 +326,7 @@ const Connections = () => {
     try {
       await api.post(`/whatsappsession/${whatsAppId}`);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
@@ -335,7 +335,7 @@ const Connections = () => {
       setIsLoadingQR(true);
       await api.put(`/whatsappsession/${whatsAppId}`);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     } finally {
       setIsLoadingQR(false);
     }
@@ -392,7 +392,7 @@ const Connections = () => {
       try {
         await api.delete(`/whatsappsession/${confirmModalInfo.whatsAppId}`);
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
     }
 
@@ -401,7 +401,7 @@ const Connections = () => {
         await api.delete(`/whatsapp/${confirmModalInfo.whatsAppId}`);
         toast.success(i18n.t("connections.toasts.deleted"));
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
     }
 

@@ -1,9 +1,9 @@
 import { Box, Chip, TextField } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import React, { useEffect, useState } from "react";
-import toastError from "../../errors/toastError";
-import api from "../../services/api";
+import { toast } from "sonner";
 import { makeStyles } from "@material-ui/core/styles";
+import api from "../../services/api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
     color: "#5D3FD3",
     margin: 2,
     border: "none",
-    '& .MuiChip-label': {
-      padding: '0 10px',
+    "& .MuiChip-label": {
+      padding: "0 10px",
     },
   },
   chipColored: {
@@ -33,26 +33,26 @@ const useStyles = makeStyles((theme) => ({
     color: "#fff",
     margin: 2,
     border: "none",
-    '& .MuiChip-label': {
-      padding: '0 10px',
+    "& .MuiChip-label": {
+      padding: "0 10px",
     },
   },
   autocomplete: {
-    '& .MuiOutlinedInput-root': {
+    "& .MuiOutlinedInput-root": {
       borderRadius: 12,
-      background: '#fff',
-      '& fieldset': {
-        borderColor: '#5D3FD3',
+      background: "#fff",
+      "& fieldset": {
+        borderColor: "#5D3FD3",
       },
-      '&:hover fieldset': {
-        borderColor: '#5D3FD3',
+      "&:hover fieldset": {
+        borderColor: "#5D3FD3",
       },
-      '&.Mui-focused fieldset': {
-        borderColor: '#5D3FD3',
-        boxShadow: '0 0 0 2px #e5e0fa',
+      "&.Mui-focused fieldset": {
+        borderColor: "#5D3FD3",
+        boxShadow: "0 0 0 2px #e5e0fa",
       },
     },
-    '& .MuiInputBase-input': {
+    "& .MuiInputBase-input": {
       fontSize: 15,
     },
   },
@@ -75,7 +75,7 @@ export function TagsFilter({ onFiltered }) {
       const { data } = await api.get(`/tags/list`);
       setTags(data);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 

@@ -1,6 +1,6 @@
 import { Field, Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import * as Yup from "yup";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -39,7 +39,7 @@ import {
   Settings,
 } from "lucide-react";
 
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import QueueSelect from "../QueueSelect";
@@ -270,7 +270,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
         setSelectedQueueIds(whatsQueueIds);
         setSelectedQueueId(data.transferQueueId || null);
       } catch (err) {
-        toastError(err);
+        toast.errorr(err.message);
       }
     };
     fetchSession();
@@ -282,7 +282,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
         const { data } = await api.get("/prompt");
         setPrompts(data.prompts);
       } catch (err) {
-        toastError(err);
+        toast.errorr(err.message);
       }
     })();
   }, [whatsAppId]);
@@ -293,7 +293,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
         const { data } = await api.get("/queue");
         setQueues(data);
       } catch (err) {
-        toastError(err);
+        toast.errorr(err.message);
       }
     })();
   }, []);
@@ -317,7 +317,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
       toast.success(i18n.t("whatsappModal.success"));
       handleClose();
     } catch (err) {
-      toastError(err);
+      toast.errorr(err.message);
     }
   };
 

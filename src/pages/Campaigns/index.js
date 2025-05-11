@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 import React, { useContext, useEffect, useReducer, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import { useHistory } from "react-router-dom";
 
@@ -34,7 +34,7 @@ import CampaignModal from "../../components/CampaignModal";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 import { SocketContext } from "../../context/Socket/SocketContext";
-import toastError from "../../errors/toastError";
+
 import { useDate } from "../../hooks/useDate";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
@@ -153,7 +153,7 @@ const Campaigns = () => {
       setHasMore(data.hasMore);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
@@ -181,7 +181,7 @@ const Campaigns = () => {
       await api.delete(`/campaigns/${campaignId}`);
       toast.success(i18n.t("campaigns.toasts.deleted"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setDeletingCampaign(null);
     setSearchParam("");

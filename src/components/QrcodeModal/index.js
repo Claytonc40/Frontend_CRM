@@ -1,6 +1,5 @@
 import QRCode from "qrcode.react";
 import React, { useContext, useEffect, useState } from "react";
-import toastError from "../../errors/toastError";
 
 import {
   Box,
@@ -17,6 +16,7 @@ import {
   Refresh as RefreshIcon,
   Smartphone,
 } from "@material-ui/icons";
+import { toast } from "sonner";
 import { SocketContext } from "../../context/Socket/SocketContext";
 import api from "../../services/api";
 
@@ -35,7 +35,7 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
         const { data } = await api.get(`/whatsapp/${whatsAppId}`);
         setQrCode(data.qrcode);
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
       setLoading(false);
     };
@@ -69,7 +69,7 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
     try {
       await api.put(`/whatsappsession/${whatsAppId}`);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setLoading(false);
   };

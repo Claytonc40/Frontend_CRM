@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useReducer, useContext } from "react";
-import { toast } from "react-toastify";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 import { useHistory } from "react-router-dom";
+import { toast } from "sonner";
 
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import IconButton from "@material-ui/core/IconButton";
-import SearchIcon from "@material-ui/icons/Search";
 import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
+import SearchIcon from "@material-ui/icons/Search";
 
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
@@ -22,16 +22,16 @@ import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
 
-import api from "../../services/api";
-import { i18n } from "../../translate/i18n";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
-import AnnouncementModal from "../../components/AnnouncementModal";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import toastError from "../../errors/toastError";
 import { Grid } from "@material-ui/core";
 import { isArray } from "lodash";
-import { SocketContext } from "../../context/Socket/SocketContext";
+import AnnouncementModal from "../../components/AnnouncementModal";
+import ConfirmationModal from "../../components/ConfirmationModal";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
 import { AuthContext } from "../../context/Auth/AuthContext";
+import { SocketContext } from "../../context/Socket/SocketContext";
+
+import api from "../../services/api";
+import { i18n } from "../../translate/i18n";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_ANNOUNCEMENTS") {
@@ -109,13 +109,15 @@ const Announcements = () => {
 
   const socketManager = useContext(SocketContext);
 
-  // trava para nao acessar pagina que não pode  
+  // trava para nao acessar pagina que não pode
   useEffect(() => {
     async function fetchData() {
       if (!user.super) {
-        toast.error("Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.");
+        toast.error(
+          "Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando."
+        );
         setTimeout(() => {
-          history.push(`/`)
+          history.push(`/`);
         }, 1000);
       }
     }
@@ -163,7 +165,7 @@ const Announcements = () => {
       setHasMore(data.hasMore);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
@@ -189,13 +191,13 @@ const Announcements = () => {
   const handleDeleteAnnouncement = async (announcement) => {
     try {
       if (announcement.mediaName)
-      await api.delete(`/announcements/${announcement.id}/media-upload`);
+        await api.delete(`/announcements/${announcement.id}/media-upload`);
 
       await api.delete(`/announcements/${announcement.id}`);
-      
+
       toast.success(i18n.t("announcements.toasts.deleted"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setDeletingAnnouncement(null);
     setSearchParam("");
@@ -227,11 +229,12 @@ const Announcements = () => {
   };
 
   return (
-    <MainContainer >
+    <MainContainer>
       <ConfirmationModal
         title={
           deletingAnnouncement &&
-          `${i18n.t("announcements.confirmationModal.deleteTitle")} ${deletingAnnouncement.name
+          `${i18n.t("announcements.confirmationModal.deleteTitle")} ${
+            deletingAnnouncement.name
           }?`
         }
         open={confirmModalOpen}
@@ -253,7 +256,9 @@ const Announcements = () => {
       <MainHeader>
         <Grid style={{ width: "99.6%" }} container>
           <Grid xs={12} sm={8} item>
-            <Title>{i18n.t("announcements.title")} ({announcements.length})</Title>
+            <Title>
+              {i18n.t("announcements.title")} ({announcements.length})
+            </Title>
           </Grid>
           <Grid xs={12} sm={4} item>
             <Grid spacing={2} container>
@@ -321,10 +326,13 @@ const Announcements = () => {
                     {translatePriority(announcement.priority)}
                   </TableCell>
                   <TableCell align="center">
-                    {announcement.mediaName ?? i18n.t("quickMessages.noAttachment")}
+                    {announcement.mediaName ??
+                      i18n.t("quickMessages.noAttachment")}
                   </TableCell>
                   <TableCell align="center">
-                    {announcement.status ? i18n.t("announcements.active") : i18n.t("announcements.inactive")}
+                    {announcement.status
+                      ? i18n.t("announcements.active")
+                      : i18n.t("announcements.inactive")}
                   </TableCell>
                   <TableCell align="center">
                     <IconButton
@@ -351,8 +359,8 @@ const Announcements = () => {
           </TableBody>
         </Table>
       </Paper>
-    </MainContainer >
-  )
+    </MainContainer>
+  );
 };
 
 export default Announcements;

@@ -1,55 +1,56 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { Link as RouterLink, useHistory, useLocation } from "react-router-dom";
-
+import { toast } from "sonner";
+import {
+  Avatar,
+  Badge,
+  Box,
+  Collapse,
+  List,
+  Typography,
+} from "@material-ui/core";
+import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import ListSubheader from "@material-ui/core/ListSubheader";
-import Divider from "@material-ui/core/Divider";
-import { Avatar, Badge, Box, Collapse, List, Typography } from "@material-ui/core";
-import { 
-  LayoutDashboard,
-  MessageSquare,
-  RefreshCw,
-  Settings,
-  Users,
-  Phone,
-  GitBranch,
-  Zap,
-  HelpCircle,
-  Code,
+import { makeStyles } from "@material-ui/core/styles";
+import { isArray } from "lodash";
+import {
   Calendar,
-  Tag,
   CalendarCheck,
   ChevronDown,
   ChevronUp,
-  Users as UsersIcon,
-  List as ListIcon,
-  Megaphone,
-  MessageSquare as MessageSquareIcon,
+  Code,
   DollarSign,
-  LogOut,
-  Award,
-  Table,
+  File,
   FileText,
-  Link,
-  Schedule,
-  Sparkles,
+  GitBranch,
+  HelpCircle,
+  LayoutDashboard,
+  List as ListIcon,
+  LogOut,
+  Megaphone,
+  MessageSquare,
+  MessageSquare as MessageSquareIcon,
   Network,
-  File
-} from 'lucide-react';
-import { i18n } from "../translate/i18n";
-import { WhatsAppsContext } from "../context/WhatsApp/WhatsAppsContext";
-import { AuthContext } from "../context/Auth/AuthContext";
+  Phone,
+  RefreshCw,
+  Settings,
+  Sparkles,
+  Table,
+  Tag,
+  Users,
+  Users as UsersIcon,
+  Zap,
+} from "lucide-react";
 import { Can } from "../components/Can";
+import { AuthContext } from "../context/Auth/AuthContext";
 import { SocketContext } from "../context/Socket/SocketContext";
-import { isArray } from "lodash";
-import api from "../services/api";
-import ToDoList from "../pages/ToDoList/";
-import toastError from "../errors/toastError";
-import { makeStyles } from "@material-ui/core/styles";
+import { WhatsAppsContext } from "../context/WhatsApp/WhatsAppsContext";
 import usePlans from "../hooks/usePlans";
 import useVersion from "../hooks/useVersion";
+import api from "../services/api";
+import { i18n } from "../translate/i18n";
 
 const useStyles = makeStyles((theme) => ({
   ListSubheader: {
@@ -134,67 +135,67 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(0.2, 1),
       padding: theme.spacing(1, 1.2),
     },
-    '&.Mui-selected': {
-      backgroundColor: '#5D3FD3',
-      boxShadow: '0 2px 8px rgba(93, 63, 211, 0.2)',
-      '& .MuiListItemIcon-root': {
-        color: '#FFFFFF',
+    "&.Mui-selected": {
+      backgroundColor: "#5D3FD3",
+      boxShadow: "0 2px 8px rgba(93, 63, 211, 0.2)",
+      "& .MuiListItemIcon-root": {
+        color: "#FFFFFF",
       },
-      '& .MuiListItemText-primary': {
-        color: '#FFFFFF',
+      "& .MuiListItemText-primary": {
+        color: "#FFFFFF",
         fontWeight: 500,
       },
-      '&::before': {
+      "&::before": {
         content: '""',
-        position: 'absolute',
+        position: "absolute",
         left: 0,
-        top: '50%',
-        transform: 'translateY(-50%)',
+        top: "50%",
+        transform: "translateY(-50%)",
         width: 4,
-        height: '70%',
-        backgroundColor: '#FFFFFF',
-        borderRadius: '0 4px 4px 0',
+        height: "70%",
+        backgroundColor: "#FFFFFF",
+        borderRadius: "0 4px 4px 0",
       },
     },
-    '&:hover': {
-      backgroundColor: 'rgba(93, 63, 211, 0.08)',
-      transform: 'translateX(3px)',
-      '& .MuiListItemIcon-root': {
-        color: '#5D3FD3',
-        transform: 'scale(1.1)',
+    "&:hover": {
+      backgroundColor: "rgba(93, 63, 211, 0.08)",
+      transform: "translateX(3px)",
+      "& .MuiListItemIcon-root": {
+        color: "#5D3FD3",
+        transform: "scale(1.1)",
       },
-      '& .MuiListItemText-primary': {
-        color: '#5D3FD3',
+      "& .MuiListItemText-primary": {
+        color: "#5D3FD3",
       },
-    }
+    },
   },
   menuIcon: {
     minWidth: 46,
-    color: '#616161',
-    transition: 'transform 0.2s ease-in-out, color 0.2s ease-in-out',
+    color: "#616161",
+    transition: "transform 0.2s ease-in-out, color 0.2s ease-in-out",
   },
   logoutItem: {
     margin: theme.spacing(1, 1.5),
     borderRadius: theme.spacing(1),
-    display: 'flex',
-    alignItems: 'center',
-    color: '#666',
+    display: "flex",
+    alignItems: "center",
+    color: "#666",
     padding: theme.spacing(0.75, 1),
-    transition: 'all 0.2s ease',
-    '&:hover': {
-      backgroundColor: 'rgba(244, 67, 54, 0.08)',
-      color: '#F44336',
-      transform: 'translateX(3px)',
-      '& .MuiListItemIcon-root': {
-        color: '#F44336',
+    transition: "all 0.2s ease",
+    "&:hover": {
+      backgroundColor: "rgba(244, 67, 54, 0.08)",
+      color: "#F44336",
+      transform: "translateX(3px)",
+      "& .MuiListItemIcon-root": {
+        color: "#F44336",
       },
-    }
+    },
   },
   logoutIcon: {
-    color: '#666',
+    color: "#666",
     minWidth: 36,
     marginRight: theme.spacing(1),
-    transition: 'color 0.2s ease',
+    transition: "color 0.2s ease",
   },
   badge: {
     marginRight: theme.spacing(1),
@@ -205,8 +206,8 @@ const useStyles = makeStyles((theme) => ({
     color: "#757575",
     padding: theme.spacing(1.5, 2.5, 0.8, 2.5),
     marginTop: theme.spacing(1),
-    letterSpacing: '0.5px',
-    transition: 'color 0.2s ease',
+    letterSpacing: "0.5px",
+    transition: "color 0.2s ease",
     [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(1, 2, 0.5, 2),
       fontSize: 12,
@@ -220,8 +221,8 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     opacity: 0.7,
     padding: theme.spacing(1),
-    transition: 'opacity 0.2s ease',
-    '&:hover': {
+    transition: "opacity 0.2s ease",
+    "&:hover": {
       opacity: 1,
     },
   },
@@ -243,50 +244,50 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   collapsedMenuItem: {
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: theme.spacing(1.5),
     margin: theme.spacing(1, 0),
-    transition: 'all 0.2s ease',
-    '&.Mui-selected': {
-      backgroundColor: 'rgba(93, 63, 211, 0.1)',
-      '& .MuiListItemIcon-root': {
-        color: '#5D3FD3',
+    transition: "all 0.2s ease",
+    "&.Mui-selected": {
+      backgroundColor: "rgba(93, 63, 211, 0.1)",
+      "& .MuiListItemIcon-root": {
+        color: "#5D3FD3",
       },
     },
-    '&:hover': {
-      backgroundColor: 'rgba(93, 63, 211, 0.08)',
-      transform: 'scale(1.1)',
+    "&:hover": {
+      backgroundColor: "rgba(93, 63, 211, 0.08)",
+      transform: "scale(1.1)",
     },
-    '& .MuiListItemIcon-root': {
-      minWidth: 'auto',
+    "& .MuiListItemIcon-root": {
+      minWidth: "auto",
       margin: 0,
       fontSize: 24,
-      transition: 'transform 0.2s ease',
+      transition: "transform 0.2s ease",
     },
   },
   collapsedCategorySpace: {
     height: theme.spacing(2),
   },
   collapsedUserProfile: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: "flex",
+    justifyContent: "center",
     padding: theme.spacing(2, 0),
     borderBottom: `1px solid ${theme.palette.divider}`,
-    transition: 'background-color 0.2s ease',
-    '&:hover': {
-      backgroundColor: 'rgba(93, 63, 211, 0.03)',
+    transition: "background-color 0.2s ease",
+    "&:hover": {
+      backgroundColor: "rgba(93, 63, 211, 0.03)",
     },
   },
   collapsedAvatar: {
     width: theme.spacing(4.5),
     height: theme.spacing(4.5),
-    backgroundColor: '#5D3FD3',
-    color: '#FFFFFF',
+    backgroundColor: "#5D3FD3",
+    color: "#FFFFFF",
     fontSize: 16,
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    '&:hover': {
-      transform: 'scale(1.1)',
-      boxShadow: '0 2px 8px rgba(93, 63, 211, 0.25)',
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+    "&:hover": {
+      transform: "scale(1.1)",
+      boxShadow: "0 2px 8px rgba(93, 63, 211, 0.25)",
     },
   },
 }));
@@ -305,22 +306,30 @@ function ListItemLink(props) {
 
   return (
     <li>
-      <ListItem 
-        button 
-        dense 
-        component={renderLink} 
-        className={`${classes.menuItem} ${className || ''} ${collapsed ? classes.collapsedMenuItem : ''}`}
+      <ListItem
+        button
+        dense
+        component={renderLink}
+        className={`${classes.menuItem} ${className || ""} ${
+          collapsed ? classes.collapsedMenuItem : ""
+        }`}
         selected={selected}
       >
         {icon ? (
           <ListItemIcon className={classes.menuIcon}>
-            {React.cloneElement(icon, { style: { fontSize: collapsed ? 24 : 22 } })}
+            {React.cloneElement(icon, {
+              style: { fontSize: collapsed ? 24 : 22 },
+            })}
           </ListItemIcon>
         ) : null}
-        {!collapsed && <ListItemText 
-          primary={primary} 
-          primaryTypographyProps={{ style: { fontSize: 15, transition: 'color 0.2s ease' } }}
-        />}
+        {!collapsed && (
+          <ListItemText
+            primary={primary}
+            primaryTypographyProps={{
+              style: { fontSize: 15, transition: "color 0.2s ease" },
+            }}
+          />
+        )}
       </ListItem>
     </li>
   );
@@ -392,22 +401,22 @@ const MainListItems = (props) => {
   const [showCampaigns, setShowCampaigns] = useState(false);
   const [showKanban, setShowKanban] = useState(false);
   const [showOpenAi, setShowOpenAi] = useState(false);
-  const [showIntegrations, setShowIntegrations] = useState(false); 
+  const [showIntegrations, setShowIntegrations] = useState(false);
   const history = useHistory();
   const location = useLocation();
   const [showSchedules, setShowSchedules] = useState(false);
   const [showInternalChat, setShowInternalChat] = useState(false);
   const [showExternalApi, setShowExternalApi] = useState(false);
-  const [selectedItem, setSelectedItem] = useState('');
+  const [selectedItem, setSelectedItem] = useState("");
 
   const [invisible, setInvisible] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);
   const [searchParam] = useState("");
   const [chats, dispatch] = useReducer(reducer, []);
   const { getPlanCompany } = usePlans();
-  
+
   const [version, setVersion] = useState(false);
-  
+
   const { getVersion } = useVersion();
 
   const socketManager = useContext(SocketContext);
@@ -420,7 +429,6 @@ const MainListItems = (props) => {
     fetchVersion();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
- 
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -443,8 +451,6 @@ const MainListItems = (props) => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -524,7 +530,7 @@ const MainListItems = (props) => {
       });
       dispatch({ type: "LOAD_CHATS", payload: data.records });
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
@@ -535,10 +541,12 @@ const MainListItems = (props) => {
   // Update selectedItem whenever location changes
   useEffect(() => {
     setSelectedItem(location.pathname);
-    
+
     // Open campaign submenu if current route is related to campaigns
-    if (location.pathname.includes('/campaigns') || 
-        location.pathname.includes('/contact-lists')) {
+    if (
+      location.pathname.includes("/campaigns") ||
+      location.pathname.includes("/contact-lists")
+    ) {
       setOpenCampaignSubmenu(true);
     }
   }, [location]);
@@ -563,7 +571,7 @@ const MainListItems = (props) => {
 
   // Helper function to get first initial of name for avatar
   const getInitials = (name) => {
-    return name ? name.charAt(0).toUpperCase() : '?';
+    return name ? name.charAt(0).toUpperCase() : "?";
   };
 
   // Handle click on menu item - update active state immediately
@@ -579,9 +587,7 @@ const MainListItems = (props) => {
       {!collapsed ? (
         <Box className={classes.userProfile}>
           <div className={classes.userInfo}>
-            <Avatar className={classes.avatar}>
-              {getInitials(user.name)}
-            </Avatar>
+            <Avatar className={classes.avatar}>{getInitials(user.name)}</Avatar>
             <div className={classes.userTextContainer}>
               <Typography variant="subtitle1" className={classes.userName}>
                 {user.name}
@@ -600,16 +606,14 @@ const MainListItems = (props) => {
           </Avatar>
         </Box>
       )}
-      
+
       <Divider />
-      
+
       {!collapsed && (
-        <Typography className={classes.categoryHeader}>
-          Principal
-        </Typography>
+        <Typography className={classes.categoryHeader}>Principal</Typography>
       )}
       {collapsed && <div className={classes.collapsedCategorySpace} />}
-      
+
       <Can
         role={user.profile}
         perform="dashboard:view"
@@ -618,8 +622,8 @@ const MainListItems = (props) => {
             to="/"
             primary="Dashboard"
             icon={<LayoutDashboard size={22} />}
-            selected={selectedItem === '/'}
-            onClick={() => handleMenuItemClick('/')}
+            selected={selectedItem === "/"}
+            onClick={() => handleMenuItemClick("/")}
             collapsed={collapsed}
           />
         )}
@@ -629,28 +633,28 @@ const MainListItems = (props) => {
         to="/tickets"
         primary="Atendimentos"
         icon={<MessageSquare size={22} />}
-        selected={selectedItem === '/tickets'}
-        onClick={() => handleMenuItemClick('/tickets')}
+        selected={selectedItem === "/tickets"}
+        onClick={() => handleMenuItemClick("/tickets")}
         collapsed={collapsed}
       />
-	  
-	{showKanban && (  
-	  <ListItemLink
-        to="/kanban"
+
+      {showKanban && (
+        <ListItemLink
+          to="/kanban"
           primary="Kanban"
-        icon={<Table size={22} />}
-          selected={selectedItem === '/kanban'}
-          onClick={() => handleMenuItemClick('/kanban')}
+          icon={<Table size={22} />}
+          selected={selectedItem === "/kanban"}
+          onClick={() => handleMenuItemClick("/kanban")}
           collapsed={collapsed}
         />
-	  )}
+      )}
 
       <ListItemLink
         to="/contacts"
         primary="Contatos"
         icon={<Phone size={22} />}
-        selected={selectedItem === '/contacts'}
-        onClick={() => handleMenuItemClick('/contacts')}
+        selected={selectedItem === "/contacts"}
+        onClick={() => handleMenuItemClick("/contacts")}
         collapsed={collapsed}
       />
 
@@ -658,12 +662,17 @@ const MainListItems = (props) => {
         to="/chats"
         primary="Chat Interno"
         icon={
-          <Badge color="secondary" variant="dot" invisible={invisible} className={classes.badge}>
+          <Badge
+            color="secondary"
+            variant="dot"
+            invisible={invisible}
+            className={classes.badge}
+          >
             <MessageSquareIcon size={22} />
           </Badge>
         }
-        selected={selectedItem === '/chats'}
-        onClick={() => handleMenuItemClick('/chats')}
+        selected={selectedItem === "/chats"}
+        onClick={() => handleMenuItemClick("/chats")}
         collapsed={collapsed}
       />
 
@@ -671,17 +680,17 @@ const MainListItems = (props) => {
         to="/quick-messages"
         primary="Respostas Rápidas"
         icon={<Zap size={22} />}
-        selected={selectedItem === '/quick-messages'}
-        onClick={() => handleMenuItemClick('/quick-messages')}
+        selected={selectedItem === "/quick-messages"}
+        onClick={() => handleMenuItemClick("/quick-messages")}
         collapsed={collapsed}
       />
-	  
-	  <ListItemLink
+
+      <ListItemLink
         to="/todolist"
         primary="Tarefas"
         icon={<FileText size={22} />}
-        selected={selectedItem === '/todolist'}
-        onClick={() => handleMenuItemClick('/todolist')}
+        selected={selectedItem === "/todolist"}
+        onClick={() => handleMenuItemClick("/todolist")}
         collapsed={collapsed}
       />
 
@@ -689,8 +698,8 @@ const MainListItems = (props) => {
         to="/schedules"
         primary="Agendamentos"
         icon={<Calendar size={22} />}
-        selected={selectedItem === '/schedules'}
-        onClick={() => handleMenuItemClick('/schedules')}
+        selected={selectedItem === "/schedules"}
+        onClick={() => handleMenuItemClick("/schedules")}
         collapsed={collapsed}
       />
 
@@ -698,8 +707,8 @@ const MainListItems = (props) => {
         to="/tags"
         primary="Tags"
         icon={<Tag size={22} />}
-        selected={selectedItem === '/tags'}
-        onClick={() => handleMenuItemClick('/tags')}
+        selected={selectedItem === "/tags"}
+        onClick={() => handleMenuItemClick("/tags")}
         collapsed={collapsed}
       />
 
@@ -707,8 +716,8 @@ const MainListItems = (props) => {
         to="/helps"
         primary="Ajuda"
         icon={<HelpCircle size={22} />}
-        selected={selectedItem === '/helps'}
-        onClick={() => handleMenuItemClick('/helps')}
+        selected={selectedItem === "/helps"}
+        onClick={() => handleMenuItemClick("/helps")}
         collapsed={collapsed}
       />
 
@@ -717,29 +726,30 @@ const MainListItems = (props) => {
         perform="drawer-admin-items:view"
         yes={() => (
           <>
-            <Divider style={{ margin: '16px 0 8px 0' }} />
-            
+            <Divider style={{ margin: "16px 0 8px 0" }} />
+
             {!collapsed && (
               <Typography className={classes.categoryHeader}>
                 Administração
               </Typography>
             )}
             {collapsed && <div className={classes.collapsedCategorySpace} />}
-			
+
             {showCampaigns && (
               <>
                 <ListItem
                   button
                   onClick={() => setOpenCampaignSubmenu((prev) => !prev)}
                   className={classes.menuItem}
-                  selected={selectedItem.includes('/campaigns') || selectedItem.includes('/contact-lists')}
+                  selected={
+                    selectedItem.includes("/campaigns") ||
+                    selectedItem.includes("/contact-lists")
+                  }
                 >
                   <ListItemIcon className={classes.menuIcon}>
                     <CalendarCheck size={22} />
                   </ListItemIcon>
-                  <ListItemText
-                    primary="Campanhas"
-                  />
+                  <ListItemText primary="Campanhas" />
                   {openCampaignSubmenu ? (
                     <ChevronUp size={20} />
                   ) : (
@@ -753,14 +763,14 @@ const MainListItems = (props) => {
                   unmountOnExit
                 >
                   <List component="div" disablePadding>
-                    <ListItem 
+                    <ListItem
                       onClick={() => {
                         history.push("/campaigns");
-                        handleMenuItemClick('/campaigns');
-                      }} 
+                        handleMenuItemClick("/campaigns");
+                      }}
                       button
                       className={classes.menuItem}
-                      selected={selectedItem === '/campaigns'}
+                      selected={selectedItem === "/campaigns"}
                     >
                       <ListItemIcon className={classes.menuIcon}>
                         <ListIcon size={22} />
@@ -770,11 +780,11 @@ const MainListItems = (props) => {
                     <ListItem
                       onClick={() => {
                         history.push("/contact-lists");
-                        handleMenuItemClick('/contact-lists');
+                        handleMenuItemClick("/contact-lists");
                       }}
                       button
                       className={classes.menuItem}
-                      selected={selectedItem === '/contact-lists'}
+                      selected={selectedItem === "/contact-lists"}
                     >
                       <ListItemIcon className={classes.menuIcon}>
                         <UsersIcon size={22} />
@@ -784,11 +794,11 @@ const MainListItems = (props) => {
                     <ListItem
                       onClick={() => {
                         history.push("/campaigns-config");
-                        handleMenuItemClick('/campaigns-config');
+                        handleMenuItemClick("/campaigns-config");
                       }}
                       button
                       className={classes.menuItem}
-                      selected={selectedItem === '/campaigns-config'}
+                      selected={selectedItem === "/campaigns-config"}
                     >
                       <ListItemIcon className={classes.menuIcon}>
                         <Settings size={22} />
@@ -799,25 +809,25 @@ const MainListItems = (props) => {
                 </Collapse>
               </>
             )}
-            
+
             {user.super && (
               <ListItemLink
                 to="/announcements"
                 primary="Informativos"
                 icon={<Megaphone size={22} />}
-                selected={selectedItem === '/announcements'}
-                onClick={() => handleMenuItemClick('/announcements')}
+                selected={selectedItem === "/announcements"}
+                onClick={() => handleMenuItemClick("/announcements")}
                 collapsed={collapsed}
               />
             )}
-            
+
             {showOpenAi && (
               <ListItemLink
                 to="/prompts"
                 primary="Open.AI"
                 icon={<Sparkles size={22} />}
-                selected={selectedItem === '/prompts'}
-                onClick={() => handleMenuItemClick('/prompts')}
+                selected={selectedItem === "/prompts"}
+                onClick={() => handleMenuItemClick("/prompts")}
                 collapsed={collapsed}
               />
             )}
@@ -827,69 +837,73 @@ const MainListItems = (props) => {
                 to="/queue-integration"
                 primary="Integrações"
                 icon={<Network size={22} />}
-                selected={selectedItem === '/queue-integration'}
-                onClick={() => handleMenuItemClick('/queue-integration')}
+                selected={selectedItem === "/queue-integration"}
+                onClick={() => handleMenuItemClick("/queue-integration")}
                 collapsed={collapsed}
               />
             )}
-            
+
             <ListItemLink
               to="/connections"
               primary="Conexões"
               icon={
-                <Badge badgeContent={connectionWarning ? "!" : 0} color="error" className={classes.badge}>
+                <Badge
+                  badgeContent={connectionWarning ? "!" : 0}
+                  color="error"
+                  className={classes.badge}
+                >
                   <RefreshCw size={22} />
                 </Badge>
               }
-              selected={selectedItem === '/connections'}
-              onClick={() => handleMenuItemClick('/connections')}
+              selected={selectedItem === "/connections"}
+              onClick={() => handleMenuItemClick("/connections")}
               collapsed={collapsed}
             />
-            
+
             <ListItemLink
               to="/files"
               primary="Lista de arquivos"
               icon={<File size={22} />}
-              selected={selectedItem === '/files'}
-              onClick={() => handleMenuItemClick('/files')}
+              selected={selectedItem === "/files"}
+              onClick={() => handleMenuItemClick("/files")}
               collapsed={collapsed}
             />
-            
+
             <ListItemLink
               to="/queues"
               primary={i18n.t("mainDrawer.listItems.queues")}
               icon={<GitBranch size={22} />}
-              selected={selectedItem === '/queues'}
-              onClick={() => handleMenuItemClick('/queues')}
+              selected={selectedItem === "/queues"}
+              onClick={() => handleMenuItemClick("/queues")}
               collapsed={collapsed}
             />
-            
+
             <ListItemLink
               to="/users"
               primary={i18n.t("mainDrawer.listItems.users")}
               icon={<Users size={22} />}
-              selected={selectedItem === '/users'}
-              onClick={() => handleMenuItemClick('/users')}
+              selected={selectedItem === "/users"}
+              onClick={() => handleMenuItemClick("/users")}
               collapsed={collapsed}
             />
-            
+
             {showExternalApi && (
-                <ListItemLink
-                  to="/messages-api"
-                  primary={i18n.t("mainDrawer.listItems.messagesAPI")}
-                  icon={<Code size={22} />}
-                selected={selectedItem === '/messages-api'}
-                onClick={() => handleMenuItemClick('/messages-api')}
+              <ListItemLink
+                to="/messages-api"
+                primary={i18n.t("mainDrawer.listItems.messagesAPI")}
+                icon={<Code size={22} />}
+                selected={selectedItem === "/messages-api"}
+                onClick={() => handleMenuItemClick("/messages-api")}
                 collapsed={collapsed}
-                />
+              />
             )}
-            
+
             <ListItemLink
               to="/financeiro"
               primary={i18n.t("mainDrawer.listItems.financeiro")}
               icon={<DollarSign size={22} />}
-              selected={selectedItem === '/financeiro'}
-              onClick={() => handleMenuItemClick('/financeiro')}
+              selected={selectedItem === "/financeiro"}
+              onClick={() => handleMenuItemClick("/financeiro")}
               collapsed={collapsed}
             />
 
@@ -897,28 +911,28 @@ const MainListItems = (props) => {
               to="/settings"
               primary={i18n.t("mainDrawer.listItems.settings")}
               icon={<Settings size={22} />}
-              selected={selectedItem === '/settings'}
-              onClick={() => handleMenuItemClick('/settings')}
+              selected={selectedItem === "/settings"}
+              onClick={() => handleMenuItemClick("/settings")}
               collapsed={collapsed}
             />
 
             {!collapsed && (
               <>
-                <Divider style={{ margin: '16px 0 8px 0' }} />
+                <Divider style={{ margin: "16px 0 8px 0" }} />
                 <Typography className={classes.versionText}>
-                {`${version}`}
-              </Typography>
+                  {`${version}`}
+                </Typography>
               </>
             )}
           </>
         )}
       />
-      
+
       {!collapsed && (
         <>
-          <Divider style={{ margin: '16px 0 8px 0' }} />
-          <ListItem 
-            button 
+          <Divider style={{ margin: "16px 0 8px 0" }} />
+          <ListItem
+            button
             onClick={handleClickLogout}
             className={classes.logoutItem}
           >

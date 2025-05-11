@@ -1,26 +1,26 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
+import { Field, Form, Formik } from "formik";
+import { toast } from "sonner";
 import * as Yup from "yup";
-import { Formik, Form, Field } from "formik";
-import { toast } from "react-toastify";
 
-import { makeStyles } from "@material-ui/core/styles";
-import { green } from "@material-ui/core/colors";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import { green } from "@material-ui/core/colors";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import CircularProgress from "@material-ui/core/CircularProgress";
 
 import { i18n } from "../../translate/i18n";
 
-import api from "../../services/api";
-import toastError from "../../errors/toastError";
 import { useParams } from "react-router-dom";
 import { AuthContext } from "../../context/Auth/AuthContext";
+
+import api from "../../services/api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -106,7 +106,7 @@ const ContactListItemModal = ({
           setContact(data);
         }
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
     };
 
@@ -140,7 +140,7 @@ const ContactListItemModal = ({
       }
       toast.success(i18n.t("contactModal.success"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 

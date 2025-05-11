@@ -19,10 +19,10 @@ import moment from "moment";
 import qs from "query-string";
 import React, { useState } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
 import * as Yup from "yup";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
@@ -149,7 +149,7 @@ const ForgetPassword = () => {
       }
     } catch (err) {
       console.log("API Error:", err);
-      toastError(err);
+      toast.error(err.message);
     }
   };
 

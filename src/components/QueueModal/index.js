@@ -1,20 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import * as Yup from "yup";
-import { Formik, Form, Field } from "formik";
-import { toast } from "react-toastify";
+import { Field, Form, Formik } from "formik";
 import { head } from "lodash";
+import { toast } from "sonner";
+import * as Yup from "yup";
 
-import { makeStyles } from "@material-ui/core/styles";
-import { green } from "@material-ui/core/colors";
 import {
+  Box,
   Button,
-  TextField,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  CircularProgress,
+  Divider,
   FormControl,
   Grid,
   IconButton,
@@ -25,33 +24,31 @@ import {
   Select,
   Tab,
   Tabs,
-  Typography,
-  Box,
+  TextField,
   Tooltip,
-  Divider
+  Typography,
 } from "@material-ui/core";
+import { green } from "@material-ui/core/colors";
+import { makeStyles } from "@material-ui/core/styles";
 
-import { 
-  AttachFile, 
-  Colorize, 
-  DeleteOutline, 
+import {
+  AccessTime as AccessTimeIcon,
+  AttachFile,
+  Chat as ChatIcon,
+  Code as CodeIcon,
+  Colorize,
+  DeleteOutline,
   FormatColorFill,
+  SettingsInputComponent as IntegrationIcon,
   Queue as QueueIcon,
   Sort as SortIcon,
-  Chat as ChatIcon,
-  AccessTime as AccessTimeIcon,
-  SettingsInputComponent as IntegrationIcon,
-  Code as CodeIcon
 } from "@material-ui/icons";
 
-import { i18n } from "../../translate/i18n";
-
 import api from "../../services/api";
-import toastError from "../../errors/toastError";
 import ColorPicker from "../ColorPicker";
+import ConfirmationModal from "../ConfirmationModal";
 import { QueueOptions } from "../QueueOptions";
 import SchedulesForm from "../SchedulesForm";
-import ConfirmationModal from "../ConfirmationModal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -211,7 +208,10 @@ const QueueSchema = Yup.object().shape({
     .min(2, "Nome muito curto!")
     .max(50, "Nome muito longo!")
     .required("O nome é obrigatório"),
-  color: Yup.string().min(3, "Cor inválida!").max(9, "Cor inválida!").required("A cor é obrigatória"),
+  color: Yup.string()
+    .min(3, "Cor inválida!")
+    .max(9, "Cor inválida!")
+    .required("A cor é obrigatória"),
   greetingMessage: Yup.string(),
 });
 
@@ -225,7 +225,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
     outOfHoursMessage: "",
     orderQueue: "",
     integrationId: "",
-    promptId: ""
+    promptId: "",
   };
 
   const [colorPickerModalOpen, setColorPickerModalOpen] = useState(false);
@@ -240,13 +240,48 @@ const QueueModal = ({ open, onClose, queueId }) => {
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   const [schedules, setSchedules] = useState([
-    { weekday: "Segunda-feira", weekdayEn: "monday", startTime: "08:00", endTime: "18:00", },
-    { weekday: "Terça-feira", weekdayEn: "tuesday", startTime: "08:00", endTime: "18:00", },
-    { weekday: "Quarta-feira", weekdayEn: "wednesday", startTime: "08:00", endTime: "18:00", },
-    { weekday: "Quinta-feira", weekdayEn: "thursday", startTime: "08:00", endTime: "18:00", },
-    { weekday: "Sexta-feira", weekdayEn: "friday", startTime: "08:00", endTime: "18:00", },
-    { weekday: "Sábado", weekdayEn: "saturday", startTime: "08:00", endTime: "12:00", },
-    { weekday: "Domingo", weekdayEn: "sunday", startTime: "00:00", endTime: "00:00", },
+    {
+      weekday: "Segunda-feira",
+      weekdayEn: "monday",
+      startTime: "08:00",
+      endTime: "18:00",
+    },
+    {
+      weekday: "Terça-feira",
+      weekdayEn: "tuesday",
+      startTime: "08:00",
+      endTime: "18:00",
+    },
+    {
+      weekday: "Quarta-feira",
+      weekdayEn: "wednesday",
+      startTime: "08:00",
+      endTime: "18:00",
+    },
+    {
+      weekday: "Quinta-feira",
+      weekdayEn: "thursday",
+      startTime: "08:00",
+      endTime: "18:00",
+    },
+    {
+      weekday: "Sexta-feira",
+      weekdayEn: "friday",
+      startTime: "08:00",
+      endTime: "18:00",
+    },
+    {
+      weekday: "Sábado",
+      weekdayEn: "saturday",
+      startTime: "08:00",
+      endTime: "12:00",
+    },
+    {
+      weekday: "Domingo",
+      weekdayEn: "sunday",
+      startTime: "00:00",
+      endTime: "00:00",
+    },
   ]);
   const [selectedPrompt, setSelectedPrompt] = useState(null);
   const [prompts, setPrompts] = useState([]);
@@ -257,7 +292,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
         const { data } = await api.get("/prompt");
         setPrompts(data.prompts);
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
     })();
   }, []);
@@ -280,7 +315,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
 
         setIntegrations(data.queueIntegrations);
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
     })();
   }, []);
@@ -293,11 +328,13 @@ const QueueModal = ({ open, onClose, queueId }) => {
         setQueue((prevState) => {
           return { ...prevState, ...data };
         });
-        data.promptId ? setSelectedPrompt(data.promptId) : setSelectedPrompt(null);
+        data.promptId
+          ? setSelectedPrompt(data.promptId)
+          : setSelectedPrompt(null);
 
         setSchedules(data.schedules);
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
     })();
 
@@ -308,7 +345,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
         greetingMessage: "",
         outOfHoursMessage: "",
         orderQueue: "",
-        integrationId: ""
+        integrationId: "",
       });
     };
   }, [queueId, open]);
@@ -324,7 +361,6 @@ const QueueModal = ({ open, onClose, queueId }) => {
       setAttachment(file);
     }
   };
-
 
   const deleteMedia = async () => {
     if (attachment) {
@@ -343,9 +379,11 @@ const QueueModal = ({ open, onClose, queueId }) => {
     try {
       if (queueId) {
         await api.put(`/queue/${queueId}`, {
-          ...values, schedules, promptId: selectedPrompt ? selectedPrompt : null
+          ...values,
+          schedules,
+          promptId: selectedPrompt ? selectedPrompt : null,
         });
-		if (attachment != null) {
+        if (attachment != null) {
           const formData = new FormData();
           formData.append("file", attachment);
           await api.post(`/queue/${queueId}/media-upload`, formData);
@@ -353,18 +391,20 @@ const QueueModal = ({ open, onClose, queueId }) => {
         toast.success("Fila atualizada com sucesso!");
       } else {
         await api.post("/queue", {
-          ...values, schedules, promptId: selectedPrompt ? selectedPrompt : null
+          ...values,
+          schedules,
+          promptId: selectedPrompt ? selectedPrompt : null,
         });
         toast.success("Fila criada com sucesso!");
-		if (attachment != null) {
+        if (attachment != null) {
           const formData = new FormData();
           formData.append("file", attachment);
           await api.post(`/queue/${queueId}/media-upload`, formData);
+        }
       }
-	  }
       handleClose();
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
@@ -388,7 +428,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
       >
         Tem certeza que deseja excluir esta mídia?
       </ConfirmationModal>
-    
+
       <Dialog
         maxWidth="md"
         fullWidth={true}
@@ -398,9 +438,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
         className={classes.dialog}
       >
         <DialogTitle className={classes.dialogTitle}>
-          {queueId
-            ? "Editar Fila de Atendimento"
-            : "Nova Fila de Atendimento"}
+          {queueId ? "Editar Fila de Atendimento" : "Nova Fila de Atendimento"}
           <div style={{ display: "none" }}>
             <input
               type="file"
@@ -409,7 +447,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
             />
           </div>
         </DialogTitle>
-        
+
         <Tabs
           value={tab}
           indicatorColor="primary"
@@ -418,9 +456,11 @@ const QueueModal = ({ open, onClose, queueId }) => {
           className={classes.tabsContainer}
         >
           <Tab label="Dados da Fila" icon={<QueueIcon />} />
-          {schedulesEnabled && <Tab label="Horários de Atendimento" icon={<AccessTimeIcon />} />}
+          {schedulesEnabled && (
+            <Tab label="Horários de Atendimento" icon={<AccessTimeIcon />} />
+          )}
         </Tabs>
-        
+
         {tab === 0 && (
           <Paper>
             <Formik
@@ -439,15 +479,17 @@ const QueueModal = ({ open, onClose, queueId }) => {
                   <DialogContent dividers className={classes.dialogContent}>
                     <Paper className={classes.infoPanel} elevation={0}>
                       <Typography variant="body2">
-                        <span>ℹ️</span> Configure suas filas de atendimento para organizar seus atendentes e mensagens específicas por departamento.
+                        <span>ℹ️</span> Configure suas filas de atendimento para
+                        organizar seus atendentes e mensagens específicas por
+                        departamento.
                       </Typography>
                     </Paper>
-                    
+
                     <div className={classes.formSection}>
                       <Typography className={classes.sectionTitle}>
                         Informações Básicas
                       </Typography>
-                      
+
                       <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                           <Field
@@ -469,7 +511,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
                             }}
                           />
                         </Grid>
-                        
+
                         <Grid item xs={12} md={6}>
                           <Field
                             as={TextField}
@@ -488,7 +530,9 @@ const QueueModal = ({ open, onClose, queueId }) => {
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  <FormatColorFill style={{ color: "#5D3FD3" }} />
+                                  <FormatColorFill
+                                    style={{ color: "#5D3FD3" }}
+                                  />
                                 </InputAdornment>
                               ),
                               endAdornment: (
@@ -497,11 +541,17 @@ const QueueModal = ({ open, onClose, queueId }) => {
                                     style={{ backgroundColor: values.color }}
                                     className={classes.colorAdorment}
                                   ></div>
-                                  <Tooltip title="Escolher cor" arrow placement="top">
+                                  <Tooltip
+                                    title="Escolher cor"
+                                    arrow
+                                    placement="top"
+                                  >
                                     <IconButton
                                       size="small"
                                       className={classes.colorPickerButton}
-                                      onClick={() => setColorPickerModalOpen(true)}
+                                      onClick={() =>
+                                        setColorPickerModalOpen(true)
+                                      }
                                     >
                                       <Colorize />
                                     </IconButton>
@@ -522,7 +572,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
                             }}
                           />
                         </Grid>
-                        
+
                         <Grid item xs={12} md={6}>
                           <Field
                             as={TextField}
@@ -540,12 +590,16 @@ const QueueModal = ({ open, onClose, queueId }) => {
                             }}
                           />
                           <Typography className={classes.helpText}>
-                            Define a ordem de prioridade desta fila (menor número = maior prioridade)
+                            Define a ordem de prioridade desta fila (menor
+                            número = maior prioridade)
                           </Typography>
                         </Grid>
-                        
+
                         <Grid item xs={12} md={6}>
-                          <FormControl variant="outlined" className={classes.formControl}>
+                          <FormControl
+                            variant="outlined"
+                            className={classes.formControl}
+                          >
                             <InputLabel>Integração</InputLabel>
                             <Field
                               as={Select}
@@ -554,7 +608,9 @@ const QueueModal = ({ open, onClose, queueId }) => {
                               InputProps={{
                                 startAdornment: (
                                   <InputAdornment position="start">
-                                    <IntegrationIcon style={{ color: "#5D3FD3" }} />
+                                    <IntegrationIcon
+                                      style={{ color: "#5D3FD3" }}
+                                    />
                                   </InputAdornment>
                                 ),
                               }}
@@ -563,7 +619,10 @@ const QueueModal = ({ open, onClose, queueId }) => {
                                 <em>Nenhuma</em>
                               </MenuItem>
                               {integrations.map((integration) => (
-                                <MenuItem key={integration.id} value={integration.id}>
+                                <MenuItem
+                                  key={integration.id}
+                                  value={integration.id}
+                                >
                                   {integration.name}
                                 </MenuItem>
                               ))}
@@ -575,14 +634,14 @@ const QueueModal = ({ open, onClose, queueId }) => {
                         </Grid>
                       </Grid>
                     </div>
-                    
-                    <Divider style={{ margin: '16px 0' }} />
-                    
+
+                    <Divider style={{ margin: "16px 0" }} />
+
                     <div className={classes.formSection}>
                       <Typography className={classes.sectionTitle}>
                         Configuração de Mensagens
                       </Typography>
-                      
+
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <Field
@@ -595,21 +654,33 @@ const QueueModal = ({ open, onClose, queueId }) => {
                             fullWidth
                             variant="outlined"
                             className={classes.textField}
-                            error={touched.greetingMessage && Boolean(errors.greetingMessage)}
-                            helperText={touched.greetingMessage && errors.greetingMessage}
+                            error={
+                              touched.greetingMessage &&
+                              Boolean(errors.greetingMessage)
+                            }
+                            helperText={
+                              touched.greetingMessage && errors.greetingMessage
+                            }
                             InputProps={{
                               startAdornment: (
-                                <InputAdornment position="start" style={{ alignSelf: 'flex-start', marginTop: '16px' }}>
+                                <InputAdornment
+                                  position="start"
+                                  style={{
+                                    alignSelf: "flex-start",
+                                    marginTop: "16px",
+                                  }}
+                                >
                                   <ChatIcon style={{ color: "#5D3FD3" }} />
                                 </InputAdornment>
                               ),
                             }}
                           />
                           <Typography className={classes.helpText}>
-                            Mensagem exibida quando um cliente entra em contato com esta fila
+                            Mensagem exibida quando um cliente entra em contato
+                            com esta fila
                           </Typography>
                         </Grid>
-                        
+
                         {schedulesEnabled && (
                           <Grid item xs={12}>
                             <Field
@@ -621,24 +692,42 @@ const QueueModal = ({ open, onClose, queueId }) => {
                               fullWidth
                               variant="outlined"
                               className={classes.textField}
-                              error={touched.outOfHoursMessage && Boolean(errors.outOfHoursMessage)}
-                              helperText={touched.outOfHoursMessage && errors.outOfHoursMessage}
+                              error={
+                                touched.outOfHoursMessage &&
+                                Boolean(errors.outOfHoursMessage)
+                              }
+                              helperText={
+                                touched.outOfHoursMessage &&
+                                errors.outOfHoursMessage
+                              }
                               InputProps={{
                                 startAdornment: (
-                                  <InputAdornment position="start" style={{ alignSelf: 'flex-start', marginTop: '16px' }}>
-                                    <AccessTimeIcon style={{ color: "#5D3FD3" }} />
+                                  <InputAdornment
+                                    position="start"
+                                    style={{
+                                      alignSelf: "flex-start",
+                                      marginTop: "16px",
+                                    }}
+                                  >
+                                    <AccessTimeIcon
+                                      style={{ color: "#5D3FD3" }}
+                                    />
                                   </InputAdornment>
                                 ),
                               }}
                             />
                             <Typography className={classes.helpText}>
-                              Mensagem exibida quando um cliente entra em contato fora do horário de atendimento
+                              Mensagem exibida quando um cliente entra em
+                              contato fora do horário de atendimento
                             </Typography>
                           </Grid>
                         )}
-                        
+
                         <Grid item xs={12}>
-                          <FormControl variant="outlined" className={classes.formControl}>
+                          <FormControl
+                            variant="outlined"
+                            className={classes.formControl}
+                          >
                             <InputLabel>Prompt de IA</InputLabel>
                             <Select
                               label="Prompt de IA"
@@ -664,21 +753,22 @@ const QueueModal = ({ open, onClose, queueId }) => {
                             </Select>
                           </FormControl>
                           <Typography className={classes.helpText}>
-                            Associa um prompt de IA a esta fila para respostas automáticas
+                            Associa um prompt de IA a esta fila para respostas
+                            automáticas
                           </Typography>
                         </Grid>
                       </Grid>
                     </div>
-                    
-                    <Divider style={{ margin: '16px 0' }} />
-                    
+
+                    <Divider style={{ margin: "16px 0" }} />
+
                     <div className={classes.formSection}>
                       <Typography className={classes.sectionTitle}>
                         Opções Avançadas
                       </Typography>
-                      
+
                       <QueueOptions queueId={queueId} />
-                      
+
                       {(queue.mediaPath || attachment) && (
                         <Box className={classes.attachmentDisplay}>
                           <Button startIcon={<AttachFile />}>
@@ -698,7 +788,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
                       )}
                     </div>
                   </DialogContent>
-                  
+
                   <DialogActions className={classes.dialogActions}>
                     {!attachment && !queue.mediaPath && queueEditable && (
                       <Button
@@ -711,7 +801,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
                         Anexar Arquivo
                       </Button>
                     )}
-                    
+
                     <Button
                       onClick={handleClose}
                       disabled={isSubmitting}
@@ -720,7 +810,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
                     >
                       Cancelar
                     </Button>
-                    
+
                     <Button
                       type="submit"
                       color="primary"
@@ -728,9 +818,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
                       variant="contained"
                       className={classes.saveButton}
                     >
-                      {queueId
-                        ? "Atualizar"
-                        : "Adicionar"}
+                      {queueId ? "Atualizar" : "Adicionar"}
                       {isSubmitting && (
                         <CircularProgress
                           size={24}

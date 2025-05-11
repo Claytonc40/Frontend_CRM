@@ -1,36 +1,34 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-import Paper from "@material-ui/core/Paper";
 import Container from "@material-ui/core/Container";
-import Grid from "@material-ui/core/Grid";
-import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import Grid from "@material-ui/core/Grid";
 import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import Paper from "@material-ui/core/Paper";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
-import FormHelperText from "@material-ui/core/FormHelperText";
 
-import SpeedIcon from "@material-ui/icons/Speed";
-import GroupIcon from "@material-ui/icons/Group";
 import AssignmentIcon from "@material-ui/icons/Assignment";
+import GroupIcon from "@material-ui/icons/Group";
 import PersonIcon from "@material-ui/icons/Person";
-import TodayIcon from '@material-ui/icons/Today';
-import BlockIcon from '@material-ui/icons/Block';
-import DoneIcon from '@material-ui/icons/Done';
+import SpeedIcon from "@material-ui/icons/Speed";
+import TodayIcon from "@material-ui/icons/Today";
 
+import { blue, grey } from "@material-ui/core/colors";
 import { makeStyles } from "@material-ui/core/styles";
-import { grey, blue } from "@material-ui/core/colors";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
-import Chart from "./Chart";
 import ButtonWithSpinner from "../../components/ButtonWithSpinner";
+import Chart from "./Chart";
 
+import { isArray } from "lodash";
 import CardCounter from "../../components/Dashboard/CardCounter";
 import TableAttendantsStatus from "../../components/Dashboard/TableAttendantsStatus";
-import { isArray } from "lodash";
 
-import useDashboard from "../../hooks/useDashboard";
 import useCompanies from "../../hooks/useCompanies";
+import useDashboard from "../../hooks/useDashboard";
 
 import { isEmpty } from "lodash";
 import moment from "moment";
@@ -146,8 +144,6 @@ const Dashboard = () => {
 
     const data = await find(params);
 
-
-
     setCounters(data.counters);
     if (isArray(data.attendants)) {
       setAttendants(data.attendants);
@@ -163,7 +159,7 @@ const Dashboard = () => {
       await loadCompanies();
     }
     fetchData();
-  }, [])
+  }, []);
   //let companyDueDate = localStorage.getItem("companyDueDate");
   //const companyDueDate = localStorage.getItem("companyDueDate").toString();
   const companyId = localStorage.getItem("companyId");

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { Field, Form, Formik } from "formik";
 import { head } from "lodash";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import * as Yup from "yup";
 
 import Button from "@material-ui/core/Button";
@@ -32,7 +32,7 @@ import {
   Tabs,
 } from "@material-ui/core";
 import { AuthContext } from "../../context/Auth/AuthContext";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 import ConfirmationModal from "../ConfirmationModal";
 
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
 
   tabmsg: {
@@ -134,12 +134,12 @@ const CampaignModal = ({
     (async () => {
       try {
         const { data } = await api.get("/files/", {
-          params: { companyId }
+          params: { companyId },
         });
 
         setFile(data.files);
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
     })();
   }, []);
@@ -160,7 +160,8 @@ const CampaignModal = ({
         .get(`/whatsapp`, { params: { companyId, session: 0 } })
         .then(({ data }) => setWhatsapps(data));
 
-      api.get(`/tags`, { params: { companyId } })
+      api
+        .get(`/tags`, { params: { companyId } })
         .then(({ data }) => {
           const fetchedTags = data.tags;
           // Perform any necessary data transformation here
@@ -173,7 +174,7 @@ const CampaignModal = ({
         .catch((error) => {
           console.error("Error retrieving tags:", error);
         });
-        
+
       if (!campaignId) return;
 
       api.get(`/campaigns/${campaignId}`).then(({ data }) => {
@@ -254,7 +255,7 @@ const CampaignModal = ({
       toast.success(i18n.t("campaigns.toasts.success"));
     } catch (err) {
       console.log(err);
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
@@ -537,13 +538,15 @@ const CampaignModal = ({
                     />
                   </Grid>
                   <Grid xs={12} md={4} item>
-                  <FormControl
+                    <FormControl
                       variant="outlined"
                       margin="dense"
                       className={classes.FormControl}
                       fullWidth
                     >
-                      <InputLabel id="fileListId-selection-label">{i18n.t("campaigns.dialog.form.fileList")}</InputLabel>
+                      <InputLabel id="fileListId-selection-label">
+                        {i18n.t("campaigns.dialog.form.fileList")}
+                      </InputLabel>
                       <Field
                         as={Select}
                         label={i18n.t("campaigns.dialog.form.fileList")}
@@ -553,8 +556,8 @@ const CampaignModal = ({
                         labelId="fileListId-selection-label"
                         value={values.fileListId || ""}
                       >
-                        <MenuItem value={""} >{"Nenhum"}</MenuItem>
-                        {file.map(f => (
+                        <MenuItem value={""}>{"Nenhum"}</MenuItem>
+                        {file.map((f) => (
                           <MenuItem key={f.id} value={f.id}>
                             {f.name}
                           </MenuItem>

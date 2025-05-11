@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import toastError from "../../errors/toastError";
+import { toast } from "sonner";
 
 import api from "../../services/api";
 
@@ -43,7 +43,7 @@ const useTickets = ({
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          toastError(err);
+          toast.error(err.message);
         }
       };
       fetchTickets();

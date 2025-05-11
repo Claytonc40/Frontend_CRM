@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
@@ -32,7 +32,7 @@ import ConfirmationModal from "../../components/ConfirmationModal";
 import QuickMessageDialog from "../../components/QuickMessageDialog";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
@@ -323,7 +323,7 @@ const Quickemessages = () => {
       setHasMore(data.hasMore);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
@@ -352,7 +352,7 @@ const Quickemessages = () => {
       await api.delete(`/quick-messages/${quickemessageId}`);
       toast.success(i18n.t("quickemessages.toasts.deleted"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setDeletingQuickemessage(null);
     setSearchParam("");

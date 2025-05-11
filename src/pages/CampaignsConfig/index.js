@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
-import { toast } from "react-toastify";
+import { makeStyles } from "@material-ui/core/styles";
+import { toast } from "sonner";
 
+import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
-import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import api from "../../services/api";
 
-import { i18n } from "../../translate/i18n";
 import {
   Box,
   Button,
@@ -29,6 +28,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import ConfirmationModal from "../../components/ConfirmationModal";
+import { i18n } from "../../translate/i18n";
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {

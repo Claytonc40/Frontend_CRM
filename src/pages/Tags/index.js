@@ -1,28 +1,27 @@
 import React, {
-  useState,
-  useEffect,
-  useReducer,
   useCallback,
   useContext,
+  useEffect,
+  useReducer,
+  useState,
 } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import SearchIcon from "@material-ui/icons/Search";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
-import Typography from "@material-ui/core/Typography";
-import Skeleton from "@material-ui/lab/Skeleton";
+import CardContent from "@material-ui/core/CardContent";
 import Fade from "@material-ui/core/Fade";
+import Grid from "@material-ui/core/Grid";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
 import AddIcon from "@material-ui/icons/Add";
-import Box from "@material-ui/core/Box";
+import SearchIcon from "@material-ui/icons/Search";
+import Skeleton from "@material-ui/lab/Skeleton";
 
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
@@ -30,16 +29,15 @@ import LocalOfferIcon from "@material-ui/icons/LocalOffer";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
-import Title from "../../components/Title";
+
+import { Chip, Tooltip } from "@material-ui/core";
+import ConfirmationModal from "../../components/ConfirmationModal";
+import TagModal from "../../components/TagModal";
+import { AuthContext } from "../../context/Auth/AuthContext";
+import { SocketContext } from "../../context/Socket/SocketContext";
 
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
-import TagModal from "../../components/TagModal";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import toastError from "../../errors/toastError";
-import { Chip, Tooltip } from "@material-ui/core";
-import { SocketContext } from "../../context/Socket/SocketContext";
-import { AuthContext } from "../../context/Auth/AuthContext";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_TAGS") {
@@ -270,7 +268,7 @@ const Tags = () => {
       setHasMore(data.hasMore);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
       setLoading(false);
     }
   }, [pageNumber]);
@@ -292,7 +290,7 @@ const Tags = () => {
   useEffect(() => {
     // Filtrar as tags com base no searchParam
     if (searchParam.trim() !== "") {
-      const filtered = tags.filter(tag => 
+      const filtered = tags.filter((tag) =>
         tag.name.toLowerCase().includes(searchParam.toLowerCase())
       );
       setDisplayedTags(filtered);
@@ -343,7 +341,7 @@ const Tags = () => {
       await api.delete(`/tags/${tagId}`);
       toast.success(i18n.t("tags.toasts.deleted"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setDeletingTag(null);
     setSearchParam("");
@@ -430,9 +428,7 @@ const Tags = () => {
           <div className={classes.noTagsContainer}>
             <LocalOfferIcon className={classes.noTagsIcon} />
             <Typography className={classes.noTagsText}>
-              {searchParam 
-                ? i18n.t("tags.noTagsFound") 
-                : i18n.t("tags.noTags")}
+              {searchParam ? i18n.t("tags.noTagsFound") : i18n.t("tags.noTags")}
             </Typography>
           </div>
         ) : (
@@ -440,19 +436,19 @@ const Tags = () => {
             {displayedTags.map((tag) => (
               <Fade in={true} key={tag.id} timeout={500}>
                 <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <Card 
+                  <Card
                     className={classes.cardContainer}
-                    style={{ 
+                    style={{
                       borderLeft: `5px solid ${tag.color}`,
                     }}
                   >
-                    <CardContent 
+                    <CardContent
                       className={classes.tagCard}
                       style={{ backgroundColor: `${tag.color}15` }} // Cor com 15% de opacidade
                     >
-                      <Typography 
-                        variant="h6" 
-                        className={classes.tagName} 
+                      <Typography
+                        variant="h6"
+                        className={classes.tagName}
                         style={{ color: tag.color }}
                       >
                         {tag.name}
@@ -467,7 +463,7 @@ const Tags = () => {
                         label={tag.name}
                         size="small"
                       />
-                      <div 
+                      <div
                         className={classes.tagCount}
                         style={{ backgroundColor: tag.color }}
                       >
@@ -475,16 +471,24 @@ const Tags = () => {
                       </div>
                     </CardContent>
                     <CardActions className={classes.cardActions}>
-                      <Tooltip title={i18n.t("tags.buttons.edit")} arrow placement="top">
-                        <IconButton 
-                          size="small" 
+                      <Tooltip
+                        title={i18n.t("tags.buttons.edit")}
+                        arrow
+                        placement="top"
+                      >
+                        <IconButton
+                          size="small"
                           onClick={() => handleEditTag(tag)}
                           className={`${classes.actionButton} ${classes.editButton}`}
                         >
                           <EditIcon />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title={i18n.t("tags.buttons.delete")} arrow placement="top">
+                      <Tooltip
+                        title={i18n.t("tags.buttons.delete")}
+                        arrow
+                        placement="top"
+                      >
                         <IconButton
                           size="small"
                           onClick={() => {
@@ -501,20 +505,26 @@ const Tags = () => {
                 </Grid>
               </Fade>
             ))}
-            
-            {loading && 
+
+            {loading &&
               [...Array(4)].map((_, index) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={`skeleton-${index}`}>
-                  <Skeleton 
-                    variant="rect" 
-                    width="100%" 
-                    height={120} 
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  key={`skeleton-${index}`}
+                >
+                  <Skeleton
+                    variant="rect"
+                    width="100%"
+                    height={120}
                     animation="wave"
                     style={{ borderRadius: 10 }}
                   />
                 </Grid>
-              ))
-            }
+              ))}
           </Grid>
         )}
       </Paper>

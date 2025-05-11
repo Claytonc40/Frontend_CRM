@@ -1,8 +1,7 @@
-import { useState, useEffect, useReducer, useContext } from "react";
-import toastError from "../../errors/toastError";
-
-import api from "../../services/api";
+import { useContext, useEffect, useReducer, useState } from "react";
+import { toast } from "sonner";
 import { SocketContext } from "../../context/Socket/SocketContext";
+import api from "../../services/api";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_WHATSAPPS") {
@@ -68,7 +67,7 @@ const useWhatsApps = () => {
         setLoading(false);
       } catch (err) {
         setLoading(false);
-        toastError(err);
+        toast.error(err);
       }
     };
     fetchSession();

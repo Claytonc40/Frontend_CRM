@@ -9,15 +9,10 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import {
-  Edit,
-  Plus,
-  Settings,
-  Trash2,
-} from "lucide-react";
+import { Edit, Plus, Settings, Trash2 } from "lucide-react";
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import dialogflow from "../../assets/dialogflow.png";
 import n8n from "../../assets/n8n.png";
 import typebot from "../../assets/typebot.jpg";
@@ -27,7 +22,7 @@ import MainContainer from "../../components/MainContainer";
 import IntegrationModal from "../../components/QueueIntegrationModal";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
-import toastError from "../../errors/toastError";
+
 import usePlans from "../../hooks/usePlans";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
@@ -302,7 +297,7 @@ const QueueIntegration = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          toastError(err);
+          toast.errorr(err.message);
         }
       };
       fetchIntegrations();
@@ -356,7 +351,7 @@ const QueueIntegration = () => {
       await api.delete(`/queueIntegration/${integrationId}`);
       toast.success(i18n.t("queueIntegration.toasts.deleted"));
     } catch (err) {
-      toastError(err);
+      toast.errorr(err.message);
     }
     setDeletingUser(null);
     setSearchParam("");

@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import { toast } from "react-toastify";
+import { toast } from "sonner";
+
 import api from "../../services/api";
-import toastError from "../../errors/toastError";
 
 import {
   Box,
@@ -11,14 +11,14 @@ import {
   DialogActions,
   makeStyles,
 } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import { useHistory } from "react-router-dom";
 import { AuthContext } from "../../context/Auth/AuthContext";
-import MessagesList from "../MessagesList";
 import { ReplyMessageProvider } from "../../context/ReplyingMessage/ReplyingMessageContext";
+import { SocketContext } from "../../context/Socket/SocketContext";
+import MessagesList from "../MessagesList";
 import TicketHeader from "../TicketHeader";
 import TicketInfo from "../TicketInfo";
-import { SocketContext } from "../../context/Socket/SocketContext";
-import CloseIcon from '@material-ui/icons/Close';
 
 const drawerWidth = 320;
 
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     position: "relative",
     overflow: "hidden",
-    background: '#fafbfc',
+    background: "#fafbfc",
     borderBottomLeftRadius: 18,
     borderBottomRightRadius: 18,
     padding: theme.spacing(2, 2, 2, 2),
@@ -36,28 +36,28 @@ const useStyles = makeStyles((theme) => ({
   dialogPaper: {
     borderRadius: 18,
     boxShadow: "0 8px 32px rgba(93,63,211,0.12)",
-    background: '#fff',
+    background: "#fff",
   },
   dialogActions: {
     padding: theme.spacing(2, 3),
-    justifyContent: 'flex-end',
-    background: '#fafbfc',
+    justifyContent: "flex-end",
+    background: "#fafbfc",
     borderBottomLeftRadius: 18,
     borderBottomRightRadius: 18,
   },
   closeButton: {
-    background: '#5D3FD3',
-    color: '#fff',
+    background: "#5D3FD3",
+    color: "#fff",
     borderRadius: 10,
     fontWeight: 600,
     fontSize: 16,
-    padding: '8px 28px',
-    boxShadow: '0 2px 8px rgba(93,63,211,0.10)',
-    display: 'flex',
-    alignItems: 'center',
+    padding: "8px 28px",
+    boxShadow: "0 2px 8px rgba(93,63,211,0.10)",
+    display: "flex",
+    alignItems: "center",
     gap: 8,
-    '&:hover': {
-      background: '#4930A8',
+    "&:hover": {
+      background: "#4930A8",
     },
   },
   mainWrapper: {
@@ -123,7 +123,7 @@ export default function TicketMessagesDialog({ open, handleClose, ticketId }) {
             setLoading(false);
           } catch (err) {
             setLoading(false);
-            toastError(err);
+            toast.error(err.message);
           }
         };
         fetchTicket();
@@ -203,11 +203,20 @@ export default function TicketMessagesDialog({ open, handleClose, ticketId }) {
   };
 
   return (
-    <Dialog maxWidth="md" onClose={handleClose} open={open} PaperProps={{ className: classes.dialogPaper }}>
+    <Dialog
+      maxWidth="md"
+      onClose={handleClose}
+      open={open}
+      PaperProps={{ className: classes.dialogPaper }}
+    >
       <TicketHeader loading={loading}>{renderTicketInfo()}</TicketHeader>
       <ReplyMessageProvider>{renderMessagesList()}</ReplyMessageProvider>
       <DialogActions className={classes.dialogActions}>
-        <Button onClick={handleClose} className={classes.closeButton} startIcon={<CloseIcon />}>
+        <Button
+          onClick={handleClose}
+          className={classes.closeButton}
+          startIcon={<CloseIcon />}
+        >
           Fechar
         </Button>
       </DialogActions>

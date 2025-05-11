@@ -1,30 +1,30 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
+import { Field, Form, Formik } from "formik";
+import { toast } from "sonner";
 import * as Yup from "yup";
-import { Formik, Form, Field } from "formik";
-import { toast } from "react-toastify";
 
-import { makeStyles } from "@material-ui/core/styles";
-import { green } from "@material-ui/core/colors";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import { green } from "@material-ui/core/colors";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Select from "@material-ui/core/Select";
+import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
 
 import { i18n } from "../../translate/i18n";
 
-import api from "../../services/api";
-import toastError from "../../errors/toastError";
-import QueueSelectCustom from "../QueueSelectCustom";
 import { AuthContext } from "../../context/Auth/AuthContext";
+
+import api from "../../services/api";
 import { Can } from "../Can";
+import QueueSelectCustom from "../QueueSelectCustom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -92,7 +92,7 @@ const ModalUsers = ({ open, onClose, userId, companyId }) => {
           const userQueueIds = data.queues?.map((queue) => queue.id);
           setSelectedQueueIds(userQueueIds);
         } catch (err) {
-          toastError(err);
+          toast.error(err.message);
         }
       }
     };
@@ -115,7 +115,7 @@ const ModalUsers = ({ open, onClose, userId, companyId }) => {
       }
       toast.success(i18n.t("userModal.success"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     handleClose();
   };

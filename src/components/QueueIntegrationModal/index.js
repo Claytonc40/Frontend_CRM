@@ -1,41 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
+import { Field, Form, Formik } from "formik";
+import { toast } from "sonner";
 import * as Yup from "yup";
-import { Formik, Form, Field } from "formik";
-import { toast } from "react-toastify";
 
 import {
+  Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  CircularProgress,
-  Select,
+  Divider,
+  FormControl,
+  Grid,
   InputLabel,
   MenuItem,
-  FormControl,
-  TextField,
-  Grid,
   Paper,
+  Select,
+  TextField,
   Typography,
-  Box,
-  Divider
 } from "@material-ui/core";
 
-import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
-
-import { i18n } from "../../translate/i18n";
+import { makeStyles } from "@material-ui/core/styles";
 
 import api from "../../services/api";
-import toastError from "../../errors/toastError";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
-    gap: 4
+    gap: 4,
   },
   textField: {
     marginRight: theme.spacing(1),
@@ -181,7 +178,7 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
           return { ...prevState, ...data };
         });
       } catch (err) {
-        toastError(err);
+        toast.error(err?.message || "Erro desconhecido");
       }
     })();
 
@@ -193,10 +190,9 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
         jsonContent: "",
         language: "",
         urlN8N: "",
-        typebotDelayMessage: 1000
+        typebotDelayMessage: 1000,
       });
     };
-
   }, [integrationId, open]);
 
   const handleClose = () => {
@@ -216,13 +212,18 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
 
       toast.success("Teste de sessão realizado com sucesso!");
     } catch (err) {
-      toastError(err);
+      toast.error(err?.message || "Erro desconhecido");
     }
   };
 
   const handleSaveIntegration = async (values) => {
     try {
-      if (values.type === 'n8n' || values.type === 'webhook' || values.type === 'typebot') values.projectName = values.name
+      if (
+        values.type === "n8n" ||
+        values.type === "webhook" ||
+        values.type === "typebot"
+      )
+        values.projectName = values.name;
       if (integrationId) {
         await api.put(`/queueIntegration/${integrationId}`, values);
         toast.success("Integração atualizada com sucesso!");
@@ -232,24 +233,22 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
       }
       handleClose();
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
   return (
     <div className={classes.root}>
-      <Dialog 
-        open={open} 
-        onClose={handleClose} 
-        fullWidth 
-        maxWidth="md" 
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        fullWidth
+        maxWidth="md"
         scroll="paper"
         className={classes.dialog}
       >
         <DialogTitle className={classes.dialogTitle}>
-          {integrationId
-            ? "Editar Integração"
-            : "Nova Integração"}
+          {integrationId ? "Editar Integração" : "Nova Integração"}
         </DialogTitle>
         <Formik
           initialValues={integration}
@@ -267,15 +266,17 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
               <DialogContent dividers className={classes.dialogContent}>
                 <Paper className={classes.infoPanel} elevation={0}>
                   <Typography variant="body2">
-                    <span>ℹ️</span> As integrações permitem conectar seu atendimento a ferramentas externas como chatbots, automações e webhooks.
+                    <span>ℹ️</span> As integrações permitem conectar seu
+                    atendimento a ferramentas externas como chatbots, automações
+                    e webhooks.
                   </Typography>
                 </Paper>
-                
+
                 <div className={classes.formSection}>
                   <Typography className={classes.sectionTitle}>
                     Informações Básicas
                   </Typography>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
                       <FormControl
@@ -305,7 +306,7 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                         </Field>
                       </FormControl>
                     </Grid>
-                    
+
                     <Grid item xs={12} md={6}>
                       <Field
                         as={TextField}
@@ -322,13 +323,13 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                     </Grid>
                   </Grid>
                 </div>
-                
+
                 {values.type === "dialogflow" && (
                   <div className={classes.formSection}>
                     <Typography className={classes.sectionTitle}>
                       Configuração do DialogFlow
                     </Typography>
-                    
+
                     <Grid container spacing={2}>
                       <Grid item xs={12} md={6}>
                         <FormControl
@@ -350,13 +351,15 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                             error={touched.language && Boolean(errors.language)}
                             helpertext={touched.language && errors.language}
                           >
-                            <MenuItem value="pt-BR">Português (Brasil)</MenuItem>
+                            <MenuItem value="pt-BR">
+                              Português (Brasil)
+                            </MenuItem>
                             <MenuItem value="en">Inglês</MenuItem>
                             <MenuItem value="es">Espanhol</MenuItem>
                           </Field>
                         </FormControl>
                       </Grid>
-                      
+
                       <Grid item xs={12}>
                         <Field
                           as={TextField}
@@ -366,11 +369,13 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           margin="dense"
                           fullWidth
                           className={classes.formControl}
-                          error={touched.projectName && Boolean(errors.projectName)}
+                          error={
+                            touched.projectName && Boolean(errors.projectName)
+                          }
                           helpertext={touched.projectName && errors.projectName}
                         />
                       </Grid>
-                      
+
                       <Grid item xs={12}>
                         <Field
                           as={TextField}
@@ -382,15 +387,18 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           margin="dense"
                           fullWidth
                           className={classes.formControl}
-                          error={touched.jsonContent && Boolean(errors.jsonContent)}
+                          error={
+                            touched.jsonContent && Boolean(errors.jsonContent)
+                          }
                           helpertext={touched.jsonContent && errors.jsonContent}
                         />
                         <Typography className={classes.helpText}>
-                          Cole aqui o conteúdo do JSON com as credenciais de serviço do DialogFlow
+                          Cole aqui o conteúdo do JSON com as credenciais de
+                          serviço do DialogFlow
                         </Typography>
                       </Grid>
                     </Grid>
-                    
+
                     <Box display="flex" justifyContent="flex-start" mt={2}>
                       <Button
                         color="primary"
@@ -402,13 +410,13 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                     </Box>
                   </div>
                 )}
-                
+
                 {values.type === "n8n" && (
                   <div className={classes.formSection}>
                     <Typography className={classes.sectionTitle}>
                       Configuração do N8N
                     </Typography>
-                    
+
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <Field
@@ -430,13 +438,13 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                     </Grid>
                   </div>
                 )}
-                
+
                 {values.type === "webhook" && (
                   <div className={classes.formSection}>
                     <Typography className={classes.sectionTitle}>
                       Configuração do Webhook
                     </Typography>
-                    
+
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <Field
@@ -458,13 +466,13 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                     </Grid>
                   </div>
                 )}
-                
+
                 {values.type === "typebot" && (
                   <div className={classes.formSection}>
                     <Typography className={classes.sectionTitle}>
                       Configuração do Typebot
                     </Typography>
-                    
+
                     <Grid container spacing={2}>
                       <Grid item xs={12} md={6}>
                         <Field
@@ -480,7 +488,7 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           helpertext={touched.urlN8N && errors.urlN8N}
                         />
                       </Grid>
-                      
+
                       <Grid item xs={12} md={6}>
                         <Field
                           as={TextField}
@@ -490,11 +498,13 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           margin="dense"
                           fullWidth
                           className={classes.formControl}
-                          error={touched.typebotSlug && Boolean(errors.typebotSlug)}
+                          error={
+                            touched.typebotSlug && Boolean(errors.typebotSlug)
+                          }
                           helpertext={touched.typebotSlug && errors.typebotSlug}
                         />
                       </Grid>
-                      
+
                       <Grid item xs={12} md={6}>
                         <Field
                           as={TextField}
@@ -505,11 +515,16 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           fullWidth
                           className={classes.formControl}
                           type="number"
-                          error={touched.typebotExpires && Boolean(errors.typebotExpires)}
-                          helpertext={touched.typebotExpires && errors.typebotExpires}
+                          error={
+                            touched.typebotExpires &&
+                            Boolean(errors.typebotExpires)
+                          }
+                          helpertext={
+                            touched.typebotExpires && errors.typebotExpires
+                          }
                         />
                       </Grid>
-                      
+
                       <Grid item xs={12} md={6}>
                         <Field
                           as={TextField}
@@ -520,18 +535,27 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           fullWidth
                           className={classes.formControl}
                           type="number"
-                          error={touched.typebotDelayMessage && Boolean(errors.typebotDelayMessage)}
-                          helpertext={touched.typebotDelayMessage && errors.typebotDelayMessage}
+                          error={
+                            touched.typebotDelayMessage &&
+                            Boolean(errors.typebotDelayMessage)
+                          }
+                          helpertext={
+                            touched.typebotDelayMessage &&
+                            errors.typebotDelayMessage
+                          }
                         />
                       </Grid>
-                      
+
                       <Grid item xs={12}>
-                        <Divider style={{ margin: '12px 0' }} />
-                        <Typography variant="subtitle2" style={{ marginBottom: 8 }}>
+                        <Divider style={{ margin: "12px 0" }} />
+                        <Typography
+                          variant="subtitle2"
+                          style={{ marginBottom: 8 }}
+                        >
                           Configurações de Comandos
                         </Typography>
                       </Grid>
-                      
+
                       <Grid item xs={12} md={6}>
                         <Field
                           as={TextField}
@@ -541,11 +565,17 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           margin="dense"
                           fullWidth
                           className={classes.formControl}
-                          error={touched.typebotKeywordRestart && Boolean(errors.typebotKeywordRestart)}
-                          helpertext={touched.typebotKeywordRestart && errors.typebotKeywordRestart}
+                          error={
+                            touched.typebotKeywordRestart &&
+                            Boolean(errors.typebotKeywordRestart)
+                          }
+                          helpertext={
+                            touched.typebotKeywordRestart &&
+                            errors.typebotKeywordRestart
+                          }
                         />
                       </Grid>
-                      
+
                       <Grid item xs={12} md={6}>
                         <Field
                           as={TextField}
@@ -555,11 +585,17 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           margin="dense"
                           fullWidth
                           className={classes.formControl}
-                          error={touched.typebotKeywordFinish && Boolean(errors.typebotKeywordFinish)}
-                          helpertext={touched.typebotKeywordFinish && errors.typebotKeywordFinish}
+                          error={
+                            touched.typebotKeywordFinish &&
+                            Boolean(errors.typebotKeywordFinish)
+                          }
+                          helpertext={
+                            touched.typebotKeywordFinish &&
+                            errors.typebotKeywordFinish
+                          }
                         />
                       </Grid>
-                      
+
                       <Grid item xs={12}>
                         <Field
                           as={TextField}
@@ -571,11 +607,17 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           multiline
                           rows={2}
                           className={classes.formControl}
-                          error={touched.typebotRestartMessage && Boolean(errors.typebotRestartMessage)}
-                          helpertext={touched.typebotRestartMessage && errors.typebotRestartMessage}
+                          error={
+                            touched.typebotRestartMessage &&
+                            Boolean(errors.typebotRestartMessage)
+                          }
+                          helpertext={
+                            touched.typebotRestartMessage &&
+                            errors.typebotRestartMessage
+                          }
                         />
                       </Grid>
-                      
+
                       <Grid item xs={12}>
                         <Field
                           as={TextField}
@@ -587,8 +629,14 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                           multiline
                           rows={2}
                           className={classes.formControl}
-                          error={touched.typebotUnknownMessage && Boolean(errors.typebotUnknownMessage)}
-                          helpertext={touched.typebotUnknownMessage && errors.typebotUnknownMessage}
+                          error={
+                            touched.typebotUnknownMessage &&
+                            Boolean(errors.typebotUnknownMessage)
+                          }
+                          helpertext={
+                            touched.typebotUnknownMessage &&
+                            errors.typebotUnknownMessage
+                          }
                         />
                       </Grid>
                     </Grid>
@@ -611,9 +659,7 @@ const IntegrationModal = ({ open, onClose, integrationId }) => {
                   variant="contained"
                   className={classes.saveButton}
                 >
-                  {integrationId
-                    ? "Atualizar"
-                    : "Adicionar"}
+                  {integrationId ? "Atualizar" : "Adicionar"}
                   {isSubmitting && (
                     <CircularProgress
                       size={24}

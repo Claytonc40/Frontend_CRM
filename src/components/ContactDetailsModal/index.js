@@ -1,45 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import { makeStyles } from "@material-ui/core/styles";
 import {
+  Avatar,
+  Box,
+  Button,
   Dialog,
   DialogContent,
   DialogTitle,
-  Typography,
-  IconButton,
   Divider,
-  Paper,
-  Avatar,
-  Chip,
-  Button,
-  TextField,
   Grid,
-  Box,
+  IconButton,
+  Paper,
+  TextField,
   Tooltip,
+  Typography,
 } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import {
-  Close as CloseIcon,
-  Phone as PhoneIcon,
-  Email as EmailIcon,
   Business as BusinessIcon,
-  Add as AddIcon,
-  Save as SaveIcon,
+  Close as CloseIcon,
   Edit as EditIcon,
-  Delete as DeleteIcon,
-  WhatsApp as WhatsAppIcon,
-  LocationOn as LocationIcon,
-  Work as WorkIcon,
-  EventNote as EventNoteIcon,
-  AddCircleOutline as AddCircleOutlineIcon,
+  Email as EmailIcon,
   LocalOffer as LocalOfferIcon,
+  Phone as PhoneIcon,
+  Save as SaveIcon,
+  WhatsApp as WhatsAppIcon,
+  Work as WorkIcon,
 } from "@material-ui/icons";
-import Flag from 'react-world-flags';
+import React, { useEffect, useState } from "react";
+import Flag from "react-world-flags";
+import { toast } from "sonner";
 
-import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
-import toastError from "../../errors/toastError";
-import { TagsContainer } from "../TagsContainer";
+import { i18n } from "../../translate/i18n";
 import TagModal from "../TagModal";
+import { TagsContainer } from "../TagsContainer";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -155,7 +148,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(0.75),
     width: 20,
     height: 15,
-    boxShadow: '0 0 1px rgba(0,0,0,0.2)',
+    boxShadow: "0 0 1px rgba(0,0,0,0.2)",
     borderRadius: 2,
   },
   phoneWithFlag: {
@@ -240,7 +233,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
         setLoading(false);
       } catch (err) {
         setLoading(false);
-        toastError(err);
+        toast.error(err.message);
       }
     };
 
@@ -251,18 +244,19 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
     try {
       await api.put(`/contacts/${contactId}`, {
         ...contact,
-        notes
+        notes,
       });
-      toast.success(i18n.t("contactModal.success") || "Notas salvas com sucesso");
+      toast.success(
+        i18n.t("contactModal.success") || "Notas salvas com sucesso"
+      );
       setEditingNotes(false);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
   const handleOpenTagModal = (tagId = null) => {
     setSelectedTagId(tagId);
-    setTagModalOpen(true);
   };
 
   const handleCloseTagModal = () => {
@@ -275,13 +269,12 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
       const { data } = await api.get(`/contacts/${contactId}`);
       setContact(data);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
   const getCountryCode = (number) => {
     if (!number) return "br";
-    
     if (number.startsWith("1")) return "us";
     if (number.startsWith("351")) return "pt";
     if (number.startsWith("55")) return "br";
@@ -293,22 +286,22 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
     if (number.startsWith("51")) return "pe";
     if (number.startsWith("57")) return "co";
     if (number.startsWith("58")) return "ve";
-    
+
     return "br"; // Padrão: Brasil
   };
 
   const formatPhoneNumber = (number) => {
     if (!number) return "-";
-    
+
     // Verifica se o número já tem um código de país
-    if (number.startsWith('+')) {
+    if (number.startsWith("+")) {
       return number;
     }
-    
+
     // Extrai código do país e formato para exibição
     let countryCode = "55"; // Brasil como padrão
     let formattedNumber = number;
-    
+
     if (number.startsWith("1")) {
       countryCode = "1";
     } else if (number.startsWith("351")) {
@@ -332,18 +325,24 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
     } else if (number.startsWith("58")) {
       countryCode = "58";
     }
-    
+
     // Formatar para exibição legível
     let nationalNumber = formattedNumber.substring(countryCode.length);
     if (nationalNumber.length > 8) {
       // Formato para números de celular brasileiros: +55 XX XXXXX-XXXX
       if (countryCode === "55" && nationalNumber.length === 11) {
-        return `+${countryCode} ${nationalNumber.substring(0, 2)} ${nationalNumber.substring(2, 7)}-${nationalNumber.substring(7)}`;
+        return `+${countryCode} ${nationalNumber.substring(
+          0,
+          2
+        )} ${nationalNumber.substring(2, 7)}-${nationalNumber.substring(7)}`;
       }
       // Outros países, apenas agrupe em blocos de 3-4
-      return `+${countryCode} ${nationalNumber.replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3")}`;
+      return `+${countryCode} ${nationalNumber.replace(
+        /(\d{3})(\d{3})(\d{4})/,
+        "$1 $2 $3"
+      )}`;
     }
-    
+
     return `+${countryCode} ${nationalNumber}`;
   };
 
@@ -354,7 +353,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
   const getFirstLetters = (name) => {
     return name
       .split(" ")
-      .map(part => part.charAt(0))
+      .map((part) => part.charAt(0))
       .join("")
       .toUpperCase()
       .substring(0, 2);
@@ -386,7 +385,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
           <div className={classes.section}>
             <Grid container spacing={2} alignItems="center">
               <Grid item>
-                <Avatar 
+                <Avatar
                   className={classes.avatar}
                   src={contact.profilePicUrl}
                   alt={contact.name}
@@ -399,12 +398,14 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
                   {contact.name}
                 </Typography>
                 <Typography className={classes.contactTitle}>
-                  {contact.extraInfo?.jobTitle || "CEO"} at {contact.extraInfo?.company || contact.name.split(" ")[0] + " Enterprises"}
+                  {contact.extraInfo?.jobTitle || "CEO"} at{" "}
+                  {contact.extraInfo?.company ||
+                    contact.name.split(" ")[0] + " Enterprises"}
                 </Typography>
               </Grid>
               <Grid item>
                 <Tooltip title="Enviar mensagem">
-                  <IconButton 
+                  <IconButton
                     color="primary"
                     onClick={() => {
                       onClose();
@@ -415,7 +416,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Editar contato">
-                  <IconButton 
+                  <IconButton
                     onClick={() => {
                       onClose();
                       // Aqui você pode adicionar lógica para editar o contato
@@ -437,7 +438,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
               </Grid>
               <Grid item>
                 <Tooltip title={i18n.t("contactDetailsModal.addTags")}>
-                  <IconButton 
+                  <IconButton
                     color="primary"
                     size="small"
                     onClick={() => handleOpenTagModal()}
@@ -447,9 +448,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
                 </Tooltip>
               </Grid>
             </Grid>
-            <Box mt={1}>
-              {contact && <TagsContainer ticket={contact} />}
-            </Box>
+            <Box mt={1}>{contact && <TagsContainer ticket={contact} />}</Box>
           </div>
 
           <Divider className={classes.divider} />
@@ -458,7 +457,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
             <Typography className={classes.sectionTitle}>
               {i18n.t("contactDetailsModal.contactInfo")}
             </Typography>
-            
+
             <div className={classes.contactInfoItem}>
               <PhoneIcon />
               <div>
@@ -466,7 +465,10 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
                   {i18n.t("contactDetailsModal.whatsappNumber")}
                 </Typography>
                 <div className={classes.phoneWithFlag}>
-                  <Flag code={getCountryCode(contact.number)} className={classes.countryFlag} />
+                  <Flag
+                    code={getCountryCode(contact.number)}
+                    className={classes.countryFlag}
+                  />
                   <Typography className={classes.infoText}>
                     {formatPhoneNumber(contact.number)}
                   </Typography>
@@ -493,7 +495,8 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
                   {i18n.t("contactDetailsModal.company")}
                 </Typography>
                 <Typography className={classes.infoText}>
-                  {contact.extraInfo?.company || contact.name.split(" ")[0] + " Enterprises"}
+                  {contact.extraInfo?.company ||
+                    contact.name.split(" ")[0] + " Enterprises"}
                 </Typography>
               </div>
             </div>
@@ -516,9 +519,13 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
               <Typography className={classes.sectionTitle}>
                 {i18n.t("contactDetailsModal.additionalInfo")}
               </Typography>
-              
+
               {contact.extraInfo.map((info, index) => (
-                <Paper key={index} className={classes.extraInfoItem} elevation={0}>
+                <Paper
+                  key={index}
+                  className={classes.extraInfoItem}
+                  elevation={0}
+                >
                   <Typography className={classes.extraInfoName}>
                     {info.name}:
                   </Typography>
@@ -534,7 +541,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
             <Typography className={classes.sectionTitle}>
               {i18n.t("contactDetailsModal.notes")}
             </Typography>
-            
+
             <div className={classes.notesContainer}>
               {editingNotes ? (
                 <>
@@ -588,7 +595,9 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
                       className={`${classes.actionButton} ${classes.editButton}`}
                       startIcon={<EditIcon />}
                     >
-                      {notes ? i18n.t("contactDetailsModal.editNote") : i18n.t("contactDetailsModal.addNote")}
+                      {notes
+                        ? i18n.t("contactDetailsModal.editNote")
+                        : i18n.t("contactDetailsModal.addNote")}
                     </Button>
                   </div>
                 </>
@@ -597,7 +606,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
           </div>
         </div>
       </DialogContent>
-      <TagModal 
+      <TagModal
         open={tagModalOpen}
         onClose={handleCloseTagModal}
         tagId={selectedTagId}
@@ -607,4 +616,4 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
   );
 };
 
-export default ContactDetailsModal; 
+export default ContactDetailsModal;

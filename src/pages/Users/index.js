@@ -13,13 +13,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/Search";
 import { Edit, Plus, Trash2, Users as UsersIcon } from "lucide-react";
 import React, { useContext, useEffect, useReducer, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import ConfirmationModal from "../../components/ConfirmationModal";
 import MainContainer from "../../components/MainContainer";
 import UserModal from "../../components/UserModal";
 import { SocketContext } from "../../context/Socket/SocketContext";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
@@ -277,7 +277,7 @@ const Users = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          toastError(err);
+          toast.error(err.message);
         }
       };
       fetchUsers();
@@ -328,7 +328,7 @@ const Users = () => {
       await api.delete(`/users/${userId}`);
       toast.success(i18n.t("users.toasts.deleted"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setDeletingUser(null);
     setSearchParam("");

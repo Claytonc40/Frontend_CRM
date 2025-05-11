@@ -1,42 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 
 import LoggedInLayout from "../layout";
-import Dashboard from "../pages/Dashboard/";
-import TicketResponsiveContainer from "../pages/TicketResponsiveContainer";
-import Signup from "../pages/Signup/";
-import Login from "../pages/Login/";
 import Connections from "../pages/Connections/";
-import SettingsCustom from "../pages/SettingsCustom/";
-import Financeiro from "../pages/Financeiro/";
-import Users from "../pages/Users";
-import Contacts from "../pages/Contacts/";
-import Queues from "../pages/Queues/";
-import Tags from "../pages/Tags/";
-import MessagesAPI from "../pages/MessagesAPI/";
-import Helps from "../pages/Helps/";
-import ContactLists from "../pages/ContactLists/";
 import ContactListItems from "../pages/ContactListItems/";
+import ContactLists from "../pages/ContactLists/";
+import Contacts from "../pages/Contacts/";
+import Dashboard from "../pages/Dashboard/";
+import Financeiro from "../pages/Financeiro/";
+import Helps from "../pages/Helps/";
+import Login from "../pages/Login/";
+import MessagesAPI from "../pages/MessagesAPI/";
+import Queues from "../pages/Queues/";
+import SettingsCustom from "../pages/SettingsCustom/";
+import Signup from "../pages/Signup/";
+import Tags from "../pages/Tags/";
+import TicketResponsiveContainer from "../pages/TicketResponsiveContainer";
+import Users from "../pages/Users";
 // import Companies from "../pages/Companies/";
-import QuickMessages from "../pages/QuickMessages/";
-import Kanban from "../pages/Kanban";
 import { AuthProvider } from "../context/Auth/AuthContext";
 import { TicketsContextProvider } from "../context/Tickets/TicketsContext";
 import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
-import Route from "./Route";
-import Schedules from "../pages/Schedules";
+import Annoucements from "../pages/Annoucements";
+import CampaignReport from "../pages/CampaignReport";
 import Campaigns from "../pages/Campaigns";
 import CampaignsConfig from "../pages/CampaignsConfig";
-import CampaignReport from "../pages/CampaignReport";
-import Annoucements from "../pages/Annoucements";
 import Chat from "../pages/Chat";
-import ToDoList from "../pages/ToDoList/";
-import Subscription from "../pages/Subscription/";
 import Files from "../pages/Files/";
+import ForgetPassword from "../pages/ForgetPassWord/"; // Reset PassWd
+import Kanban from "../pages/Kanban";
 import Prompts from "../pages/Prompts";
 import QueueIntegration from "../pages/QueueIntegration";
-import ForgetPassword from "../pages/ForgetPassWord/"; // Reset PassWd
+import QuickMessages from "../pages/QuickMessages/";
+import Schedules from "../pages/Schedules";
+import Subscription from "../pages/Subscription/";
+import ToDoList from "../pages/ToDoList/";
+import Route from "./Route";
 
 const Routes = () => {
   const [showCampaigns, setShowCampaigns] = useState(false);
@@ -55,7 +54,7 @@ const Routes = () => {
           <Switch>
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
-			<Route exact path="/forgetpsw" component={ForgetPassword} /> 
+            <Route exact path="/forgetpsw" component={ForgetPassword} />
             {/* <Route exact path="/create-company" component={Companies} /> */}
             <WhatsAppsProvider>
               <LoggedInLayout>
@@ -78,12 +77,7 @@ const Routes = () => {
                   component={QuickMessages}
                   isPrivate
                 />
-                <Route
-                  exact
-                  path="/todolist"
-                  component={ToDoList}
-                  isPrivate
-                  />
+                <Route exact path="/todolist" component={ToDoList} isPrivate />
                 <Route
                   exact
                   path="/schedules"
@@ -96,7 +90,12 @@ const Routes = () => {
                 <Route exact path="/users" component={Users} isPrivate />
                 <Route exact path="/files" component={Files} isPrivate />
                 <Route exact path="/prompts" component={Prompts} isPrivate />
-                <Route exact path="/queue-integration" component={QueueIntegration} isPrivate />
+                <Route
+                  exact
+                  path="/queue-integration"
+                  component={QueueIntegration}
+                  isPrivate
+                />
 
                 <Route
                   exact
@@ -110,12 +109,7 @@ const Routes = () => {
                   component={SettingsCustom}
                   isPrivate
                 />
-				        <Route 
-                  exact
-                  path="/kanban"
-                  component={Kanban}
-                  isPrivate
-                />
+                <Route exact path="/kanban" component={Kanban} isPrivate />
                 <Route
                   exact
                   path="/financeiro"
@@ -173,7 +167,6 @@ const Routes = () => {
               </LoggedInLayout>
             </WhatsAppsProvider>
           </Switch>
-          <ToastContainer autoClose={3000} />
         </TicketsContextProvider>
       </AuthProvider>
     </BrowserRouter>

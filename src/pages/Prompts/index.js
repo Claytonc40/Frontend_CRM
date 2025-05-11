@@ -1,47 +1,46 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
 
 import {
-  Button,
-  IconButton,
-  Paper,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-  InputAdornment,
-  TextField,
   Box,
-  Tooltip,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
   Chip,
-  Fade,
   Divider,
+  Fade,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography,
 } from "@material-ui/core";
 
 import { makeStyles } from "@material-ui/core/styles";
-import SearchIcon from "@material-ui/icons/Search";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
+import QueueIcon from "@material-ui/icons/Queue";
+import SearchIcon from "@material-ui/icons/Search";
 import SettingsIcon from "@material-ui/icons/Settings";
 import TokenIcon from "@material-ui/icons/VpnKey";
-import QueueIcon from "@material-ui/icons/Queue";
 import Skeleton from "@material-ui/lab/Skeleton";
 
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { toast } from "sonner";
+import ConfirmationModal from "../../components/ConfirmationModal";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
-import Title from "../../components/Title";
-import { i18n } from "../../translate/i18n";
-import toastError from "../../errors/toastError";
-import api from "../../services/api";
-import { toast } from "react-toastify";
 import PromptModal from "../../components/PromptModal";
-import ConfirmationModal from "../../components/ConfirmationModal";
 import { AuthContext } from "../../context/Auth/AuthContext";
-import usePlans from "../../hooks/usePlans";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { SocketContext } from "../../context/Socket/SocketContext";
+
+import usePlans from "../../hooks/usePlans";
+import api from "../../services/api";
+import { i18n } from "../../translate/i18n";
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
@@ -98,7 +97,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   redBox: {
-    backgroundColor: "rgba(244, 67, 54, 0.08)", 
+    backgroundColor: "rgba(244, 67, 54, 0.08)",
     padding: theme.spacing(2),
     borderRadius: 10,
     marginBottom: theme.spacing(2),
@@ -315,9 +314,11 @@ const Prompts = () => {
     async function fetchData() {
       const planConfigs = await getPlanCompany(undefined, companyId);
       if (!planConfigs.plan.useOpenAi) {
-        toast.error("Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.");
+        toast.error(
+          "Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando."
+        );
         setTimeout(() => {
-          history.push(`/`)
+          history.push(`/`);
         }, 1000);
       }
     }
@@ -333,7 +334,7 @@ const Prompts = () => {
         dispatch({ type: "LOAD_PROMPTS", payload: data.prompts });
         setLoading(false);
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
         setLoading(false);
       }
     })();
@@ -342,7 +343,7 @@ const Prompts = () => {
   useEffect(() => {
     // Filtrar os prompts com base no searchParam
     if (searchParam.trim() !== "") {
-      const filtered = prompts.filter(prompt => 
+      const filtered = prompts.filter((prompt) =>
         prompt.name.toLowerCase().includes(searchParam.toLowerCase())
       );
       setDisplayedPrompts(filtered);
@@ -394,7 +395,7 @@ const Prompts = () => {
       const { data } = await api.delete(`/prompt/${promptId}`);
       toast.info(i18n.t(data.message));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setSelectedPrompt(null);
   };
@@ -408,7 +409,9 @@ const Prompts = () => {
       <ConfirmationModal
         title={
           selectedPrompt &&
-          `${i18n.t("prompts.confirmationModal.deleteTitle")} ${selectedPrompt.name}?`
+          `${i18n.t("prompts.confirmationModal.deleteTitle")} ${
+            selectedPrompt.name
+          }?`
         }
         open={confirmModalOpen}
         onClose={handleCloseConfirmationModal}
@@ -416,13 +419,13 @@ const Prompts = () => {
       >
         {i18n.t("prompts.confirmationModal.deleteMessage")}
       </ConfirmationModal>
-      
+
       <PromptModal
         open={promptModalOpen}
         onClose={handleClosePromptModal}
         promptId={selectedPrompt?.id}
       />
-      
+
       <MainHeader>
         <div className={classes.titleContainer}>
           <Typography className={classes.pageTitle}>
@@ -461,14 +464,13 @@ const Prompts = () => {
           </div>
         </MainHeaderButtonsWrapper>
       </MainHeader>
-      
 
       <Paper className={classes.mainPaper} variant="outlined">
         {displayedPrompts.length === 0 && !loading ? (
           <div className={classes.noPromptsContainer}>
             <SettingsIcon className={classes.noPromptsIcon} />
             <Typography className={classes.noPromptsText}>
-              {searchParam 
+              {searchParam
                 ? "Nenhum prompt encontrado com esse termo."
                 : "Nenhum prompt cadastrado. Clique no botão acima para adicionar."}
             </Typography>
@@ -483,16 +485,16 @@ const Prompts = () => {
                       <Typography variant="h6" className={classes.promptName}>
                         {prompt.name}
                       </Typography>
-                      
-                      <Chip 
+
+                      <Chip
                         label={prompt.queue?.name || "Sem fila"}
                         className={classes.queueChip}
                         size="small"
                         icon={<QueueIcon style={{ fontSize: 16 }} />}
                       />
-                      
-                      <Divider style={{ margin: '12px 0' }} />
-                      
+
+                      <Divider style={{ margin: "12px 0" }} />
+
                       <div className={classes.promptDetails}>
                         <Box className={classes.detailItem}>
                           <TokenIcon fontSize="small" />
@@ -508,14 +510,21 @@ const Prompts = () => {
                         </Box>
                         <Box className={classes.detailItem}>
                           <Typography variant="body2" style={{ color: "#555" }}>
-                            Modo: <strong>{prompt.voice === "texto" ? "Texto" : "Voz"}</strong>
+                            Modo:{" "}
+                            <strong>
+                              {prompt.voice === "texto" ? "Texto" : "Voz"}
+                            </strong>
                           </Typography>
                         </Box>
                       </div>
-                      
+
                       <CardActions className={classes.cardActions}>
-                        <Tooltip title={i18n.t("prompts.table.actions.edit")} arrow placement="top">
-                          <IconButton 
+                        <Tooltip
+                          title={i18n.t("prompts.table.actions.edit")}
+                          arrow
+                          placement="top"
+                        >
+                          <IconButton
                             size="small"
                             onClick={() => handleEditPrompt(prompt)}
                             className={`${classes.actionButton} ${classes.editButton}`}
@@ -523,7 +532,11 @@ const Prompts = () => {
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title={i18n.t("prompts.table.actions.delete")} arrow placement="top">
+                        <Tooltip
+                          title={i18n.t("prompts.table.actions.delete")}
+                          arrow
+                          placement="top"
+                        >
                           <IconButton
                             size="small"
                             onClick={() => {
@@ -541,20 +554,19 @@ const Prompts = () => {
                 </Grid>
               </Fade>
             ))}
-            
-            {loading && 
+
+            {loading &&
               [...Array(3)].map((_, index) => (
                 <Grid item xs={12} sm={6} md={4} key={`skeleton-${index}`}>
-                  <Skeleton 
-                    variant="rect" 
-                    width="100%" 
-                    height={200} 
-                    animation="wave" 
+                  <Skeleton
+                    variant="rect"
+                    width="100%"
+                    height={200}
+                    animation="wave"
                     style={{ borderRadius: 10 }}
                   />
                 </Grid>
-              ))
-            }
+              ))}
           </Grid>
         )}
       </Paper>

@@ -1,27 +1,25 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
+import { Field, Form, Formik } from "formik";
+import { toast } from "sonner";
 import * as Yup from "yup";
-import { Formik, Form, Field } from "formik";
-import { toast } from "react-toastify";
 
-import { makeStyles } from "@material-ui/core/styles";
-import { green } from "@material-ui/core/colors";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import { green } from "@material-ui/core/colors";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import IconButton from "@material-ui/core/IconButton";
+import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import IconButton from "@material-ui/core/IconButton";
 
-import { i18n } from "../../translate/i18n";
 import { head } from "lodash";
+import { i18n } from "../../translate/i18n";
 
-import api from "../../services/api";
-import toastError from "../../errors/toastError";
 import {
   FormControl,
   Grid,
@@ -29,6 +27,7 @@ import {
   MenuItem,
   Select,
 } from "@material-ui/core";
+import api from "../../services/api";
 import ConfirmationModal from "../ConfirmationModal";
 
 const useStyles = makeStyles((theme) => ({
@@ -96,7 +95,7 @@ const AnnouncementModal = ({ open, onClose, announcementId, reload }) => {
         });
       })();
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   }, [announcementId, open]);
 
@@ -139,7 +138,7 @@ const AnnouncementModal = ({ open, onClose, announcementId, reload }) => {
         reload();
       }
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     handleClose();
   };

@@ -1,3 +1,18 @@
+import {
+  Badge,
+  Fade,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
+import Popover from "@material-ui/core/Popover";
+import { makeStyles } from "@material-ui/core/styles";
+import { isArray } from "lodash";
+import { MessageSquare } from "lucide-react";
 import React, {
   useContext,
   useEffect,
@@ -5,31 +20,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import toastError from "../../errors/toastError";
-import Popover from "@material-ui/core/Popover";
-import { MessageSquare } from 'lucide-react';
-import {
-  Badge,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Typography,
-  Tooltip,
-  Fade,
-  Box
-} from "@material-ui/core";
-import api from "../../services/api";
-import { isArray } from "lodash";
+import { toast } from "sonner";
+import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
 import { useDate } from "../../hooks/useDate";
-import { AuthContext } from "../../context/Auth/AuthContext";
+import api from "../../services/api";
 
-import notifySound from "../../assets/chat_notify.mp3";
 import useSound from "use-sound";
-import { i18n } from "../../translate/i18n";
+import notifySound from "../../assets/chat_notify.mp3";
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
@@ -40,91 +38,91 @@ const useStyles = makeStyles((theme) => ({
     overflowY: "scroll",
     ...theme.scrollbarStyles,
     borderRadius: 14,
-    boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-    border: '1px solid rgba(93, 63, 211, 0.1)',
-    animation: '$slideIn 0.3s ease-out',
-    background: '#fff',
+    boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+    border: "1px solid rgba(93, 63, 211, 0.1)",
+    animation: "$slideIn 0.3s ease-out",
+    background: "#fff",
   },
-  '@keyframes slideIn': {
-    '0%': {
+  "@keyframes slideIn": {
+    "0%": {
       opacity: 0,
-      transform: 'translateY(-10px)'
+      transform: "translateY(-10px)",
     },
-    '100%': {
+    "100%": {
       opacity: 1,
-      transform: 'translateY(0)'
-    }
+      transform: "translateY(0)",
+    },
   },
   chatHeader: {
     padding: theme.spacing(2),
-    borderBottom: '1px solid rgba(0,0,0,0.08)',
-    background: 'linear-gradient(145deg, #5D3FD3 0%, #7058e6 100%)',
-    color: '#FFFFFF',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    borderBottom: "1px solid rgba(0,0,0,0.08)",
+    background: "linear-gradient(145deg, #5D3FD3 0%, #7058e6 100%)",
+    color: "#FFFFFF",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
     borderTopLeftRadius: 14,
     borderTopRightRadius: 14,
   },
   headerTitle: {
     fontWeight: 600,
     fontSize: 16,
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: 8,
-    '& svg': {
+    "& svg": {
       fontSize: 22,
-    }
+    },
   },
   buttonIcon: {
-    color: '#5D3FD3',
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      color: '#4930A8',
-    }
+    color: "#5D3FD3",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      color: "#4930A8",
+    },
   },
   badge: {
-    backgroundColor: '#5D3FD3',
-    transition: 'all 0.3s ease',
+    backgroundColor: "#5D3FD3",
+    transition: "all 0.3s ease",
     fontWeight: 600,
     fontSize: 13,
-    padding: '0 4px',
+    padding: "0 4px",
   },
   chatItem: {
     margin: theme.spacing(1, 0),
-    transition: 'all 0.2s ease',
+    transition: "all 0.2s ease",
     borderRadius: 8,
-    '&:hover': {
-      backgroundColor: 'rgba(93, 63, 211, 0.07)',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 2px 8px rgba(93,63,211,0.08)',
-      cursor: 'pointer',
-    }
+    "&:hover": {
+      backgroundColor: "rgba(93, 63, 211, 0.07)",
+      transform: "translateY(-1px)",
+      boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
+      cursor: "pointer",
+    },
   },
   chatName: {
     fontWeight: 600,
-    color: '#333',
+    color: "#333",
     fontSize: 14,
   },
   chatDate: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
     marginRight: theme.spacing(1),
   },
   emptyChats: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
     padding: theme.spacing(4),
-    color: '#666',
-    backgroundColor: '#f9f9f9',
+    color: "#666",
+    backgroundColor: "#f9f9f9",
     borderRadius: 8,
     margin: theme.spacing(2),
   },
   emptyIcon: {
     fontSize: 48,
-    color: '#5D3FD3',
+    color: "#5D3FD3",
     opacity: 0.6,
     marginBottom: theme.spacing(2),
   },
@@ -232,13 +230,15 @@ export default function ChatPopover() {
     const companyId = localStorage.getItem("companyId");
     const socket = socketManager.getSocket(companyId);
     if (!socket) {
-      return () => {}; 
+      return () => {};
     }
-    
+
     socket.on(`company-${companyId}-chat`, (data) => {
       if (data.action === "new-message") {
         dispatch({ type: "CHANGE_CHAT", payload: data });
-        const userIds = data.newMessage.chat.users.map(userObj => userObj.userId);
+        const userIds = data.newMessage.chat.users.map(
+          (userObj) => userObj.userId
+        );
 
         if (userIds.includes(user.id) && data.newMessage.senderId !== user.id) {
           soundAlertRef.current();
@@ -280,7 +280,7 @@ export default function ChatPopover() {
       setHasMore(data.hasMore);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 
@@ -314,10 +314,10 @@ export default function ChatPopover() {
 
   return (
     <div>
-      <Tooltip 
-        title="Chat Interno" 
-        arrow 
-        TransitionComponent={Fade} 
+      <Tooltip
+        title="Chat Interno"
+        arrow
+        TransitionComponent={Fade}
         TransitionProps={{ timeout: 600 }}
       >
         <IconButton
@@ -327,9 +327,9 @@ export default function ChatPopover() {
           className={classes.buttonIcon}
           size="medium"
         >
-          <Badge 
-            color="secondary" 
-            variant="dot" 
+          <Badge
+            color="secondary"
+            variant="dot"
             invisible={invisible}
             classes={{ badge: classes.badge }}
           >
@@ -397,7 +397,10 @@ export default function ChatPopover() {
                         </Typography>
                       }
                       secondary={
-                        <Typography component="span" className={classes.chatDate}>
+                        <Typography
+                          component="span"
+                          className={classes.chatDate}
+                        >
                           {datetimeToClient(chat.updatedAt)}
                         </Typography>
                       }

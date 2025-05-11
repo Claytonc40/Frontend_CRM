@@ -1,14 +1,14 @@
-import { useState, useEffect, useContext } from "react";
-import { useHistory } from "react-router-dom";
 import { has, isArray } from "lodash";
+import { useContext, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
-import { i18n } from "../../translate/i18n";
-import api from "../../services/api";
-import toastError from "../../errors/toastError";
-import { SocketContext } from "../../context/Socket/SocketContext";
 import moment from "moment";
+import { SocketContext } from "../../context/Socket/SocketContext";
+
+import api from "../../services/api";
+import { i18n } from "../../translate/i18n";
 const useAuth = () => {
   const history = useHistory();
   const [isAuth, setIsAuth] = useState(false);
@@ -67,7 +67,7 @@ const useAuth = () => {
           setIsAuth(true);
           setUser(data.user);
         } catch (err) {
-          toastError(err);
+          toast.error(err.message);
         }
       }
       setLoading(false);
@@ -77,7 +77,6 @@ const useAuth = () => {
   useEffect(() => {
     const companyId = localStorage.getItem("companyId");
     if (companyId) {
-   
       const socket = socketManager.getSocket(companyId);
 
       socket.on(`company-${companyId}-user`, (data) => {
@@ -85,12 +84,11 @@ const useAuth = () => {
           setUser(data.user);
         }
       });
-    
-    
-    return () => {
-      socket.disconnect();
-    };
-  }
+
+      return () => {
+        socket.disconnect();
+      };
+    }
   }, [socketManager, user]);
 
   const handleLogin = async (userData) => {
@@ -111,7 +109,7 @@ const useAuth = () => {
         }
       }
 
-      moment.locale('pt-br');
+      moment.locale("pt-br");
       const dueDate = data.user.company.dueDate;
       const hoje = moment(moment()).format("DD/MM/yyyy");
       const vencimento = moment(dueDate).format("DD/MM/yyyy");
@@ -131,19 +129,24 @@ const useAuth = () => {
         setIsAuth(true);
         toast.success(i18n.t("auth.toasts.success"));
         if (Math.round(dias) < 5) {
-          toast.warn(`Sua assinatura vence em ${Math.round(dias)} ${Math.round(dias) === 1 ? 'dia' : 'dias'} `);
+          toast.warn(
+            `Sua assinatura vence em ${Math.round(dias)} ${
+              Math.round(dias) === 1 ? "dia" : "dias"
+            } `
+          );
         }
         history.push("/tickets");
         setLoading(false);
       } else {
-        toastError(`Opss! Sua assinatura venceu ${vencimento}.
-Entre em contato com o Suporte para mais informações! `);
+        toast.error(
+          `Opss! Sua assinatura venceu ${vencimento}. Entre em contato com o Suporte para mais informações! `
+        );
         setLoading(false);
       }
 
-      //quebra linha 
+      //quebra linha
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
       setLoading(false);
     }
   };
@@ -163,7 +166,7 @@ Entre em contato com o Suporte para mais informações! `);
       setLoading(false);
       history.push("/login");
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
       setLoading(false);
     }
   };
@@ -173,7 +176,7 @@ Entre em contato com o Suporte para mais informações! `);
       const { data } = await api.get("/auth/me");
       return data;
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 

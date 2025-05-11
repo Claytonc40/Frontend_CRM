@@ -19,11 +19,11 @@ import { green } from "@material-ui/core/colors";
 import { Field, Form, Formik } from "formik";
 import { Edit, User, Users as UsersIcon } from "lucide-react";
 import React, { useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import * as Yup from "yup";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
-import toastError from "../../errors/toastError";
+
 import useWhatsApps from "../../hooks/useWhatsApps";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
@@ -174,7 +174,7 @@ const UserModal = ({ open, onClose, userId }) => {
         setSelectedQueueIds(userQueueIds);
         setWhatsappId(data.whatsappId ? data.whatsappId : "");
       } catch (err) {
-        toastError(err);
+        toast.error(err.message);
       }
     };
 
@@ -201,7 +201,7 @@ const UserModal = ({ open, onClose, userId }) => {
       }
       toast.success(i18n.t("userModal.success"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     handleClose();
   };

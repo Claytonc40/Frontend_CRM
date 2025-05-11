@@ -173,7 +173,7 @@ const Login = () => {
               }}
             />
 
-            <Grid container alignItems="center" justify="space-between">
+            <Grid container alignItems="center" justifyContent="space-between">
               <Grid item>
                 <FormControlLabel
                   control={

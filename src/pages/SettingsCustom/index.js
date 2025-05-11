@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from "react";
+import { makeStyles, Paper, Tab, Tabs } from "@material-ui/core";
+import React, { useEffect, useState } from "react";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
-import { makeStyles, Paper, Tabs, Tab } from "@material-ui/core";
 
 import TabPanel from "../../components/TabPanel";
 
-import SchedulesForm from "../../components/SchedulesForm";
 import CompaniesManager from "../../components/CompaniesManager";
-import PlansManager from "../../components/PlansManager";
 import HelpsManager from "../../components/HelpsManager";
+import PlansManager from "../../components/PlansManager";
+import SchedulesForm from "../../components/SchedulesForm";
 import Options from "../../components/Settings/Options";
 
+import { toast } from "sonner";
 import { i18n } from "../../translate/i18n.js";
-import { toast } from "react-toastify";
 
-import useCompanies from "../../hooks/useCompanies";
 import useAuth from "../../hooks/useAuth.js";
+import useCompanies from "../../hooks/useCompanies";
 import useSettings from "../../hooks/useSettings";
 
 import OnlyForSuperUser from "../../components/OnlyForSuperUser";
@@ -101,34 +101,34 @@ const SettingsCustom = () => {
   }, []);
 
   const handleTabChange = (event, newValue) => {
-      async function findData() {
-        setLoading(true);
-        try {
-          const companyId = localStorage.getItem("companyId");
-          const company = await find(companyId);
-          const settingList = await getAllSettings();
-          setCompany(company);
-          setSchedules(company.schedules);
-          setSettings(settingList);
-  
-          if (Array.isArray(settingList)) {
-            const scheduleType = settingList.find(
-              (d) => d.key === "scheduleType"
-            );
-            if (scheduleType) {
-              setSchedulesEnabled(scheduleType.value === "company");
-            }
+    async function findData() {
+      setLoading(true);
+      try {
+        const companyId = localStorage.getItem("companyId");
+        const company = await find(companyId);
+        const settingList = await getAllSettings();
+        setCompany(company);
+        setSchedules(company.schedules);
+        setSettings(settingList);
+
+        if (Array.isArray(settingList)) {
+          const scheduleType = settingList.find(
+            (d) => d.key === "scheduleType"
+          );
+          if (scheduleType) {
+            setSchedulesEnabled(scheduleType.value === "company");
           }
-  
-          const user = await getCurrentUserInfo();
-          setCurrentUser(user);
-        } catch (e) {
-          toast.error(e);
         }
-        setLoading(false);
+
+        const user = await getCurrentUserInfo();
+        setCurrentUser(user);
+      } catch (e) {
+        toast.error(e);
       }
-      findData();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      setLoading(false);
+    }
+    findData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
     setTab(newValue);
   };

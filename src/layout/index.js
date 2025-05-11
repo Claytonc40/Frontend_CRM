@@ -27,7 +27,7 @@ import NotificationsPopOver from "../components/NotificationsPopOver";
 import NotificationsVolume from "../components/NotificationsVolume";
 import UserModal from "../components/UserModal";
 import { AuthContext } from "../context/Auth/AuthContext";
-import toastError from "../errors/toastError";
+import { toast } from "sonner";
 import { i18n } from "../translate/i18n";
 import MainListItems from "./MainListItems";
 
@@ -459,7 +459,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
 
     socket.on(`company-${companyId}-auth`, (data) => {
       if (data.user.id === +userId) {
-        toastError("Sua conta foi acessada em outro computador.");
+              toast.error("Sua conta foi acessada em outro computador.");
         setTimeout(() => {
           localStorage.clear();
           window.location.reload();

@@ -1,37 +1,37 @@
-import React, { useState, useEffect, useReducer, useContext } from "react";
-import { toast } from "react-toastify";
+import React, { useContext, useEffect, useReducer, useState } from "react";
+import { toast } from "sonner";
 
 import { useHistory } from "react-router-dom";
 
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import IconButton from "@material-ui/core/IconButton";
-import SearchIcon from "@material-ui/icons/Search";
 import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
+import SearchIcon from "@material-ui/icons/Search";
 
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
-import PeopleIcon from "@material-ui/icons/People";
 import DownloadIcon from "@material-ui/icons/GetApp";
+import PeopleIcon from "@material-ui/icons/People";
 
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
 
+import { Grid } from "@material-ui/core";
+import ConfirmationModal from "../../components/ConfirmationModal";
+import ContactListDialog from "../../components/ContactListDialog";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
+
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
-import ContactListDialog from "../../components/ContactListDialog";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import toastError from "../../errors/toastError";
-import { Grid } from "@material-ui/core";
 
 import planilhaExemplo from "../../assets/planilha.xlsx";
 import { SocketContext } from "../../context/Socket/SocketContext";
@@ -122,7 +122,7 @@ const ContactLists = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          toastError(err);
+          toast.error(err.message);
         }
       };
       fetchContactLists();
@@ -173,7 +173,7 @@ const ContactLists = () => {
       await api.delete(`/contact-lists/${contactListId}`);
       toast.success(i18n.t("contactLists.toasts.deleted"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setDeletingContactList(null);
     setSearchParam("");

@@ -1,38 +1,35 @@
-import React, { useContext, useState, useEffect } from "react";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
-import { toast } from "react-toastify";
+import { format } from "date-fns";
 import { isArray, isEmpty } from "lodash";
 import moment from "moment";
-import api from '../../services/api';
-import { format } from 'date-fns';
+import React, { useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
+import api from "../../services/api";
 
-import ButtonWithSpinner from "../../components/ButtonWithSpinner";
 import CardCounter from "../../components/Dashboard/CardCounter";
 import TableAttendantsStatus from "../../components/Dashboard/TableAttendantsStatus";
+import Chart from "./Chart";
+import { ChartsDate } from "./ChartsDate";
 import { ChatsUser } from "./ChartsUser";
 import Filters from "./Filters";
-import { ChartsDate } from "./ChartsDate";
-import Chart from "./Chart";
 import Title from "./Title";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
-import useDashboard from "../../hooks/useDashboard";
 import useContacts from "../../hooks/useContacts";
+import useDashboard from "../../hooks/useDashboard";
 
 // Lucide React Icons
 import {
-  Users,
-  MessageCircle,
-  Clock,
   CheckCircle,
+  Clock,
   Hourglass,
-  Store,
+  MessageCircle,
   PhoneCall,
-  UserCheck,
-  UserPlus
-} from 'lucide-react';
+  Store,
+  UserPlus,
+} from "lucide-react";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -40,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(4),
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
     },
@@ -49,21 +46,21 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
   },
   cardWrapper: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    width: '100%',
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "stretch",
+    width: "100%",
   },
   sectionPaper: {
-    background: '#fff',
+    background: "#fff",
     borderRadius: 18,
-    boxShadow: '0 4px 24px rgba(93,63,211,0.10)',
+    boxShadow: "0 4px 24px rgba(93,63,211,0.10)",
     padding: theme.spacing(3, 3, 2, 3),
     marginBottom: theme.spacing(3),
-    width: '100%',
+    width: "100%",
     maxWidth: 1800,
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    marginLeft: "auto",
+    marginRight: "auto",
   },
 }));
 
@@ -73,7 +70,9 @@ const Dashboard = () => {
   const [attendants, setAttendants] = useState([]);
   const [period, setPeriod] = useState(0);
   const [filterType, setFilterType] = useState(1);
-  const [dateFrom, setDateFrom] = useState(moment().subtract(7, 'days').format("YYYY-MM-DD"));
+  const [dateFrom, setDateFrom] = useState(
+    moment().subtract(7, "days").format("YYYY-MM-DD")
+  );
   const [dateTo, setDateTo] = useState(moment().format("YYYY-MM-DD"));
   const [loading, setLoading] = useState(false);
   const { find } = useDashboard();
@@ -104,13 +103,29 @@ const Dashboard = () => {
       setLoading(true);
       // Gráfico por usuário
       const companyId = localStorage.getItem("companyId");
-      const resUser = await api.get(`/dashboard/ticketsUsers?initialDate=${format(new Date(dateFrom), 'yyyy-MM-dd')}&finalDate=${format(new Date(dateTo), 'yyyy-MM-dd')}&companyId=${companyId}`);
+      const resUser = await api.get(
+        `/dashboard/ticketsUsers?initialDate=${format(
+          new Date(dateFrom),
+          "yyyy-MM-dd"
+        )}&finalDate=${format(
+          new Date(dateTo),
+          "yyyy-MM-dd"
+        )}&companyId=${companyId}`
+      );
       setTicketsUserData(resUser.data);
-      
+
       // Gráfico por data
-      const resDate = await api.get(`/dashboard/ticketsDay?initialDate=${format(new Date(dateFrom), 'yyyy-MM-dd')}&finalDate=${format(new Date(dateTo), 'yyyy-MM-dd')}&companyId=${companyId}`);
+      const resDate = await api.get(
+        `/dashboard/ticketsDay?initialDate=${format(
+          new Date(dateFrom),
+          "yyyy-MM-dd"
+        )}&finalDate=${format(
+          new Date(dateTo),
+          "yyyy-MM-dd"
+        )}&companyId=${companyId}`
+      );
       setTicketsDateData(resDate.data);
-      
+
       setLoading(false);
     } catch (error) {
       toast.error("Erro ao carregar dados dos gráficos");
@@ -126,7 +141,10 @@ const Dashboard = () => {
         params = { days: period };
       }
       if (!isEmpty(dateFrom) && moment(dateFrom).isValid()) {
-        params = { ...params, date_from: moment(dateFrom).format("YYYY-MM-DD") };
+        params = {
+          ...params,
+          date_from: moment(dateFrom).format("YYYY-MM-DD"),
+        };
       }
       if (!isEmpty(dateTo) && moment(dateTo).isValid()) {
         params = { ...params, date_to: moment(dateTo).format("YYYY-MM-DD") };
@@ -151,7 +169,10 @@ const Dashboard = () => {
   }
 
   function formatTime(minutes) {
-    return moment().startOf("day").add(minutes, "minutes").format("HH[h] mm[m]");
+    return moment()
+      .startOf("day")
+      .add(minutes, "minutes")
+      .format("HH[h] mm[m]");
   }
 
   const GetContacts = (all) => {
@@ -232,7 +253,16 @@ const Dashboard = () => {
         {/* Cards de Métricas Modernos */}
         <Grid container spacing={4} className={classes.cardGrid}>
           {metricCards.map((card, idx) => (
-            <Grid item xs={12} sm={6} md={3} lg={3} xl={2} key={idx} className={classes.cardWrapper}>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={3}
+              lg={3}
+              xl={2}
+              key={idx}
+              className={classes.cardWrapper}
+            >
               <CardCounter
                 icon={card.icon}
                 title={card.title}
@@ -248,7 +278,11 @@ const Dashboard = () => {
           <Grid item xs={12} md={6}>
             <div className={classes.sectionPaper}>
               <Title>Atendimentos por Hora</Title>
-              <Chart queueTicket={queueTicket} dateFrom={dateFrom} dateTo={dateTo} />
+              <Chart
+                queueTicket={queueTicket}
+                dateFrom={dateFrom}
+                dateTo={dateTo}
+              />
             </div>
           </Grid>
           <Grid item xs={12} md={6}>
@@ -263,7 +297,10 @@ const Dashboard = () => {
           <Grid item xs={12}>
             <div className={classes.sectionPaper}>
               <Title>Status dos Atendentes</Title>
-              <TableAttendantsStatus attendants={attendants} loading={loading} />
+              <TableAttendantsStatus
+                attendants={attendants}
+                loading={loading}
+              />
             </div>
           </Grid>
         </Grid>

@@ -1,56 +1,55 @@
-import React, { useState, useEffect, useReducer } from "react";
-import { toast } from "react-toastify";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
-import IconButton from "@material-ui/core/IconButton";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import { CreditCard, Receipt, CheckCircle2, XCircle, Clock, ArrowRightCircle, Calendar, DollarSign, Hash } from 'lucide-react';
-import MainContainer from "../../components/MainContainer";
-import MainHeader from "../../components/MainHeader";
-import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
-import Title from "../../components/Title";
-import SubscriptionModal from "../../components/SubscriptionModal";
-import api from "../../services/api";
-import { i18n } from "../../translate/i18n";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
-import UserModal from "../../components/UserModal";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import toastError from "../../errors/toastError";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
+import {
+  ArrowRightCircle,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  DollarSign,
+  Hash,
+  Receipt,
+  XCircle,
+} from "lucide-react";
 import moment from "moment";
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
+import React, { useEffect, useReducer, useState } from "react";
+import MainContainer from "../../components/MainContainer";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
+import { toast } from "sonner";
+import api from "../../services/api";
 
 const useStyles = makeStyles((theme) => ({
   mainWrapper: {
-    minHeight: '100vh',
-    width: '100%',
-    background: 'linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    minHeight: "100vh",
+    width: "100%",
+    background: "linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
     padding: theme.spacing(0, 0, 6, 0),
   },
   card: {
     maxWidth: 1100,
-    width: '100%',
-    margin: '0 auto',
-    background: '#fff',
+    width: "100%",
+    margin: "0 auto",
+    background: "#fff",
     borderRadius: 22,
-    boxShadow: '0 4px 32px rgba(93,63,211,0.10)',
+    boxShadow: "0 4px 32px rgba(93,63,211,0.10)",
     padding: theme.spacing(3, 2, 2, 2),
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(1, 0.5, 1, 0.5),
       borderRadius: 12,
     },
   },
   header: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: 16,
     marginBottom: theme.spacing(2),
     paddingLeft: theme.spacing(1),
@@ -58,172 +57,172 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontWeight: 700,
     fontSize: 26,
-    color: '#5D3FD3',
+    color: "#5D3FD3",
     letterSpacing: 0.2,
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: 10,
   },
   desc: {
-    color: '#888',
+    color: "#888",
     fontSize: 16,
     fontWeight: 400,
     marginLeft: 2,
     marginTop: 2,
   },
   invoiceCard: {
-    background: '#fff',
+    background: "#fff",
     borderRadius: 24,
     padding: theme.spacing(3),
-    boxShadow: '0 4px 20px rgba(93,63,211,0.08)',
-    transition: 'all 0.3s ease',
-    border: '1px solid #f0f0f0',
-    position: 'relative',
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    '&:hover': {
-      transform: 'translateY(-4px)',
-      boxShadow: '0 8px 30px rgba(93,63,211,0.15)',
+    boxShadow: "0 4px 20px rgba(93,63,211,0.08)",
+    transition: "all 0.3s ease",
+    border: "1px solid #f0f0f0",
+    position: "relative",
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    "&:hover": {
+      transform: "translateY(-4px)",
+      boxShadow: "0 8px 30px rgba(93,63,211,0.15)",
     },
   },
   invoiceCardVencido: {
-    background: '#fff5f5',
-    border: '1px solid #ffebee',
+    background: "#fff5f5",
+    border: "1px solid #ffebee",
   },
   cardHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: theme.spacing(2),
   },
   cardLeft: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     gap: 8,
   },
   cardRight: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
     gap: 8,
   },
   invoiceId: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: 8,
-    color: '#666',
+    color: "#666",
     fontSize: 14,
     fontWeight: 500,
-    background: '#f8f7ff',
-    padding: '6px 14px',
+    background: "#f8f7ff",
+    padding: "6px 14px",
     borderRadius: 12,
   },
   invoiceValue: {
     fontSize: 32,
     fontWeight: 700,
-    color: '#5D3FD3',
-    display: 'flex',
-    alignItems: 'center',
+    color: "#5D3FD3",
+    display: "flex",
+    alignItems: "center",
     gap: 8,
     marginTop: theme.spacing(1),
   },
   invoiceDetail: {
-    color: '#444',
+    color: "#444",
     fontSize: 16,
     lineHeight: 1.5,
     fontWeight: 500,
     marginTop: theme.spacing(2),
     padding: theme.spacing(2),
-    background: '#f8f7ff',
+    background: "#f8f7ff",
     borderRadius: 12,
     flex: 1,
   },
   infoSection: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     gap: 12,
     marginTop: theme.spacing(2),
   },
   infoItem: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: 12,
-    color: '#666',
+    color: "#666",
     fontSize: 14,
-    padding: '10px 16px',
-    background: '#f8f7ff',
+    padding: "10px 16px",
+    background: "#f8f7ff",
     borderRadius: 12,
-    '& svg': {
-      color: '#5D3FD3',
+    "& svg": {
+      color: "#5D3FD3",
     },
   },
   badge: {
-    display: 'inline-flex',
-    alignItems: 'center',
+    display: "inline-flex",
+    alignItems: "center",
     gap: 6,
     borderRadius: 12,
-    padding: '8px 16px',
+    padding: "8px 16px",
     fontWeight: 600,
     fontSize: 14,
-    boxShadow: '0 2px 8px rgba(93,63,211,0.08)',
+    boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
   },
   badgePago: {
-    background: '#e6fbe6',
-    color: '#2e7d32',
+    background: "#e6fbe6",
+    color: "#2e7d32",
   },
   badgeVencido: {
-    background: '#ffebee',
-    color: '#c62828',
+    background: "#ffebee",
+    color: "#c62828",
   },
   badgeAberto: {
-    background: '#e3e6fd',
-    color: '#5D3FD3',
+    background: "#e3e6fd",
+    color: "#5D3FD3",
   },
   actionSection: {
-    marginTop: 'auto',
+    marginTop: "auto",
     paddingTop: theme.spacing(2),
   },
   payButton: {
     borderRadius: 16,
     fontWeight: 600,
     fontSize: 16,
-    padding: '12px 24px',
-    textTransform: 'none',
-    background: 'linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)',
-    color: '#fff',
-    boxShadow: '0 4px 12px rgba(93,63,211,0.15)',
-    transition: 'all 0.2s',
-    '&:hover': {
-      background: 'linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)',
-      boxShadow: '0 6px 16px rgba(93,63,211,0.25)',
+    padding: "12px 24px",
+    textTransform: "none",
+    background: "linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)",
+    color: "#fff",
+    boxShadow: "0 4px 12px rgba(93,63,211,0.15)",
+    transition: "all 0.2s",
+    "&:hover": {
+      background: "linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)",
+      boxShadow: "0 6px 16px rgba(93,63,211,0.25)",
     },
-    width: '100%',
+    width: "100%",
   },
   paidButton: {
     borderRadius: 16,
     fontWeight: 600,
     fontSize: 16,
-    padding: '12px 24px',
-    textTransform: 'none',
-    background: '#e6fbe6',
-    color: '#2e7d32',
-    boxShadow: '0 2px 8px rgba(46,125,50,0.08)',
-    width: '100%',
+    padding: "12px 24px",
+    textTransform: "none",
+    background: "#e6fbe6",
+    color: "#2e7d32",
+    boxShadow: "0 2px 8px rgba(46,125,50,0.08)",
+    width: "100%",
   },
   emptyBox: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
     height: 320,
-    color: '#888',
+    color: "#888",
     gap: 12,
-    background: '#fff',
+    background: "#fff",
     borderRadius: 12,
     margin: theme.spacing(4, 0),
-    boxShadow: '0 1px 6px rgba(93,63,211,0.06)',
+    boxShadow: "0 1px 6px rgba(93,63,211,0.06)",
   },
   gridContainer: {
     marginTop: theme.spacing(2),
@@ -286,13 +285,11 @@ const Invoices = () => {
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
 
-
   const handleOpenContactModal = (invoices) => {
     setStoragePlans(invoices);
     setSelectedContactId(null);
     setContactModalOpen(true);
   };
-
 
   const handleCloseContactModal = () => {
     setSelectedContactId(null);
@@ -315,14 +312,13 @@ const Invoices = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          toastError(err);
+          toast.error(err.message);
         }
       };
       fetchInvoices();
     }, 500);
     return () => clearTimeout(delayDebounceFn);
   }, [searchParam, pageNumber]);
-
 
   const loadMore = () => {
     setPageNumber((prevState) => prevState + 1);
@@ -338,8 +334,10 @@ const Invoices = () => {
   const rowStyle = (record) => {
     const hoje = moment(moment()).format("DD/MM/yyyy");
     const vencimento = moment(record.dueDate).format("DD/MM/yyyy");
-    var diff = moment(vencimento, "DD/MM/yyyy").diff(moment(hoje, "DD/MM/yyyy"));
-    var dias = moment.duration(diff).asDays();    
+    var diff = moment(vencimento, "DD/MM/yyyy").diff(
+      moment(hoje, "DD/MM/yyyy")
+    );
+    var dias = moment.duration(diff).asDays();
     if (dias < 0 && record.status !== "paid") {
       return { backgroundColor: "#ffbcbc9c" };
     }
@@ -348,35 +346,54 @@ const Invoices = () => {
   const rowStatus = (record) => {
     const hoje = moment(moment()).format("DD/MM/yyyy");
     const vencimento = moment(record.dueDate).format("DD/MM/yyyy");
-    var diff = moment(vencimento, "DD/MM/yyyy").diff(moment(hoje, "DD/MM/yyyy"));
-    var dias = moment.duration(diff).asDays();    
+    var diff = moment(vencimento, "DD/MM/yyyy").diff(
+      moment(hoje, "DD/MM/yyyy")
+    );
+    var dias = moment.duration(diff).asDays();
     const status = record.status;
     if (status === "paid") {
-      return { label: "Pago", badge: classes.badgePago, icon: <CheckCircle2 size={16} /> };
+      return {
+        label: "Pago",
+        badge: classes.badgePago,
+        icon: <CheckCircle2 size={16} />,
+      };
     }
     if (dias < 0) {
-      return { label: "Vencido", badge: classes.badgeVencido, icon: <XCircle size={16} /> };
+      return {
+        label: "Vencido",
+        badge: classes.badgeVencido,
+        icon: <XCircle size={16} />,
+      };
     } else {
-      return { label: "Em Aberto", badge: classes.badgeAberto, icon: <Clock size={16} /> };
+      return {
+        label: "Em Aberto",
+        badge: classes.badgeAberto,
+        icon: <Clock size={16} />,
+      };
     }
   };
 
   return (
     <div className={classes.mainWrapper}>
-      <MainContainer style={{ boxShadow: 'none', background: 'transparent' }}>
+      <MainContainer style={{ boxShadow: "none", background: "transparent" }}>
         <div className={classes.card}>
           <div className={classes.header}>
-            <CreditCard size={36} style={{ color: '#5D3FD3' }} />
+            <CreditCard size={36} style={{ color: "#5D3FD3" }} />
             <div>
               <div className={classes.title}>Faturas</div>
-              <div className={classes.desc}>Gerencie e pague suas faturas de forma simples, rápida e segura.</div>
+              <div className={classes.desc}>
+                Gerencie e pague suas faturas de forma simples, rápida e segura.
+              </div>
             </div>
           </div>
-          
+
           {invoices.length === 0 ? (
             <Box className={classes.emptyBox}>
               <Receipt size={48} />
-              <Typography variant="h6" style={{ color: '#5D3FD3', fontWeight: 600 }}>
+              <Typography
+                variant="h6"
+                style={{ color: "#5D3FD3", fontWeight: 600 }}
+              >
                 Nenhuma fatura encontrada
               </Typography>
               <Typography variant="body2">
@@ -388,42 +405,49 @@ const Invoices = () => {
               {invoices.map((invoice) => {
                 const statusObj = rowStatus(invoice);
                 const isVencido = statusObj.label === "Vencido";
-                
+
                 return (
                   <Grid item xs={12} sm={6} md={4} key={invoice.id}>
-                    <Paper 
-                      className={`${classes.invoiceCard} ${isVencido ? classes.invoiceCardVencido : ''}`}
+                    <Paper
+                      className={`${classes.invoiceCard} ${
+                        isVencido ? classes.invoiceCardVencido : ""
+                      }`}
                       elevation={0}
                     >
                       <div className={classes.cardHeader}>
                         <div className={classes.cardLeft}>
                           <div className={classes.invoiceId}>
-                            <Hash size={16} />
-                            #{invoice.id}
+                            <Hash size={16} />#{invoice.id}
                           </div>
                           <div className={classes.invoiceValue}>
                             <DollarSign size={28} />
-                            {invoice.value.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })}
+                            {invoice.value.toLocaleString("pt-br", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
                           </div>
                         </div>
                         <div className={classes.cardRight}>
-                          <span className={`${classes.badge} ${statusObj.badge}`}>
+                          <span
+                            className={`${classes.badge} ${statusObj.badge}`}
+                          >
                             {statusObj.icon} {statusObj.label}
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className={classes.invoiceDetail}>
                         {invoice.detail}
                       </div>
-                      
+
                       <div className={classes.infoSection}>
                         <div className={classes.infoItem}>
                           <Calendar size={18} />
-                          Vencimento: {moment(invoice.dueDate).format("DD/MM/YYYY")}
+                          Vencimento:{" "}
+                          {moment(invoice.dueDate).format("DD/MM/YYYY")}
                         </div>
                       </div>
-                      
+
                       <div className={classes.actionSection}>
                         {statusObj.label !== "Pago" ? (
                           <Button
@@ -451,7 +475,7 @@ const Invoices = () => {
               })}
             </Grid>
           )}
-          
+
           {loading && (
             <Grid container spacing={3} className={classes.gridContainer}>
               {[1, 2, 3].map((item) => (

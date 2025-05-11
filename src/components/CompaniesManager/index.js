@@ -1,4 +1,11 @@
 import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
   FormControl,
   Grid,
   IconButton,
@@ -6,33 +13,32 @@ import {
   MenuItem,
   Paper,
   Select,
+  Step,
+  StepLabel,
+  Stepper,
   TextField,
   makeStyles,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  Divider,
-  Box,
-  Stepper,
-  Step,
-  StepLabel
 } from "@material-ui/core";
-import { Field, Form, Formik } from "formik";
+import { has, isArray } from "lodash";
+import {
+  Briefcase,
+  Calendar,
+  CheckCircle,
+  Edit as EditIcon,
+  Layers,
+  Mail,
+  Phone,
+  Plus,
+  User,
+  XCircle,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
-import ButtonWithSpinner from "../ButtonWithSpinner";
-import ConfirmationModal from "../ConfirmationModal";
-import { Edit as EditIcon, Mail, Phone, User, Briefcase, CheckCircle, XCircle, Calendar, Layers, Plus } from "lucide-react";
-import { has, head, isArray } from "lodash";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import useCompanies from "../../hooks/useCompanies";
 import { useDate } from "../../hooks/useDate";
 import usePlans from "../../hooks/usePlans";
-import api from "../../services/api";
-import ModalUsers from "../ModalUsers";
-import moment from "moment";
+import ButtonWithSpinner from "../ButtonWithSpinner";
+import ConfirmationModal from "../ConfirmationModal";
 
 const useStyles = makeStyles((theme) => ({
   root: {

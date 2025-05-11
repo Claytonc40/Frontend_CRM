@@ -1,16 +1,22 @@
-import React, { useState, useEffect, useRef } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Stepper from "@material-ui/core/Stepper";
+import {
+  Button,
+  Grid,
+  IconButton,
+  StepContent,
+  TextField,
+} from "@material-ui/core";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
+import Stepper from "@material-ui/core/Stepper";
+import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import { Button, Grid, IconButton, StepContent, TextField } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import SaveIcon from "@material-ui/icons/Save";
 import EditIcon from "@material-ui/icons/Edit";
+import SaveIcon from "@material-ui/icons/Save";
+import React, { useEffect, useRef, useState } from "react";
 import api from "../../services/api";
-import toastError from "../../errors/toastError";
+import { toast } from "sonner";
 import { AttachFile, DeleteOutline } from "@material-ui/icons";
 import { head } from "lodash";
 
@@ -63,7 +69,7 @@ export function QueueOptionStepper({ queueId, options, updateOptions }) {
         option.children = optionList;
         updateOptions();
       } catch (e) {
-        toastError(e);
+        toast.error(e);
       }
     }
   };
@@ -76,7 +82,7 @@ export function QueueOptionStepper({ queueId, options, updateOptions }) {
           method: "PUT",
           data: option,
         });
-		if (attachment != null) {
+        if (attachment != null) {
           const formData = new FormData();
           formData.append("file", attachment);
           await api.post(`/queue-options/${option.id}/media-upload`, formData);
@@ -87,7 +93,7 @@ export function QueueOptionStepper({ queueId, options, updateOptions }) {
           method: "POST",
           data: option,
         });
-		if (attachment != null) {
+        if (attachment != null) {
           const formData = new FormData();
           formData.append("file", attachment);
           await api.post(`/queue-options/${option.id}/media-upload`, formData);
@@ -97,7 +103,7 @@ export function QueueOptionStepper({ queueId, options, updateOptions }) {
       option.edition = false;
       updateOptions();
     } catch (e) {
-      toastError(e);
+      toast.error(e);
     }
   };
 
@@ -115,7 +121,7 @@ export function QueueOptionStepper({ queueId, options, updateOptions }) {
           method: "DELETE",
         });
       } catch (e) {
-        toastError(e);
+        toast.error(e);
       }
     }
     options.splice(index, 1);
@@ -155,7 +161,7 @@ export function QueueOptionStepper({ queueId, options, updateOptions }) {
             className={classes.input}
             placeholder="Título da opção"
           />
-                    <div style={{ display: "none" }}>
+          <div style={{ display: "none" }}>
             <input
               type="file"
               ref={attachmentFile}
@@ -188,27 +194,25 @@ export function QueueOptionStepper({ queueId, options, updateOptions }) {
                   color="primary"
                   size="small"
                   className={classes.button}
-                    onClick={() => attachmentFile.current.click()}
-                  >
-                  <AttachFile/>
+                  onClick={() => attachmentFile.current.click()}
+                >
+                  <AttachFile />
                 </IconButton>
               )}
-                             {(option.mediaPath || attachment) && (
-                    <Grid xs={12} item>
-                      <Button startIcon={<AttachFile />}>
-                        {attachment != null
-                          ? attachment.name
-                          : option.mediaName}
-                      </Button>
-                      
-                        <IconButton
-                          onClick={() => setConfirmationOpen(true)}
-                          color="secondary"
-                        >
-                          <DeleteOutline />
-                        </IconButton>
-                    </Grid>
-                  )}
+              {(option.mediaPath || attachment) && (
+                <Grid xs={12} item>
+                  <Button startIcon={<AttachFile />}>
+                    {attachment != null ? attachment.name : option.mediaName}
+                  </Button>
+
+                  <IconButton
+                    onClick={() => setConfirmationOpen(true)}
+                    color="secondary"
+                  >
+                    <DeleteOutline />
+                  </IconButton>
+                </Grid>
+              )}
             </>
           )}
         </>
@@ -342,7 +346,7 @@ export function QueueOptions({ queueId }) {
           });
           setOptions(optionList);
         } catch (e) {
-          toastError(e);
+          toast.error(e);
         }
       };
       fetchOptions();

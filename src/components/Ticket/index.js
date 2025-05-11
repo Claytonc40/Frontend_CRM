@@ -2,14 +2,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
 import clsx from "clsx";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import { Paper, makeStyles } from "@material-ui/core";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { ReplyMessageProvider } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 import ContactDrawer from "../ContactDrawer";
 import MessageInput from "../MessageInputCustom/";
@@ -91,7 +91,7 @@ const Ticket = () => {
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          toastError(err);
+          toast.error(err.message);
         }
       };
       fetchTicket();

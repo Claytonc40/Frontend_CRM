@@ -1,32 +1,37 @@
-import React, { useState, useEffect, useReducer, useCallback, useContext } from "react";
-import { toast } from "react-toastify";
-import { useHistory } from "react-router-dom";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import InputAdornment from "@material-ui/core/InputAdornment";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
+import SearchIcon from "@material-ui/icons/Search";
+import { CalendarDays, Edit3, PlusCircle, Trash2 } from "lucide-react";
+import moment from "moment";
+import "moment/locale/pt-br";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
+import { Calendar, momentLocalizer } from "react-big-calendar";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useHistory } from "react-router-dom";
+import { toast } from "sonner";
+import ConfirmationModal from "../../components/ConfirmationModal";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
-import Title from "../../components/Title";
-import api from "../../services/api";
-import { i18n } from "../../translate/i18n";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import ScheduleModal from "../../components/ScheduleModal";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import toastError from "../../errors/toastError";
-import moment from "moment";
-import { SocketContext } from "../../context/Socket/SocketContext";
+import Title from "../../components/Title";
 import { AuthContext } from "../../context/Auth/AuthContext";
-import usePlans from "../../hooks/usePlans";
-import { Calendar, momentLocalizer } from "react-big-calendar";
-import "moment/locale/pt-br";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import SearchIcon from "@material-ui/icons/Search";
-import { Edit3, Trash2, PlusCircle, CalendarDays } from 'lucide-react';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
+import { SocketContext } from "../../context/Socket/SocketContext";
+
+import api from "../../services/api";
+import { i18n } from "../../translate/i18n";
 import "./Schedules.css";
 import "./SchedulesCalendar.css";
 
@@ -42,9 +47,9 @@ const eventTitleStyle = {
   overflow: "hidden",
   whiteSpace: "nowrap",
   textOverflow: "ellipsis",
-  color: '#222',
-  display: 'flex',
-  alignItems: 'center',
+  color: "#222",
+  display: "flex",
+  alignItems: "center",
   gap: 8,
 };
 
@@ -67,7 +72,7 @@ var defaultMessages = {
   noEventsInRange: "Não há agendamentos no período.",
   showMore: function showMore(total) {
     return "+" + total + " mais";
-  }
+  },
 };
 
 const reducer = (state, action) => {
@@ -105,43 +110,43 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     overflowY: "scroll",
     ...theme.scrollbarStyles,
-    background: '#faf9fd',
+    background: "#faf9fd",
     borderRadius: 16,
-    boxShadow: '0 2px 12px rgba(93,63,211,0.07)',
+    boxShadow: "0 2px 12px rgba(93,63,211,0.07)",
     marginTop: theme.spacing(2),
   },
   emptyBox: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
     height: 320,
-    color: '#888',
+    color: "#888",
     gap: 12,
-    background: '#fff',
+    background: "#fff",
     borderRadius: 12,
     margin: theme.spacing(4, 0),
-    boxShadow: '0 1px 6px rgba(93,63,211,0.06)',
+    boxShadow: "0 1px 6px rgba(93,63,211,0.06)",
   },
   addButton: {
     borderRadius: 10,
     fontWeight: 600,
     fontSize: 16,
-    padding: '10px 24px',
-    textTransform: 'none',
-    background: '#5D3FD3',
-    color: '#fff',
-    boxShadow: '0 2px 8px rgba(93, 63, 211, 0.15)',
-    transition: 'all 0.2s',
-    '&:hover': {
-      background: '#4930A8',
-      boxShadow: '0 4px 12px rgba(93, 63, 211, 0.2)',
+    padding: "10px 24px",
+    textTransform: "none",
+    background: "#5D3FD3",
+    color: "#fff",
+    boxShadow: "0 2px 8px rgba(93, 63, 211, 0.15)",
+    transition: "all 0.2s",
+    "&:hover": {
+      background: "#4930A8",
+      boxShadow: "0 4px 12px rgba(93, 63, 211, 0.2)",
     },
     marginLeft: theme.spacing(2),
   },
   searchInput: {
     borderRadius: 10,
-    background: '#fff',
+    background: "#fff",
     fontSize: 15,
     minWidth: 220,
     marginRight: theme.spacing(2),
@@ -165,7 +170,6 @@ const Schedules = () => {
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [contactId, setContactId] = useState(+getUrlParam("contactId"));
 
-
   const fetchSchedules = useCallback(async () => {
     try {
       const { data } = await api.get("/schedules/", {
@@ -176,7 +180,7 @@ const Schedules = () => {
       setHasMore(data.hasMore);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   }, [searchParam, pageNumber]);
 
@@ -254,7 +258,7 @@ const Schedules = () => {
       await api.delete(`/schedules/${scheduleId}`);
       toast.success(i18n.t("schedules.toasts.deleted"));
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
     setDeletingSchedule(null);
     setSearchParam("");
@@ -307,7 +311,9 @@ const Schedules = () => {
         cleanContact={cleanContact}
       />
       <MainHeader>
-        <Title>{i18n.t("schedules.title")} ({schedules.length})</Title>
+        <Title>
+          {i18n.t("schedules.title")} ({schedules.length})
+        </Title>
         <MainHeaderButtonsWrapper>
           <TextField
             placeholder={i18n.t("contacts.searchPlaceholder")}
@@ -338,15 +344,27 @@ const Schedules = () => {
           </Button>
         </MainHeaderButtonsWrapper>
       </MainHeader>
-      <Paper className={classes.mainPaper} variant="outlined" onScroll={handleScroll}>
+      <Paper
+        className={classes.mainPaper}
+        variant="outlined"
+        onScroll={handleScroll}
+      >
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height={400}>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height={400}
+          >
             <CircularProgress color="primary" />
           </Box>
         ) : schedules.length === 0 ? (
           <Box className={classes.emptyBox}>
             <CalendarDays size={48} />
-            <Typography variant="h6" style={{ color: '#5D3FD3', fontWeight: 600 }}>
+            <Typography
+              variant="h6"
+              style={{ color: "#5D3FD3", fontWeight: 600 }}
+            >
               Nenhum agendamento encontrado
             </Typography>
             <Typography variant="body2">
@@ -358,7 +376,7 @@ const Schedules = () => {
             messages={defaultMessages}
             formats={{
               agendaDateFormat: "DD/MM ddd",
-              weekdayFormat: "dddd"
+              weekdayFormat: "dddd",
             }}
             localizer={localizer}
             events={schedules.map((schedule) => ({
@@ -368,7 +386,7 @@ const Schedules = () => {
                   <span className="event-icons">
                     <span
                       className="edit-icon"
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         handleEditSchedule(schedule);
                         setScheduleModalOpen(true);
@@ -378,7 +396,7 @@ const Schedules = () => {
                     </span>
                     <span
                       className="delete-icon"
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteSchedule(schedule.id);
                       }}

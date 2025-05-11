@@ -23,7 +23,7 @@ import SendIcon from "@material-ui/icons/Send";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
-import toastError from "../../errors/toastError";
+
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
@@ -231,7 +231,7 @@ const MessageInput = ({ ticketStatus }) => {
     try {
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
 
     setLoading(false);
@@ -254,7 +254,7 @@ const MessageInput = ({ ticketStatus }) => {
     try {
       await api.post(`/messages/${ticketId}`, message);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
 
     setInputMessage("");
@@ -271,7 +271,7 @@ const MessageInput = ({ ticketStatus }) => {
       setRecording(true);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
       setLoading(false);
     }
   };
@@ -294,7 +294,7 @@ const MessageInput = ({ ticketStatus }) => {
 
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
 
     setRecording(false);
@@ -306,7 +306,7 @@ const MessageInput = ({ ticketStatus }) => {
       await Mp3Recorder.stop().getMp3();
       setRecording(false);
     } catch (err) {
-      toastError(err);
+      toast.error(err.message);
     }
   };
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { QueryClient, QueryClientProvider } from "react-query";
-import "react-toastify/dist/ReactToastify.css";
+import { Toaster } from "sonner";
 
 import { useMediaQuery } from "@material-ui/core";
 import { ptBR } from "@material-ui/core/locale";
@@ -17,6 +17,7 @@ const App = () => {
   const [locale, setLocale] = useState();
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
   const preferredTheme = window.localStorage.getItem("preferredTheme");
   const [mode, setMode] = useState(
     preferredTheme ? preferredTheme : prefersDarkMode ? "dark" : "light"
@@ -118,6 +119,14 @@ const App = () => {
           <SocketContext.Provider value={SocketManager}>
             <Routes />
           </SocketContext.Provider>
+          <Toaster
+            position="top-center"
+            richColors
+            closeButton
+            expand={true}
+            duration={4000}
+            style={{ zIndex: 99999 }}
+          />
         </QueryClientProvider>
       </ThemeProvider>
     </ColorModeContext.Provider>
