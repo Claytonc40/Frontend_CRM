@@ -6,6 +6,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Paper from "@material-ui/core/Paper";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
+import { toast } from "sonner";
 import useSettings from "../../hooks/useSettings";
 
 import { Box, Tab, Tabs } from "@material-ui/core";
