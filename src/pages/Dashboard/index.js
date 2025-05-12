@@ -67,12 +67,12 @@ const Dashboard = () => {
   const classes = useStyles();
   const [counters, setCounters] = useState({});
   const [attendants, setAttendants] = useState([]);
-// eslint-disable-next-line
+  // eslint-disable-next-line
   const [period, setPeriod] = useState(0);
-// eslint-disable-next-line
+  // eslint-disable-next-line
   const [filterType, setFilterType] = useState(1);
   const [dateFrom, setDateFrom] = useState(
-    moment().subtract(7, "days").format("YYYY-MM-DD")
+    moment().subtract(7, "days").format("YYYY-MM-DD"),
   );
   const [dateTo, setDateTo] = useState(moment().format("YYYY-MM-DD"));
   const [loading, setLoading] = useState(false);
@@ -107,11 +107,11 @@ const Dashboard = () => {
       const resUser = await api.get(
         `/dashboard/ticketsUsers?initialDate=${format(
           new Date(dateFrom),
-          "yyyy-MM-dd"
+          "yyyy-MM-dd",
         )}&finalDate=${format(
           new Date(dateTo),
-          "yyyy-MM-dd"
-        )}&companyId=${companyId}`
+          "yyyy-MM-dd",
+        )}&companyId=${companyId}`,
       );
       setTicketsUserData(resUser.data);
 
@@ -119,11 +119,11 @@ const Dashboard = () => {
       const resDate = await api.get(
         `/dashboard/ticketsDay?initialDate=${format(
           new Date(dateFrom),
-          "yyyy-MM-dd"
+          "yyyy-MM-dd",
         )}&finalDate=${format(
           new Date(dateTo),
-          "yyyy-MM-dd"
-        )}&companyId=${companyId}`
+          "yyyy-MM-dd",
+        )}&companyId=${companyId}`,
       );
       setTicketsDateData(resDate.data);
 

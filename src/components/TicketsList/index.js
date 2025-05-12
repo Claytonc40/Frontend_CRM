@@ -220,7 +220,7 @@ const TicketsList = (props) => {
   useEffect(() => {
     const queueIds = queues.map((q) => q.id);
     const filteredTickets = tickets.filter(
-      (t) => queueIds.indexOf(t.queueId) > -1
+      (t) => queueIds.indexOf(t.queueId) > -1,
     );
     const getSettingValue = (key) => {
       const { value } = settings.find((s) => s.key === key);

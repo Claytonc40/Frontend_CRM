@@ -21,7 +21,6 @@ import EditIcon from "@material-ui/icons/Edit";
 import DownloadIcon from "@material-ui/icons/GetApp";
 import PeopleIcon from "@material-ui/icons/People";
 
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
 
@@ -33,6 +32,7 @@ import TableRowSkeleton from "../../components/TableRowSkeleton";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
+import Container from "@material-ui/core/Container";
 import planilhaExemplo from "../../assets/planilha.xlsx";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
@@ -86,6 +86,16 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     overflowY: "scroll",
     ...theme.scrollbarStyles,
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
   },
 }));
 
@@ -197,7 +207,7 @@ const ContactLists = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <ConfirmationModal
         title={
           deletingContactList &&
@@ -319,7 +329,7 @@ const ContactLists = () => {
           </TableBody>
         </Table>
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

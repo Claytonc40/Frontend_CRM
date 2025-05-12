@@ -48,128 +48,135 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     flex: 1,
     padding: theme.spacing(3),
-    background: 'linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)',
+    background: "linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)",
   },
   fullWidth: {
     width: "100%",
   },
   companyCard: {
-    background: '#fff',
+    background: "#fff",
     borderRadius: 24,
     padding: theme.spacing(3),
-    boxShadow: '0 4px 20px rgba(93,63,211,0.08)',
-    transition: 'all 0.3s ease',
-    border: '1px solid #f0f0f0',
-    position: 'relative',
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    '&:hover': {
-      transform: 'translateY(-4px)',
-      boxShadow: '0 8px 30px rgba(93,63,211,0.15)',
+    boxShadow: "0 4px 20px rgba(93,63,211,0.08)",
+    transition: "all 0.3s ease",
+    border: "1px solid #f0f0f0",
+    position: "relative",
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    "&:hover": {
+      transform: "translateY(-4px)",
+      boxShadow: "0 8px 30px rgba(93,63,211,0.15)",
     },
   },
   cardHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: theme.spacing(2),
   },
   companyName: {
     fontSize: 22,
     fontWeight: 700,
-    color: '#5D3FD3',
+    color: "#5D3FD3",
     marginBottom: theme.spacing(1),
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: 8,
   },
   infoList: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     gap: 10,
     marginBottom: theme.spacing(2),
   },
   infoItem: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: 10,
-    color: '#666',
+    color: "#666",
     fontSize: 15,
-    background: '#f8f7ff',
+    background: "#f8f7ff",
     borderRadius: 10,
-    padding: '7px 14px',
+    padding: "7px 14px",
   },
   badge: {
-    display: 'inline-flex',
-    alignItems: 'center',
+    display: "inline-flex",
+    alignItems: "center",
     gap: 6,
     borderRadius: 12,
-    padding: '6px 14px',
+    padding: "6px 14px",
     fontWeight: 600,
     fontSize: 13,
-    boxShadow: '0 2px 8px rgba(93,63,211,0.08)',
+    boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
   },
   badgeAtivo: {
-    background: '#e6fbe6',
-    color: '#2e7d32',
+    background: "#e6fbe6",
+    color: "#2e7d32",
   },
   badgeInativo: {
-    background: '#ffebee',
-    color: '#c62828',
+    background: "#ffebee",
+    color: "#c62828",
   },
   badgeCampanha: {
-    background: '#e3e6fd',
-    color: '#5D3FD3',
+    background: "#e3e6fd",
+    color: "#5D3FD3",
   },
   badgeCampanhaOff: {
-    background: '#f0f0f0',
-    color: '#888',
+    background: "#f0f0f0",
+    color: "#888",
   },
   addButton: {
-    position: 'fixed',
+    position: "fixed",
     bottom: theme.spacing(3),
     right: theme.spacing(3),
-    borderRadius: '50%',
+    borderRadius: "50%",
     width: 56,
     height: 56,
-    background: 'linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)',
-    boxShadow: '0 4px 12px rgba(93,63,211,0.15)',
-    '&:hover': {
-      background: 'linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)',
+    background: "linear-gradient(90deg, #5D3FD3 0%, #7B68EE 100%)",
+    boxShadow: "0 4px 12px rgba(93,63,211,0.15)",
+    "&:hover": {
+      background: "linear-gradient(90deg, #4930A8 0%, #6A5ACD 100%)",
     },
     zIndex: 10,
   },
 }));
 
-function CompanyModal({ open, onClose, onSubmit, initialValue, plans, loading }) {
+function CompanyModal({
+  open,
+  onClose,
+  onSubmit,
+  initialValue,
+  plans,
+  loading,
+}) {
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
-  const steps = ['Dados da Empresa', 'Configurações e Datas'];
+  const steps = ["Dados da Empresa", "Configurações e Datas"];
 
   const [record, setRecord] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    planId: '',
+    name: "",
+    email: "",
+    phone: "",
+    planId: "",
     status: true,
     campaignsEnabled: false,
-    dueDate: '',
-    recurrence: '',
+    dueDate: "",
+    recurrence: "",
     ...initialValue,
   });
 
   useEffect(() => {
     setRecord({
-      name: '',
-      email: '',
-      phone: '',
-      planId: '',
+      name: "",
+      email: "",
+      phone: "",
+      planId: "",
       status: true,
       campaignsEnabled: false,
-      dueDate: '',
-      recurrence: '',
+      dueDate: "",
+      recurrence: "",
       ...initialValue,
     });
     setActiveStep(0);
@@ -182,7 +189,7 @@ function CompanyModal({ open, onClose, onSubmit, initialValue, plans, loading })
     const { name, value, type, checked } = e.target;
     setRecord((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -193,14 +200,16 @@ function CompanyModal({ open, onClose, onSubmit, initialValue, plans, loading })
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <User size={28} style={{ color: '#5D3FD3' }} />
-        {record.id ? 'Editar Empresa' : 'Nova Empresa'}
+      <DialogTitle style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <User size={28} style={{ color: "#5D3FD3" }} />
+        {record.id ? "Editar Empresa" : "Nova Empresa"}
       </DialogTitle>
       <DialogContent style={{ padding: 32 }}>
         <Stepper activeStep={activeStep} style={{ marginBottom: 24 }}>
           {steps.map((label) => (
-            <Step key={label}><StepLabel>{label}</StepLabel></Step>
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
           ))}
         </Stepper>
         <form onSubmit={handleSubmit} autoComplete="off">
@@ -252,7 +261,9 @@ function CompanyModal({ open, onClose, onSubmit, initialValue, plans, loading })
                     required
                   >
                     {plans.map((plan) => (
-                      <MenuItem key={plan.id} value={plan.id}>{plan.name}</MenuItem>
+                      <MenuItem key={plan.id} value={plan.id}>
+                        {plan.name}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -319,13 +330,20 @@ function CompanyModal({ open, onClose, onSubmit, initialValue, plans, loading })
           )}
           <DialogActions style={{ marginTop: 24 }}>
             <Button onClick={onClose}>Cancelar</Button>
-            {activeStep > 0 && (
-              <Button onClick={handleBack}>Voltar</Button>
-            )}
+            {activeStep > 0 && <Button onClick={handleBack}>Voltar</Button>}
             {activeStep < steps.length - 1 ? (
-              <Button variant="contained" color="primary" onClick={handleNext}>Próximo</Button>
+              <Button variant="contained" color="primary" onClick={handleNext}>
+                Próximo
+              </Button>
             ) : (
-              <ButtonWithSpinner loading={loading} type="submit" variant="contained" color="primary">Salvar</ButtonWithSpinner>
+              <ButtonWithSpinner
+                loading={loading}
+                type="submit"
+                variant="contained"
+                color="primary"
+              >
+                Salvar
+              </ButtonWithSpinner>
             )}
           </DialogActions>
         </form>
@@ -340,26 +358,36 @@ export function CompaniesManagerGrid(props) {
   const { dateToClient } = useDate();
 
   const renderStatus = (row) => (
-    <span className={`${classes.badge} ${row.status ? classes.badgeAtivo : classes.badgeInativo}`}>
-      {row.status ? <CheckCircle size={15} /> : <XCircle size={15} />} {row.status ? 'Ativo' : 'Inativo'}
+    <span
+      className={`${classes.badge} ${row.status ? classes.badgeAtivo : classes.badgeInativo}`}
+    >
+      {row.status ? <CheckCircle size={15} /> : <XCircle size={15} />}{" "}
+      {row.status ? "Ativo" : "Inativo"}
     </span>
   );
 
   const renderPlan = (row) => (
-    <span className={classes.infoItem} style={{ background: '#f0f7ff' }}>
-      <Briefcase size={16} /> {row.planId !== null ? row.plan?.name : '-'}
+    <span className={classes.infoItem} style={{ background: "#f0f7ff" }}>
+      <Briefcase size={16} /> {row.planId !== null ? row.plan?.name : "-"}
     </span>
   );
 
   const renderCampaignsStatus = (row) => {
     let enabled = false;
-    if (has(row, "settings") && isArray(row.settings) && row.settings.length > 0) {
+    if (
+      has(row, "settings") &&
+      isArray(row.settings) &&
+      row.settings.length > 0
+    ) {
       const setting = row.settings.find((s) => s.key === "campaignsEnabled");
       if (setting) enabled = setting.value === "true";
     }
     return (
-      <span className={`${classes.badge} ${enabled ? classes.badgeCampanha : classes.badgeCampanhaOff}`}>
-        {enabled ? <CheckCircle size={14} /> : <XCircle size={14} />} Campanhas {enabled ? 'Habilitadas' : 'Desabilitadas'}
+      <span
+        className={`${classes.badge} ${enabled ? classes.badgeCampanha : classes.badgeCampanhaOff}`}
+      >
+        {enabled ? <CheckCircle size={14} /> : <XCircle size={14} />} Campanhas{" "}
+        {enabled ? "Habilitadas" : "Desabilitadas"}
       </span>
     );
   };
@@ -378,13 +406,21 @@ export function CompaniesManagerGrid(props) {
               </IconButton>
             </div>
             <div className={classes.infoList}>
-              <div className={classes.infoItem}><Mail size={16} /> {row.email || "-"}</div>
-              <div className={classes.infoItem}><Phone size={16} /> {row.phone || "-"}</div>
+              <div className={classes.infoItem}>
+                <Mail size={16} /> {row.email || "-"}
+              </div>
+              <div className={classes.infoItem}>
+                <Phone size={16} /> {row.phone || "-"}
+              </div>
               {renderPlan(row)}
-              <div className={classes.infoItem}><Calendar size={16} /> Vencimento: {dateToClient(row.dueDate)}</div>
-              <div className={classes.infoItem}><Layers size={16} /> Recorrência: {row.recurrence || '-'}</div>
+              <div className={classes.infoItem}>
+                <Calendar size={16} /> Vencimento: {dateToClient(row.dueDate)}
+              </div>
+              <div className={classes.infoItem}>
+                <Layers size={16} /> Recorrência: {row.recurrence || "-"}
+              </div>
             </div>
-            <Divider style={{ margin: '12px 0' }} />
+            <Divider style={{ margin: "12px 0" }} />
             <Box display="flex" flexWrap="wrap" gap={1}>
               {renderStatus(row)}
               {renderCampaignsStatus(row)}
@@ -442,7 +478,7 @@ export default function CompaniesManager() {
       toast.success("Operação realizada com sucesso!");
     } catch (e) {
       toast.error(
-        "Não foi possível realizar a operação. Verifique se já existe uma empresa com o mesmo nome ou se os campos foram preenchidos corretamente"
+        "Não foi possível realizar a operação. Verifique se já existe uma empresa com o mesmo nome ou se os campos foram preenchidos corretamente",
       );
     }
     setLoading(false);
@@ -484,7 +520,7 @@ export default function CompaniesManager() {
   const handleSelect = (data) => {
     let campaignsEnabled = false;
     const setting = data.settings?.find(
-      (s) => s.key.indexOf("campaignsEnabled") > -1
+      (s) => s.key.indexOf("campaignsEnabled") > -1,
     );
     if (setting) {
       campaignsEnabled =
@@ -506,7 +542,14 @@ export default function CompaniesManager() {
 
   return (
     <Paper className={classes.mainPaper} elevation={0}>
-      <IconButton className={classes.addButton} color="primary" onClick={() => { setRecord({}); setModalOpen(true); }}>
+      <IconButton
+        className={classes.addButton}
+        color="primary"
+        onClick={() => {
+          setRecord({});
+          setModalOpen(true);
+        }}
+      >
         <Plus size={24} color="#fff" />
       </IconButton>
       <CompanyModal

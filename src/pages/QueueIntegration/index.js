@@ -18,11 +18,11 @@ import n8n from "../../assets/n8n.png";
 import typebot from "../../assets/typebot.jpg";
 import webhooks from "../../assets/webhook.png";
 import ConfirmationModal from "../../components/ConfirmationModal";
-import MainContainer from "../../components/MainContainer";
 import IntegrationModal from "../../components/QueueIntegrationModal";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
+import Container from "@material-ui/core/Container";
 import usePlans from "../../hooks/usePlans";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
@@ -240,6 +240,16 @@ const useStyles = makeStyles((theme) => ({
     gap: 8,
     marginTop: theme.spacing(2),
   },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
+  },
 }));
 
 const QueueIntegration = () => {
@@ -371,7 +381,7 @@ const QueueIntegration = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <Paper className={classes.mainPaper} elevation={0}>
         <IconButton
           className={classes.addButton}
@@ -465,7 +475,7 @@ const QueueIntegration = () => {
           </Grid>
         )}
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

@@ -301,7 +301,7 @@ function ListItemLink(props) {
       React.forwardRef((itemProps, ref) => (
         <RouterLink to={to} ref={ref} {...itemProps} onClick={onClick} />
       )),
-    [to, onClick]
+    [to, onClick],
   );
 
   return (

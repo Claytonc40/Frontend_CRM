@@ -24,7 +24,6 @@ import EditIcon from "@material-ui/icons/Edit";
 import PauseCircleOutlineIcon from "@material-ui/icons/PauseCircleOutline";
 import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
 
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
 
@@ -35,6 +34,7 @@ import ConfirmationModal from "../../components/ConfirmationModal";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
+import Container from "@material-ui/core/Container";
 import { useDate } from "../../hooks/useDate";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
@@ -91,6 +91,16 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     overflowY: "scroll",
     ...theme.scrollbarStyles,
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
   },
 }));
 
@@ -240,7 +250,7 @@ const Campaigns = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <ConfirmationModal
         title={
           deletingCampaign &&
@@ -417,7 +427,7 @@ const Campaigns = () => {
           </TableBody>
         </Table>
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

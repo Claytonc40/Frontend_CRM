@@ -1,5 +1,5 @@
-import React from 'react';
-import { Toaster } from 'sonner';
+import React from "react";
+import { Toaster } from "sonner";
 
 class ToastErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,7 +12,7 @@ class ToastErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Erro no Toast:', error, errorInfo);
+    console.error("Erro no Toast:", error, errorInfo);
   }
 
   render() {
@@ -25,22 +25,22 @@ class ToastErrorBoundary extends React.Component {
         position="top-right"
         toastOptions={{
           style: {
-            background: '#fff',
-            color: '#333',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            borderRadius: '8px',
-            padding: '16px',
+            background: "#fff",
+            color: "#333",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            borderRadius: "8px",
+            padding: "16px",
           },
           success: {
             style: {
-              background: '#4caf50',
-              color: '#fff',
+              background: "#4caf50",
+              color: "#fff",
             },
           },
           error: {
             style: {
-              background: '#f44336',
-              color: '#fff',
+              background: "#f44336",
+              color: "#fff",
             },
           },
         }}
@@ -49,4 +49,4 @@ class ToastErrorBoundary extends React.Component {
   }
 }
 
-export default ToastErrorBoundary; 
+export default ToastErrorBoundary;

@@ -370,7 +370,7 @@ const TransferTicketModalCustom = ({ modalOpen, onClose, ticketid }) => {
                   return "Selecione uma Conexão";
                 }
                 const whatsapp = whatsapps.find(
-                  (w) => w.id === selectedWhatsapp
+                  (w) => w.id === selectedWhatsapp,
                 );
                 return whatsapp?.name || "";
               }}

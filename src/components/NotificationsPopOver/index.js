@@ -223,7 +223,7 @@ const NotificationsPopOver = (volume) => {
         setNotifications(tickets);
       } else {
         const newNotifications = tickets.filter(
-          (ticket) => ticket.status !== "pending"
+          (ticket) => ticket.status !== "pending",
         );
 
         setNotifications(newNotifications);
@@ -246,7 +246,7 @@ const NotificationsPopOver = (volume) => {
       if (data.action === "updateUnread" || data.action === "delete") {
         setNotifications((prevState) => {
           const ticketIndex = prevState.findIndex(
-            (t) => t.id === data.ticketId
+            (t) => t.id === data.ticketId,
           );
           if (ticketIndex !== -1) {
             prevState.splice(ticketIndex, 1);
@@ -257,7 +257,7 @@ const NotificationsPopOver = (volume) => {
 
         setDesktopNotifications((prevState) => {
           const notfiticationIndex = prevState.findIndex(
-            (n) => n.tag === String(data.ticketId)
+            (n) => n.tag === String(data.ticketId),
           );
           if (notfiticationIndex !== -1) {
             prevState[notfiticationIndex].close();
@@ -281,7 +281,7 @@ const NotificationsPopOver = (volume) => {
       ) {
         setNotifications((prevState) => {
           const ticketIndex = prevState.findIndex(
-            (t) => t.id === data.ticket.id
+            (t) => t.id === data.ticket.id,
           );
           if (ticketIndex !== -1) {
             prevState[ticketIndex] = data.ticket;
@@ -319,7 +319,7 @@ const NotificationsPopOver = (volume) => {
 
     const notification = new Notification(
       `${i18n.t("tickets.notification.message")} ${contact.name}`,
-      options
+      options,
     );
 
     notification.onclick = (e) => {
@@ -331,7 +331,7 @@ const NotificationsPopOver = (volume) => {
 
     setDesktopNotifications((prevState) => {
       const notfiticationIndex = prevState.findIndex(
-        (n) => n.tag === notification.tag
+        (n) => n.tag === notification.tag,
       );
       if (notfiticationIndex !== -1) {
         prevState[notfiticationIndex] = notification;

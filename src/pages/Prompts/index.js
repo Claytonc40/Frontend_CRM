@@ -7,6 +7,7 @@ import {
   CardActions,
   CardContent,
   Chip,
+  Container,
   Divider,
   Fade,
   Grid,
@@ -31,7 +32,6 @@ import Skeleton from "@material-ui/lab/Skeleton";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { toast } from "sonner";
 import ConfirmationModal from "../../components/ConfirmationModal";
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import PromptModal from "../../components/PromptModal";
@@ -43,6 +43,16 @@ import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
+  },
   mainPaper: {
     flex: 1,
     padding: theme.spacing(2),
@@ -405,7 +415,7 @@ const Prompts = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <ConfirmationModal
         title={
           selectedPrompt &&
@@ -570,7 +580,7 @@ const Prompts = () => {
           </Grid>
         )}
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

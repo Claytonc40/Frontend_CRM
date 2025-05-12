@@ -6,7 +6,7 @@ import {
   DialogTitle,
   IconButton,
   Paper,
-  InputBase
+  InputBase,
 } from "@material-ui/core";
 import { X, CheckCircle } from "lucide-react";
 import { makeStyles } from "@material-ui/core";
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "16px",
     overflowY: "auto",
     "@media (max-width: 600px)": {
-      paddingBottom: "70px"
+      paddingBottom: "70px",
     },
     ...theme.scrollbarStyles,
     minHeight: "120px",
@@ -62,14 +62,14 @@ const useStyles = makeStyles((theme) => ({
     "&:focus-within": {
       borderColor: "#5D3FD3",
       boxShadow: "0 1px 4px rgba(93,63,211,0.08)",
-    }
+    },
   },
   timestamp: {
     fontSize: 11,
     position: "absolute",
     bottom: 0,
     right: 5,
-    color: "#666"
+    color: "#666",
   },
   titleBackground: {
     color: "#fff",
@@ -83,8 +83,8 @@ const useStyles = makeStyles((theme) => ({
       marginRight: 8,
       "&:hover": {
         background: "rgba(255,255,255,0.1)",
-      }
-    }
+      },
+    },
   },
   dialogPaper: {
     borderRadius: 12,
@@ -96,7 +96,7 @@ const useStyles = makeStyles((theme) => ({
     color: "#5D3FD3",
     "&:hover": {
       background: "#f3f0fa",
-    }
+    },
   },
   inputBase: {
     padding: "12px 16px",
@@ -104,16 +104,16 @@ const useStyles = makeStyles((theme) => ({
     color: "#333",
     "&::placeholder": {
       color: "#999",
-      opacity: 1
-    }
-  }
+      opacity: 1,
+    },
+  },
 }));
 
 const EditMessageModal = ({ open, onClose, onSave, message }) => {
   const classes = useStyles();
   const [editedMessage, setEditedMessage] = useState(null);
   const modalRef = useRef(null);
-  
+
   useEffect(() => {
     if (open) {
       setEditedMessage(message?.body);
@@ -121,7 +121,7 @@ const EditMessageModal = ({ open, onClose, onSave, message }) => {
   }, [open, message]);
 
   const handleSave = async (editedMessage) => {
-    if(editedMessage){
+    if (editedMessage) {
       try {
         const messages = {
           read: 1,
@@ -144,15 +144,15 @@ const EditMessageModal = ({ open, onClose, onSave, message }) => {
       onClose={() => onClose(false)}
       aria-labelledby="edit-message-dialog"
       PaperProps={{
-        className: classes.dialogPaper
+        className: classes.dialogPaper,
       }}
       ref={modalRef}
     >
       <DialogTitle id="edit-message-dialog" className={classes.titleBackground}>
-        <IconButton 
-          edge="start" 
-          color="inherit" 
-          onClick={() => onClose(false)} 
+        <IconButton
+          edge="start"
+          color="inherit"
+          onClick={() => onClose(false)}
           aria-label="close"
         >
           <X size={20} />
@@ -162,10 +162,7 @@ const EditMessageModal = ({ open, onClose, onSave, message }) => {
       <DialogContent style={{ padding: 0 }}>
         <Box>
           <Box className={classes.messagesList}>
-            <Box
-              component="div"
-              className={classes.messageRight}
-            >
+            <Box component="div" className={classes.messageRight}>
               <Box className={classes.textContentItem}>
                 <Box component="div" style={{ color: "#333" }}>
                   <MarkdownWrapper>{message?.body}</MarkdownWrapper>
@@ -180,7 +177,7 @@ const EditMessageModal = ({ open, onClose, onSave, message }) => {
               alignItems: "center",
               borderRadius: 0,
               backgroundColor: "#fff",
-              borderTop: "1px solid #e8e8e8"
+              borderTop: "1px solid #e8e8e8",
             }}
           >
             <Box className={classes.inputmsg}>
@@ -194,7 +191,7 @@ const EditMessageModal = ({ open, onClose, onSave, message }) => {
                 inputProps={{ "aria-label": "edit message" }}
               />
             </Box>
-            <IconButton 
+            <IconButton
               className={classes.saveButton}
               onClick={() => handleSave(editedMessage)}
             >

@@ -20,7 +20,7 @@ const OutlinedDiv = ({
       InputLabelProps={{ shrink: true, ...InputLabelProps }}
       InputProps={{
         inputComponent: InputComponent,
-        ...InputProps
+        ...InputProps,
       }}
       inputProps={{ children: children }}
     />

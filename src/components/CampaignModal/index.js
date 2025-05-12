@@ -436,7 +436,7 @@ const CampaignModal = ({
                         as={Select}
                         label={i18n.t("campaigns.dialog.form.contactList")}
                         placeholder={i18n.t(
-                          "campaigns.dialog.form.contactList"
+                          "campaigns.dialog.form.contactList",
                         )}
                         labelId="contactList-selection-label"
                         id="contactListId"
@@ -595,7 +595,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage1"
+                                    "confirmationMessage1",
                                   )}
                                 </>
                               </Grid>
@@ -615,7 +615,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage2"
+                                    "confirmationMessage2",
                                   )}
                                 </>
                               </Grid>
@@ -635,7 +635,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage3"
+                                    "confirmationMessage3",
                                   )}
                                 </>
                               </Grid>
@@ -655,7 +655,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage4"
+                                    "confirmationMessage4",
                                   )}
                                 </>
                               </Grid>
@@ -675,7 +675,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage5"
+                                    "confirmationMessage5",
                                   )}
                                 </>
                               </Grid>

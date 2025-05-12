@@ -1,5 +1,6 @@
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
+import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
@@ -17,9 +18,8 @@ import {
 } from "lucide-react";
 import moment from "moment";
 import React, { useEffect, useReducer, useState } from "react";
-import MainContainer from "../../components/MainContainer";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
 import { toast } from "sonner";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
 import api from "../../services/api";
 
 const useStyles = makeStyles((theme) => ({
@@ -227,6 +227,16 @@ const useStyles = makeStyles((theme) => ({
   gridContainer: {
     marginTop: theme.spacing(2),
   },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
+  },
 }));
 
 const reducer = (state, action) => {
@@ -374,120 +384,116 @@ const Invoices = () => {
   };
 
   return (
-    <div className={classes.mainWrapper}>
-      <MainContainer style={{ boxShadow: "none", background: "transparent" }}>
-        <div className={classes.card}>
-          <div className={classes.header}>
-            <CreditCard size={36} style={{ color: "#5D3FD3" }} />
-            <div>
-              <div className={classes.title}>Faturas</div>
-              <div className={classes.desc}>
-                Gerencie e pague suas faturas de forma simples, rápida e segura.
-              </div>
+    <Container maxWidth="xl" className={classes.container}>
+      <div className={classes.card}>
+        <div className={classes.header}>
+          <CreditCard size={36} style={{ color: "#5D3FD3" }} />
+          <div>
+            <div className={classes.title}>Faturas</div>
+            <div className={classes.desc}>
+              Gerencie e pague suas faturas de forma simples, rápida e segura.
             </div>
           </div>
-
-          {invoices.length === 0 ? (
-            <Box className={classes.emptyBox}>
-              <Receipt size={48} />
-              <Typography
-                variant="h6"
-                style={{ color: "#5D3FD3", fontWeight: 600 }}
-              >
-                Nenhuma fatura encontrada
-              </Typography>
-              <Typography variant="body2">
-                Suas faturas aparecerão aqui assim que forem geradas.
-              </Typography>
-            </Box>
-          ) : (
-            <Grid container spacing={3} className={classes.gridContainer}>
-              {invoices.map((invoice) => {
-                const statusObj = rowStatus(invoice);
-                const isVencido = statusObj.label === "Vencido";
-
-                return (
-                  <Grid item xs={12} sm={6} md={4} key={invoice.id}>
-                    <Paper
-                      className={`${classes.invoiceCard} ${
-                        isVencido ? classes.invoiceCardVencido : ""
-                      }`}
-                      elevation={0}
-                    >
-                      <div className={classes.cardHeader}>
-                        <div className={classes.cardLeft}>
-                          <div className={classes.invoiceId}>
-                            <Hash size={16} />#{invoice.id}
-                          </div>
-                          <div className={classes.invoiceValue}>
-                            <DollarSign size={28} />
-                            {invoice.value.toLocaleString("pt-br", {
-                              style: "currency",
-                              currency: "BRL",
-                            })}
-                          </div>
-                        </div>
-                        <div className={classes.cardRight}>
-                          <span
-                            className={`${classes.badge} ${statusObj.badge}`}
-                          >
-                            {statusObj.icon} {statusObj.label}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className={classes.invoiceDetail}>
-                        {invoice.detail}
-                      </div>
-
-                      <div className={classes.infoSection}>
-                        <div className={classes.infoItem}>
-                          <Calendar size={18} />
-                          Vencimento:{" "}
-                          {moment(invoice.dueDate).format("DD/MM/YYYY")}
-                        </div>
-                      </div>
-
-                      <div className={classes.actionSection}>
-                        {statusObj.label !== "Pago" ? (
-                          <Button
-                            variant="contained"
-                            className={classes.payButton}
-                            startIcon={<ArrowRightCircle size={20} />}
-                            onClick={() => handleOpenContactModal(invoice)}
-                          >
-                            PAGAR AGORA
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="outlined"
-                            className={classes.paidButton}
-                            startIcon={<CheckCircle2 size={20} />}
-                            disabled
-                          >
-                            PAGO
-                          </Button>
-                        )}
-                      </div>
-                    </Paper>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
-
-          {loading && (
-            <Grid container spacing={3} className={classes.gridContainer}>
-              {[1, 2, 3].map((item) => (
-                <Grid item xs={12} sm={6} md={4} key={item}>
-                  <TableRowSkeleton columns={1} />
-                </Grid>
-              ))}
-            </Grid>
-          )}
         </div>
-      </MainContainer>
-    </div>
+
+        {invoices.length === 0 ? (
+          <Box className={classes.emptyBox}>
+            <Receipt size={48} />
+            <Typography
+              variant="h6"
+              style={{ color: "#5D3FD3", fontWeight: 600 }}
+            >
+              Nenhuma fatura encontrada
+            </Typography>
+            <Typography variant="body2">
+              Suas faturas aparecerão aqui assim que forem geradas.
+            </Typography>
+          </Box>
+        ) : (
+          <Grid container spacing={3} className={classes.gridContainer}>
+            {invoices.map((invoice) => {
+              const statusObj = rowStatus(invoice);
+              const isVencido = statusObj.label === "Vencido";
+
+              return (
+                <Grid item xs={12} sm={6} md={4} key={invoice.id}>
+                  <Paper
+                    className={`${classes.invoiceCard} ${
+                      isVencido ? classes.invoiceCardVencido : ""
+                    }`}
+                    elevation={0}
+                  >
+                    <div className={classes.cardHeader}>
+                      <div className={classes.cardLeft}>
+                        <div className={classes.invoiceId}>
+                          <Hash size={16} />#{invoice.id}
+                        </div>
+                        <div className={classes.invoiceValue}>
+                          <DollarSign size={28} />
+                          {invoice.value.toLocaleString("pt-br", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </div>
+                      </div>
+                      <div className={classes.cardRight}>
+                        <span className={`${classes.badge} ${statusObj.badge}`}>
+                          {statusObj.icon} {statusObj.label}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={classes.invoiceDetail}>
+                      {invoice.detail}
+                    </div>
+
+                    <div className={classes.infoSection}>
+                      <div className={classes.infoItem}>
+                        <Calendar size={18} />
+                        Vencimento:{" "}
+                        {moment(invoice.dueDate).format("DD/MM/YYYY")}
+                      </div>
+                    </div>
+
+                    <div className={classes.actionSection}>
+                      {statusObj.label !== "Pago" ? (
+                        <Button
+                          variant="contained"
+                          className={classes.payButton}
+                          startIcon={<ArrowRightCircle size={20} />}
+                          onClick={() => handleOpenContactModal(invoice)}
+                        >
+                          PAGAR AGORA
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outlined"
+                          className={classes.paidButton}
+                          startIcon={<CheckCircle2 size={20} />}
+                          disabled
+                        >
+                          PAGO
+                        </Button>
+                      )}
+                    </div>
+                  </Paper>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
+
+        {loading && (
+          <Grid container spacing={3} className={classes.gridContainer}>
+            {[1, 2, 3].map((item) => (
+              <Grid item xs={12} sm={6} md={4} key={item}>
+                <TableRowSkeleton columns={1} />
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </div>
+    </Container>
   );
 };
 

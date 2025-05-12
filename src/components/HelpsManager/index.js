@@ -278,7 +278,7 @@ export default function HelpsManager() {
       toast.success("Operação realizada com sucesso!");
     } catch (e) {
       toast.error(
-        "Não foi possível realizar a operação. Verifique se já existe uma ajuda com o mesmo nome ou se os campos foram preenchidos corretamente"
+        "Não foi possível realizar a operação. Verifique se já existe uma ajuda com o mesmo nome ou se os campos foram preenchidos corretamente",
       );
     }
     setLoading(false);

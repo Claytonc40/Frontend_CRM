@@ -340,7 +340,7 @@ const TicketListItemCustom = ({ ticket }) => {
             style={{ color: labelColor }}
           >
             {labelText}
-          </Badge>
+          </Badge>,
         );
         // Agendando a próxima atualização após 30 segundos
         timeoutId = setTimeout(updateLastInteractionLabel, 30 * 1000);

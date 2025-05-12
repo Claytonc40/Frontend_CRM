@@ -42,7 +42,7 @@ const useAuth = () => {
     },
     (error) => {
       return Promise.reject(error);
-    }
+    },
   );
 
   api.interceptors.response.use(
@@ -78,7 +78,7 @@ const useAuth = () => {
       }
 
       return Promise.reject(error);
-    }
+    },
   );
 
   const socketManager = useContext(SocketContext);
@@ -146,7 +146,7 @@ const useAuth = () => {
 
       if (has(company, "settings") && isArray(company.settings)) {
         const setting = company.settings.find(
-          (s) => s.key === "campaignsEnabled"
+          (s) => s.key === "campaignsEnabled",
         );
         if (setting && setting.value === "true") {
           localStorage.setItem("cshow", "true");
@@ -177,7 +177,7 @@ const useAuth = () => {
             toast.warn(
               `Sua assinatura vence em ${Math.round(dias)} ${
                 Math.round(dias) === 1 ? "dia" : "dias"
-              }`
+              }`,
             );
           }
           history.push("/tickets");
@@ -185,7 +185,7 @@ const useAuth = () => {
       } else {
         if (isMounted) {
           toast.error(
-            `Opss! Sua assinatura venceu ${vencimento}. Entre em contato com o Suporte para mais informações!`
+            `Opss! Sua assinatura venceu ${vencimento}. Entre em contato com o Suporte para mais informações!`,
           );
         }
       }
@@ -234,7 +234,7 @@ const useAuth = () => {
     } catch (err) {
       if (isMounted) {
         toast.error(
-          err.response?.data?.error || "Erro ao obter informações do usuário"
+          err.response?.data?.error || "Erro ao obter informações do usuário",
         );
       }
       return null;

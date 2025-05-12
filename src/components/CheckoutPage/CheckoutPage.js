@@ -92,7 +92,7 @@ export default function CheckoutPage(props) {
       actions.setSubmitting(false);
       setActiveStep(activeStep + 1);
       toast.success(
-        "Assinatura realizada com sucesso!, aguardando a realização do pagamento"
+        "Assinatura realizada com sucesso!, aguardando a realização do pagamento",
       );
     } catch (err) {
       toast.error(err.message);
@@ -143,7 +143,7 @@ export default function CheckoutPage(props) {
                   activeStep,
                   setFieldValue,
                   setActiveStep,
-                  values
+                  values,
                 )}
 
                 <div className={classes.buttons}>

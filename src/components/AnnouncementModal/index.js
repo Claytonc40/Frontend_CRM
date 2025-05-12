@@ -122,7 +122,7 @@ const AnnouncementModal = ({ open, onClose, announcementId, reload }) => {
           formData.append("file", attachment);
           await api.post(
             `/announcements/${announcementId}/media-upload`,
-            formData
+            formData,
           );
         }
       } else {
@@ -261,7 +261,7 @@ const AnnouncementModal = ({ open, onClose, announcementId, reload }) => {
                         as={Select}
                         label={i18n.t("announcements.dialog.form.priority")}
                         placeholder={i18n.t(
-                          "announcements.dialog.form.priority"
+                          "announcements.dialog.form.priority",
                         )}
                         labelId="priority-selection-label"
                         id="priority"

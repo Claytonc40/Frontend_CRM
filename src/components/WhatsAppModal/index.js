@@ -39,7 +39,6 @@ import {
   Settings,
 } from "lucide-react";
 
-
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import QueueSelect from "../QueueSelect";

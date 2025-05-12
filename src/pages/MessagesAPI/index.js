@@ -152,7 +152,7 @@ const MessagesAPI = () => {
       const planConfigs = await getPlanCompany(undefined, companyId);
       if (!planConfigs.plan.useExternalApi) {
         toast.error(
-          "Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando."
+          "Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.",
         );
         setTimeout(() => {
           history.push(`/`);

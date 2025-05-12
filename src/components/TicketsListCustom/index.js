@@ -229,7 +229,7 @@ const TicketsListCustom = (props) => {
   useEffect(() => {
     const queueIds = queues.map((q) => q.id);
     const filteredTickets = tickets.filter(
-      (t) => queueIds.indexOf(t.queueId) > -1
+      (t) => queueIds.indexOf(t.queueId) > -1,
     );
 
     if (profile === "user") {
@@ -259,7 +259,6 @@ const TicketsListCustom = (props) => {
     });
 
     socket.on(`company-${companyId}-ticket`, (data) => {
-      
       if (data.action === "updateUnread") {
         dispatch({
           type: "RESET_UNREAD",
@@ -267,7 +266,11 @@ const TicketsListCustom = (props) => {
         });
       }
 
-      if (data.action === "update" && shouldUpdateTicket(data.ticket) && data.ticket.status === status) {
+      if (
+        data.action === "update" &&
+        shouldUpdateTicket(data.ticket) &&
+        data.ticket.status === status
+      ) {
         dispatch({
           type: "UPDATE_TICKET",
           payload: data.ticket,
@@ -293,7 +296,11 @@ const TicketsListCustom = (props) => {
         return;
       }
 
-      if (data.action === "create" && shouldUpdateTicket(data.ticket) && ( status === undefined || data.ticket.status === status)) {
+      if (
+        data.action === "create" &&
+        shouldUpdateTicket(data.ticket) &&
+        (status === undefined || data.ticket.status === status)
+      ) {
         dispatch({
           type: "UPDATE_TICKET_UNREAD_MESSAGES",
           payload: data.ticket,
@@ -313,7 +320,17 @@ const TicketsListCustom = (props) => {
     return () => {
       socket.disconnect();
     };
-  }, [status, showAll, user, selectedQueueIds, tags, users, profile, queues, socketManager]);
+  }, [
+    status,
+    showAll,
+    user,
+    selectedQueueIds,
+    tags,
+    users,
+    profile,
+    queues,
+    socketManager,
+  ]);
 
   useEffect(() => {
     if (typeof updateCount === "function") {

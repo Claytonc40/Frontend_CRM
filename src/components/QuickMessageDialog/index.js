@@ -281,8 +281,8 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
       mediaPath: attachment
         ? String(attachment.name).replace(/ /g, "_")
         : values.mediaPath
-        ? path.basename(values.mediaPath).replace(/ /g, "_")
-        : null,
+          ? path.basename(values.mediaPath).replace(/ /g, "_")
+          : null,
     };
 
     try {
@@ -294,7 +294,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
           formData.append("file", attachment);
           await api.post(
             `/quick-messages/${quickemessageId}/media-upload`,
-            formData
+            formData,
           );
         }
       } else {
@@ -439,7 +439,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                       fullWidth
                       className={classes.messageInput}
                       placeholder={i18n.t(
-                        "quickMessages.dialog.messagePlaceholder"
+                        "quickMessages.dialog.messagePlaceholder",
                       )}
                     />
                   </Grid>
@@ -454,7 +454,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                         <Tooltip title="{name}" arrow placement="top">
                           <Chip
                             label={i18n.t(
-                              "messageVariablesPicker.vars.contactName"
+                              "messageVariablesPicker.vars.contactName",
                             )}
                             onClick={() =>
                               handleClickMsgVar("{{name}}", setFieldValue)
@@ -464,7 +464,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                         <Tooltip title="{{firstName}}" arrow placement="top">
                           <Chip
                             label={i18n.t(
-                              "messageVariablesPicker.vars.contactFirstName"
+                              "messageVariablesPicker.vars.contactFirstName",
                             )}
                             onClick={() =>
                               handleClickMsgVar("{{firstName}}", setFieldValue)
@@ -474,7 +474,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                         <Tooltip title="{{ms}}" arrow placement="top">
                           <Chip
                             label={i18n.t(
-                              "messageVariablesPicker.vars.greeting"
+                              "messageVariablesPicker.vars.greeting",
                             )}
                             onClick={() =>
                               handleClickMsgVar("{{ms}}", setFieldValue)
@@ -484,7 +484,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                         <Tooltip title="{{protocol}}" arrow placement="top">
                           <Chip
                             label={i18n.t(
-                              "messageVariablesPicker.vars.protocolNumber"
+                              "messageVariablesPicker.vars.protocolNumber",
                             )}
                             onClick={() =>
                               handleClickMsgVar("{{protocol}}", setFieldValue)

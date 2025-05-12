@@ -22,7 +22,6 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useHistory } from "react-router-dom";
 import { toast } from "sonner";
 import ConfirmationModal from "../../components/ConfirmationModal";
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import ScheduleModal from "../../components/ScheduleModal";
@@ -30,6 +29,7 @@ import Title from "../../components/Title";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
+import Container from "@material-ui/core/Container";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import "./Schedules.css";
@@ -150,6 +150,16 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 15,
     minWidth: 220,
     marginRight: theme.spacing(2),
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
   },
 }));
 
@@ -289,7 +299,7 @@ const Schedules = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <ConfirmationModal
         title={
           deletingSchedule &&
@@ -415,7 +425,7 @@ const Schedules = () => {
           />
         )}
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

@@ -16,29 +16,28 @@ import clsx from "clsx";
 import React, { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import CachedIcon from "@material-ui/icons/Cached";
+import { Bell, BellRing, Megaphone, MessageSquare, User } from "lucide-react";
+
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import MenuIcon from "@material-ui/icons/Menu";
 
-import AnnouncementsPopover from "../components/AnnouncementsPopover";
+import { toast } from "sonner";
 import BackdropLoading from "../components/BackdropLoading";
-import NotificationsPopOver from "../components/NotificationsPopOver";
-import NotificationsVolume from "../components/NotificationsVolume";
 import UserModal from "../components/UserModal";
 import { AuthContext } from "../context/Auth/AuthContext";
-import { toast } from "sonner";
 import { i18n } from "../translate/i18n";
 import MainListItems from "./MainListItems";
 
 import { SocketContext } from "../context/Socket/SocketContext";
-import ChatPopover from "../pages/Chat/ChatPopover";
 
 import { useDate } from "../hooks/useDate";
 
-import Brightness4Icon from "@material-ui/icons/Brightness4";
-import Brightness7Icon from "@material-ui/icons/Brightness7";
 import ColorModeContext from "../layout/themeContext";
+
+import AnnouncementsPopover from "../components/AnnouncementsPopover";
+import NotificationsPopOver from "../components/NotificationsPopOver";
+import NotificationsVolume from "../components/NotificationsVolume";
+import ChatPopover from "../pages/Chat/ChatPopover";
 
 const drawerWidth = 280;
 const closedDrawerWidth = 80;
@@ -459,7 +458,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
 
     socket.on(`company-${companyId}-auth`, (data) => {
       if (data.user.id === +userId) {
-              toast.error("Sua conta foi acessada em outro computador.");
+        toast.error("Sua conta foi acessada em outro computador.");
         setTimeout(() => {
           localStorage.clear();
           window.location.reload();
@@ -468,9 +467,12 @@ const LoggedInLayout = ({ children, themeToggle }) => {
     });
 
     socket.emit("userStatus");
-    const interval = setInterval(() => {
-      socket.emit("userStatus");
-    }, 1000 * 60 * 5);
+    const interval = setInterval(
+      () => {
+        socket.emit("userStatus");
+      },
+      1000 * 60 * 5,
+    );
 
     return () => {
       socket.disconnect();
@@ -531,7 +533,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
         classes={{
           paper: clsx(
             classes.drawerPaper,
-            !drawerOpen && classes.drawerPaperClose
+            !drawerOpen && classes.drawerPaperClose,
           ),
         }}
         open={drawerOpen}
@@ -588,7 +590,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
               className={clsx(
                 classes.appBarButton,
                 classes.menuButton,
-                drawerOpen && classes.menuButtonHidden
+                drawerOpen && classes.menuButtonHidden,
               )}
             >
               <MenuIcon />
@@ -596,38 +598,45 @@ const LoggedInLayout = ({ children, themeToggle }) => {
           </div>
 
           <div className={classes.rightIconsSection}>
-            <IconButton
-              onClick={toggleColorMode}
-              className={classes.appBarButton}
-              size="medium"
-            >
-              {theme.palette.type === "dark" ? (
-                <Brightness7Icon />
-              ) : (
-                <Brightness4Icon />
-              )}
-            </IconButton>
-
-            <IconButton
-              onClick={handleRefreshPage}
-              aria-label={i18n.t("mainDrawer.appBar.refresh")}
-              className={classes.appBarButton}
-              size="medium"
-            >
-              <CachedIcon />
-            </IconButton>
-
             {!greaterThenSm ? null : (
-              <NotificationsVolume setVolume={setVolume} volume={volume} />
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <NotificationsVolume setVolume={setVolume} volume={volume}>
+                  <IconButton className={classes.appBarButton} size="medium">
+                    <Bell size={24} />
+                  </IconButton>
+                </NotificationsVolume>
+              </div>
             )}
 
-            {user.id && <NotificationsPopOver volume={volume} />}
+            {user.id && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <NotificationsPopOver volume={volume}>
+                  <IconButton className={classes.appBarButton} size="medium">
+                    <BellRing size={24} />
+                  </IconButton>
+                </NotificationsPopOver>
+              </div>
+            )}
 
-            <AnnouncementsPopover />
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <AnnouncementsPopover>
+                <IconButton className={classes.appBarButton} size="medium">
+                  <Megaphone size={24} />
+                </IconButton>
+              </AnnouncementsPopover>
+            </div>
 
-            {!greaterThenSm ? null : <ChatPopover />}
+            {!greaterThenSm ? null : (
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <ChatPopover>
+                  <IconButton className={classes.appBarButton} size="medium">
+                    <MessageSquare size={24} />
+                  </IconButton>
+                </ChatPopover>
+              </div>
+            )}
 
-            <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <IconButton
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
@@ -636,8 +645,9 @@ const LoggedInLayout = ({ children, themeToggle }) => {
                 variant="contained"
                 className={classes.userButton}
                 size="medium"
+                style={{ marginLeft: 8 }}
               >
-                <AccountCircle />
+                <User size={28} />
               </IconButton>
               <Menu
                 id="menu-appbar"

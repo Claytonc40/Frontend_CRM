@@ -1,13 +1,12 @@
 import React, {
-	useContext,
-	useEffect,
-	useReducer,
-	useRef,
-	useState,
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
 } from "react";
 
 import Avatar from "@material-ui/core/Avatar";
-import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -31,13 +30,13 @@ import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
 import EmailIcon from "@material-ui/icons/Email";
-import FilterListIcon from "@material-ui/icons/FilterList";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import GridOnIcon from "@material-ui/icons/GridOn";
 import InfoIcon from "@material-ui/icons/Info";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import PhoneIcon from "@material-ui/icons/Phone";
 import SearchIcon from "@material-ui/icons/Search";
+import SyncIcon from "@material-ui/icons/Sync";
 import ViewListIcon from "@material-ui/icons/ViewList";
 import WhatsAppIcon from "@material-ui/icons/WhatsApp";
 import { useHistory } from "react-router-dom";
@@ -48,12 +47,9 @@ import ConfirmationModal from "../../components/ConfirmationModal/";
 import ContactDetailsModal from "../../components/ContactDetailsModal";
 import ContactModal from "../../components/ContactModal";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
-import TagModal from "../../components/TagModal";
-import { TagsFilter } from "../../components/TagsFilter";
 import api from "../../services/api";
 
 import { Can } from "../../components/Can";
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import NewTicketModal from "../../components/NewTicketModal";
 import { AuthContext } from "../../context/Auth/AuthContext";
@@ -61,6 +57,7 @@ import { SocketContext } from "../../context/Socket/SocketContext";
 
 import { i18n } from "../../translate/i18n";
 
+import Container from "@material-ui/core/Container";
 import { CSVLink } from "react-csv";
 
 const reducer = (state, action) => {
@@ -108,6 +105,16 @@ const reducer = (state, action) => {
 };
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
+  },
   mainPaper: {
     flex: 1,
     padding: theme.spacing(2),
@@ -421,6 +428,229 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const ContactCard = ({
+  contact,
+  onMenuClick,
+  onEditContact,
+  getCountryCode,
+  formatPhoneNumber,
+}) => {
+  const classes = useStyles();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
+  const [contactDetailsModalOpen, setContactDetailsModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deletingContact, setDeletingContact] = useState(null);
+  const { user } = useContext(AuthContext);
+  const history = useHistory();
+
+  const handleOpenMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+    onMenuClick(contact);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleOpenContactDetailsModal = () => {
+    setContactDetailsModalOpen(true);
+    handleCloseMenu();
+  };
+
+  const handleCloseContactDetailsModal = () => {
+    setContactDetailsModalOpen(false);
+  };
+
+  const handleOpenNewTicket = () => {
+    setNewTicketModalOpen(true);
+    handleCloseMenu();
+  };
+
+  const handleCloseNewTicket = (ticket) => {
+    setNewTicketModalOpen(false);
+    if (ticket !== undefined && ticket.uuid !== undefined) {
+      history.push(`/tickets/${ticket.uuid}`);
+    }
+  };
+
+  const handleDeleteContact = async () => {
+    try {
+      await api.delete(`/contacts/${contact.id}`);
+      toast.success(i18n.t("contacts.toasts.deleted"));
+    } catch (err) {
+      toast.error(err.message);
+    }
+    setDeletingContact(null);
+    handleCloseMenu();
+  };
+
+  return (
+    <Card className={classes.contactCard}>
+      <CardContent className={classes.contactCardContent}>
+        <div className={classes.contactHeader}>
+          <Avatar src={contact.profilePicUrl} className={classes.avatar} />
+          <div className={classes.contactInfo}>
+            <Typography variant="h6" component="h2">
+              {contact.name}
+            </Typography>
+            <Typography className={classes.jobTitle}>
+              {contact.extraInfo?.jobTitle || "CEO"} at{" "}
+              {contact.extraInfo?.company ||
+                contact.name.split(" ")[0] + " Enterprises"}
+            </Typography>
+          </div>
+          <IconButton
+            size="small"
+            onClick={handleOpenMenu}
+            aria-controls={`contact-menu-${contact.id}`}
+            aria-haspopup="true"
+            className={classes.actionsButton}
+          >
+            <MoreVertIcon fontSize="small" />
+          </IconButton>
+          <Menu
+            id={`contact-menu-${contact.id}`}
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleCloseMenu}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            PaperProps={{
+              className: classes.menuPaper,
+              elevation: 2,
+            }}
+          >
+            <MenuItem
+              onClick={handleOpenContactDetailsModal}
+              className={classes.actionMenuItem}
+            >
+              <InfoIcon
+                fontSize="small"
+                style={{ marginRight: 8, color: "#2196F3" }}
+              />
+              Detalhes do Contato
+            </MenuItem>
+            <MenuItem
+              onClick={handleOpenNewTicket}
+              className={classes.actionMenuItem}
+            >
+              <WhatsAppIcon
+                fontSize="small"
+                style={{ marginRight: 8, color: "#25D366" }}
+              />
+              Enviar mensagem
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                onEditContact(contact.id);
+                handleCloseMenu();
+              }}
+              className={classes.actionMenuItem}
+            >
+              <EditIcon
+                fontSize="small"
+                style={{ marginRight: 8, color: "#5D3FD3" }}
+              />
+              Editar contato
+            </MenuItem>
+            <Can
+              role={user.profile}
+              perform="contacts-page:deleteContact"
+              yes={() => (
+                <MenuItem
+                  onClick={() => {
+                    setConfirmOpen(true);
+                    setDeletingContact(contact);
+                    handleCloseMenu();
+                  }}
+                  style={{ color: "#f44336" }}
+                  className={classes.actionMenuItem}
+                >
+                  <DeleteOutlineIcon
+                    fontSize="small"
+                    style={{ marginRight: 8 }}
+                  />
+                  Excluir contato
+                </MenuItem>
+              )}
+            />
+          </Menu>
+        </div>
+
+        <div className={classes.contactDetailsSection}>
+          <div className={classes.emailPhone}>
+            <PhoneIcon fontSize="small" />
+            <div className={classes.phoneWithFlag}>
+              <Flag
+                code={getCountryCode(contact.number)}
+                className={classes.countryFlag}
+              />
+              <Typography variant="body2">
+                {formatPhoneNumber(contact.number)}
+              </Typography>
+            </div>
+          </div>
+          <div className={classes.emailPhone}>
+            <EmailIcon fontSize="small" />
+            <Typography variant="body2">{contact.email}</Typography>
+          </div>
+
+          {contact.extraInfo?.revenue && (
+            <Typography variant="body2" className={classes.revenue}>
+              Receita Média: R$ {contact.extraInfo.revenue || "15.000"}
+            </Typography>
+          )}
+
+          {contact.tickets && contact.tickets.length > 0 && (
+            <Typography variant="body2" color="textSecondary">
+              Tickets: {contact.tickets.length}
+            </Typography>
+          )}
+
+          {contact.schedules && contact.schedules.length > 0 && (
+            <Typography variant="body2" color="textSecondary">
+              Agendamentos: {contact.schedules.length}
+            </Typography>
+          )}
+        </div>
+      </CardContent>
+
+      <NewTicketModal
+        modalOpen={newTicketModalOpen}
+        initialContact={contact}
+        onClose={handleCloseNewTicket}
+      />
+
+      <ContactDetailsModal
+        open={contactDetailsModalOpen}
+        onClose={handleCloseContactDetailsModal}
+        contactId={contact.id}
+      />
+
+      <ConfirmationModal
+        title={
+          deletingContact
+            ? `${i18n.t("contacts.confirmationModal.deleteTitle")} ${
+                deletingContact.name
+              }?`
+            : `${i18n.t("contacts.confirmationModal.importTitlte")}`
+        }
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleDeleteContact}
+      >
+        {deletingContact
+          ? `${i18n.t("contacts.confirmationModal.deleteMessage")}`
+          : `${i18n.t("contacts.confirmationModal.importMessage")}`}
+      </ConfirmationModal>
+    </Card>
+  );
+};
+
 const Contacts = () => {
   const classes = useStyles();
   const history = useHistory();
@@ -444,27 +674,80 @@ const Contacts = () => {
   const fileUploadRef = useRef(null);
   const [viewMode, setViewMode] = useState("cards"); // "cards" ou "table"
   const [anchorEl, setAnchorEl] = useState(null);
-  const [showTagsFilter, setShowTagsFilter] = useState(false);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [tagModalOpen, setTagModalOpen] = useState(false);
+
+  const formatPhoneNumber = (number) => {
+    if (!number) return "-";
+
+    if (number.startsWith("+")) {
+      return number;
+    }
+
+    let countryCode = "55";
+    let formattedNumber = number;
+
+    if (number.startsWith("1")) {
+      countryCode = "1";
+    } else if (number.startsWith("351")) {
+      countryCode = "351";
+    } else if (number.startsWith("55")) {
+      countryCode = "55";
+    } else if (number.startsWith("54")) {
+      countryCode = "54";
+    } else if (number.startsWith("598")) {
+      countryCode = "598";
+    } else if (number.startsWith("595")) {
+      countryCode = "595";
+    } else if (number.startsWith("591")) {
+      countryCode = "591";
+    } else if (number.startsWith("56")) {
+      countryCode = "56";
+    } else if (number.startsWith("51")) {
+      countryCode = "51";
+    } else if (number.startsWith("57")) {
+      countryCode = "57";
+    } else if (number.startsWith("58")) {
+      countryCode = "58";
+    }
+
+    let nationalNumber = formattedNumber.substring(countryCode.length);
+    if (nationalNumber.length > 8) {
+      if (countryCode === "55" && nationalNumber.length === 11) {
+        return `+${countryCode} ${nationalNumber.substring(
+          0,
+          2
+        )} ${nationalNumber.substring(2, 7)}-${nationalNumber.substring(7)}`;
+      }
+      return `+${countryCode} ${nationalNumber.replace(
+        /(\d{3})(\d{3})(\d{4})/,
+        "$1 $2 $3"
+      )}`;
+    }
+
+    return `+${countryCode} ${nationalNumber}`;
+  };
+
+  const getCountryCode = (number) => {
+    if (!number) return "br";
+
+    if (number.startsWith("1")) return "us";
+    if (number.startsWith("351")) return "pt";
+    if (number.startsWith("55")) return "br";
+    if (number.startsWith("54")) return "ar";
+    if (number.startsWith("598")) return "uy";
+    if (number.startsWith("595")) return "py";
+    if (number.startsWith("591")) return "bo";
+    if (number.startsWith("56")) return "cl";
+    if (number.startsWith("51")) return "pe";
+    if (number.startsWith("57")) return "co";
+    if (number.startsWith("58")) return "ve";
+
+    return "br";
+  };
 
   useEffect(() => {
     dispatch({ type: "RESET" });
     setPageNumber(1);
-  }, [searchParam, selectedTags]);
-
-  useEffect(() => {
-    const loadAllTags = async () => {
-      try {
-        const { data } = await api.get("/tags/list");
-        setTags(data);
-      } catch (err) {
-        toast.error(err.message);
-      }
-    };
-    loadAllTags();
-  }, []);
+  }, [searchParam]);
 
   useEffect(() => {
     setLoading(true);
@@ -475,10 +758,6 @@ const Contacts = () => {
             params: {
               searchParam,
               pageNumber,
-              tags:
-                selectedTags.length > 0
-                  ? selectedTags.map((tag) => tag.id)
-                  : undefined,
             },
           });
           dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
@@ -491,7 +770,7 @@ const Contacts = () => {
       fetchContacts();
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, [searchParam, pageNumber, selectedTags]);
+  }, [searchParam, pageNumber]);
 
   useEffect(() => {
     const companyId = localStorage.getItem("companyId");
@@ -615,114 +894,8 @@ const Contacts = () => {
 
   const filteredContacts = contacts;
 
-  const formatPhoneNumber = (number) => {
-    if (!number) return "-";
-
-    if (number.startsWith("+")) {
-      return number;
-    }
-
-    let countryCode = "55";
-    let formattedNumber = number;
-
-    if (number.startsWith("1")) {
-      countryCode = "1";
-    } else if (number.startsWith("351")) {
-      countryCode = "351";
-    } else if (number.startsWith("55")) {
-      countryCode = "55";
-    } else if (number.startsWith("54")) {
-      countryCode = "54";
-    } else if (number.startsWith("598")) {
-      countryCode = "598";
-    } else if (number.startsWith("595")) {
-      countryCode = "595";
-    } else if (number.startsWith("591")) {
-      countryCode = "591";
-    } else if (number.startsWith("56")) {
-      countryCode = "56";
-    } else if (number.startsWith("51")) {
-      countryCode = "51";
-    } else if (number.startsWith("57")) {
-      countryCode = "57";
-    } else if (number.startsWith("58")) {
-      countryCode = "58";
-    }
-
-    let nationalNumber = formattedNumber.substring(countryCode.length);
-    if (nationalNumber.length > 8) {
-      if (countryCode === "55" && nationalNumber.length === 11) {
-        return `+${countryCode} ${nationalNumber.substring(
-          0,
-          2
-        )} ${nationalNumber.substring(2, 7)}-${nationalNumber.substring(7)}`;
-      }
-      return `+${countryCode} ${nationalNumber.replace(
-        /(\d{3})(\d{3})(\d{4})/,
-        "$1 $2 $3"
-      )}`;
-    }
-
-    return `+${countryCode} ${nationalNumber}`;
-  };
-
-  const getCountryCode = (number) => {
-    if (!number) return "br";
-
-    if (number.startsWith("1")) return "us";
-    if (number.startsWith("351")) return "pt";
-    if (number.startsWith("55")) return "br";
-    if (number.startsWith("54")) return "ar";
-    if (number.startsWith("598")) return "uy";
-    if (number.startsWith("595")) return "py";
-    if (number.startsWith("591")) return "bo";
-    if (number.startsWith("56")) return "cl";
-    if (number.startsWith("51")) return "pe";
-    if (number.startsWith("57")) return "co";
-    if (number.startsWith("58")) return "ve";
-
-    return "br";
-  };
-
-  const handleOpenTagModal = () => {
-    setTagModalOpen(true);
-  };
-
-  const handleCloseTagModal = () => {
-    setTagModalOpen(false);
-  };
-
-  const handleTagsFilter = (tags) => {
-    setSelectedTags(tags);
-
-    if (tags && tags.length > 0) {
-      const fetchContacts = async () => {
-        try {
-          setLoading(true);
-          const { data } = await api.get("/contacts", {
-            params: {
-              searchParam,
-              pageNumber: 1,
-              tags: tags.map((tag) => tag.id),
-            },
-          });
-          dispatch({ type: "RESET" });
-          dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
-          setHasMore(data.hasMore);
-          setLoading(false);
-        } catch (err) {
-          toast.error(err.message);
-          setLoading(false);
-        }
-      };
-      fetchContacts();
-    } else {
-      setPageNumber(1);
-    }
-  };
-
   return (
-    <MainContainer className={classes.mainContainer}>
+    <Container maxWidth="xl" className={classes.container}>
       <NewTicketModal
         modalOpen={newTicketModalOpen}
         initialContact={contactTicket}
@@ -740,14 +913,6 @@ const Contacts = () => {
         open={contactDetailsModalOpen}
         onClose={handleCloseContactDetailsModal}
         contactId={selectedContact}
-      />
-      <TagModal
-        open={tagModalOpen}
-        onClose={handleCloseTagModal}
-        reload={() => {
-          setPageNumber(1);
-          dispatch({ type: "RESET" });
-        }}
       />
       <ConfirmationModal
         title={
@@ -815,62 +980,6 @@ const Contacts = () => {
                   ),
                 }}
               />
-
-              <Button
-                variant="outlined"
-                color="primary"
-                className={classes.tagFilterButton}
-                startIcon={
-                  <FilterListIcon
-                    style={{
-                      transform: showTagsFilter
-                        ? "rotate(180deg)"
-                        : "rotate(0)",
-                      transition: "transform 0.3s",
-                    }}
-                  />
-                }
-                onClick={() => setShowTagsFilter(!showTagsFilter)}
-                size="small"
-                style={{
-                  backgroundColor: showTagsFilter
-                    ? "rgba(93, 63, 211, 0.12)"
-                    : "rgba(93, 63, 211, 0.04)",
-                }}
-              >
-                Filtrar por Tags
-              </Button>
-
-              {selectedTags.length > 0 && (
-                <Box display="flex" alignItems="center" flexWrap="wrap">
-                  {selectedTags.map((tag) => (
-                    <Chip
-                      key={tag.id}
-                      label={tag.name}
-                      size="small"
-                      style={{
-                        backgroundColor: tag.color || "#eee",
-                        color: "#fff",
-                        marginRight: 4,
-                        marginBottom: 4,
-                        textShadow: "1px 1px 1px rgba(0,0,0,0.5)",
-                      }}
-                      onDelete={() => {
-                        const updatedTags = selectedTags.filter(
-                          (t) => t.id !== tag.id
-                        );
-                        handleTagsFilter(updatedTags);
-                      }}
-                    />
-                  ))}
-                  <Chip
-                    label="Limpar filtros"
-                    size="small"
-                    onClick={() => handleTagsFilter([])}
-                    style={{ marginRight: 4, marginBottom: 4 }}
-                  />
-                </Box>
-              )}
             </div>
 
             <div className={classes.actionButtonsContainer}>
@@ -888,23 +997,12 @@ const Contacts = () => {
               <Button
                 variant="contained"
                 color="primary"
-                className={`${classes.actionButton} ${classes.addButton}`}
-                onClick={handleOpenTagModal}
-                startIcon={<AddIcon className={classes.buttonIcon} />}
-                size="small"
-              >
-                Nova Tag
-              </Button>
-
-              <Button
-                variant="contained"
-                color="primary"
                 className={`${classes.actionButton} ${classes.importButton}`}
                 onClick={(e) => setConfirmOpen(true)}
-                startIcon={<CloudUploadIcon className={classes.buttonIcon} />}
+                startIcon={<SyncIcon className={classes.buttonIcon} />}
                 size="small"
               >
-                Importar
+                Importar do WhatsApp
               </Button>
 
               <Button
@@ -950,12 +1048,6 @@ const Contacts = () => {
         </div>
       </MainHeader>
 
-      {showTagsFilter && (
-        <Paper className={classes.tagFilterContainer}>
-          <TagsFilter onFiltered={handleTagsFilter} />
-        </Paper>
-      )}
-
       <Paper
         className={classes.mainPaper}
         variant="outlined"
@@ -979,177 +1071,22 @@ const Contacts = () => {
           <Grid container spacing={2}>
             {filteredContacts.map((contact) => (
               <Grid item xs={12} sm={6} lg={4} xl={3} key={contact.id}>
-                <Card className={classes.contactCard}>
-                  <CardContent className={classes.contactCardContent}>
-                    <div className={classes.contactHeader}>
-                      <Avatar
-                        src={contact.profilePicUrl}
-                        className={classes.avatar}
-                      />
-                      <div className={classes.contactInfo}>
-                        <Typography variant="h6" component="h2">
-                          {contact.name}
-                        </Typography>
-                        <Typography className={classes.jobTitle}>
-                          {contact.extraInfo?.jobTitle || "CEO"} at{" "}
-                          {contact.extraInfo?.company ||
-                            contact.name.split(" ")[0] + " Enterprises"}
-                        </Typography>
-                      </div>
-                      <IconButton
-                        size="small"
-                        onClick={(e) => handleOpenMenu(e, contact)}
-                        aria-controls={`contact-menu-${contact.id}`}
-                        aria-haspopup="true"
-                        className={classes.actionsButton}
-                      >
-                        <MoreVertIcon fontSize="small" />
-                      </IconButton>
-                      <Menu
-                        id={`contact-menu-${contact.id}`}
-                        anchorEl={anchorEl}
-                        keepMounted
-                        open={
-                          Boolean(anchorEl) && contactTicket.id === contact.id
-                        }
-                        onClose={handleCloseMenu}
-                        transformOrigin={{
-                          vertical: "top",
-                          horizontal: "right",
-                        }}
-                        PaperProps={{
-                          className: classes.menuPaper,
-                          elevation: 2,
-                        }}
-                      >
-                        <MenuItem
-                          onClick={() => {
-                            handleOpenContactDetailsModal(contact.id);
-                            handleCloseMenu();
-                          }}
-                          className={classes.actionMenuItem}
-                        >
-                          <InfoIcon
-                            fontSize="small"
-                            style={{ marginRight: 8, color: "#2196F3" }}
-                          />
-                          Detalhes do Contato
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            setNewTicketModalOpen(true);
-                            handleCloseMenu();
-                          }}
-                          className={classes.actionMenuItem}
-                        >
-                          <WhatsAppIcon
-                            fontSize="small"
-                            style={{ marginRight: 8, color: "#25D366" }}
-                          />
-                          Enviar mensagem
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            hadleEditContact(contact.id);
-                            handleCloseMenu();
-                          }}
-                          className={classes.actionMenuItem}
-                        >
-                          <EditIcon
-                            fontSize="small"
-                            style={{ marginRight: 8, color: "#5D3FD3" }}
-                          />
-                          Editar contato
-                        </MenuItem>
-                        <Can
-                          role={user.profile}
-                          perform="contacts-page:deleteContact"
-                          yes={() => (
-                            <MenuItem
-                              onClick={(e) => {
-                                setConfirmOpen(true);
-                                setDeletingContact(contact);
-                                handleCloseMenu();
-                              }}
-                              style={{ color: "#f44336" }}
-                              className={classes.actionMenuItem}
-                            >
-                              <DeleteOutlineIcon
-                                fontSize="small"
-                                style={{ marginRight: 8 }}
-                              />
-                              Excluir contato
-                            </MenuItem>
-                          )}
-                        />
-                      </Menu>
-                    </div>
-
-                    <div className={classes.tagsContainer}>
-                      {contact.tags && contact.tags.length > 0 ? (
-                        contact.tags.map((tag) => {
-                          const tagInfo = tags.find(
-                            (t) => t.id === tag.id || t.id === tag
-                          ) || {
-                            name: tag.name || tag,
-                            color: tag.color || "#5D3FD3",
-                          };
-
-                          return (
-                            <Chip
-                              key={tagInfo.id || tag}
-                              label={tagInfo.name || tag}
-                              size="small"
-                              style={{
-                                margin: 2,
-                                backgroundColor: tagInfo.color,
-                                color: "#fff",
-                                fontWeight: "bold",
-                                textShadow: "0px 1px 1px rgba(0,0,0,0.5)",
-                              }}
-                              onClick={() => handleTagsFilter([tagInfo])}
-                            />
-                          );
-                        })
-                      ) : (
-                        <Typography variant="body2" color="textSecondary">
-                          Sem tags
-                        </Typography>
-                      )}
-                    </div>
-
-                    <div className={classes.contactDetailsSection}>
-                      <div className={classes.emailPhone}>
-                        <PhoneIcon fontSize="small" />
-                        <div className={classes.phoneWithFlag}>
-                          <Flag
-                            code={getCountryCode(contact.number)}
-                            className={classes.countryFlag}
-                          />
-                          <Typography variant="body2">
-                            {formatPhoneNumber(contact.number)}
-                          </Typography>
-                        </div>
-                      </div>
-                      <div className={classes.emailPhone}>
-                        <EmailIcon fontSize="small" />
-                        <Typography variant="body2">{contact.email}</Typography>
-                      </div>
-
-                      {contact.extraInfo?.revenue && (
-                        <Typography variant="body2" className={classes.revenue}>
-                          Average Revenue: $
-                          {contact.extraInfo.revenue || "15.000"}
-                        </Typography>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                <ContactCard
+                  contact={contact}
+                  onMenuClick={handleOpenMenu}
+                  onEditContact={hadleEditContact}
+                  getCountryCode={getCountryCode}
+                  formatPhoneNumber={formatPhoneNumber}
+                />
               </Grid>
             ))}
             {loading && (
               <Grid item xs={12}>
-                <TableRowSkeleton avatar columns={3} />
+                <Table>
+                  <TableBody>
+                    <TableRowSkeleton avatar columns={3} />
+                  </TableBody>
+                </Table>
               </Grid>
             )}
           </Grid>
@@ -1162,7 +1099,6 @@ const Contacts = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Empresa</TableCell>
                   <TableCell align="center">Status</TableCell>
-                  <TableCell align="center">Tags</TableCell>
                   <TableCell align="center" className={classes.actionsColumn}>
                     Ações
                   </TableCell>
@@ -1215,47 +1151,6 @@ const Contacts = () => {
                           fontWeight: "bold",
                         }}
                       />
-                    </TableCell>
-                    <TableCell align="center">
-                      <div
-                        style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          justifyContent: "center",
-                          gap: 4,
-                        }}
-                      >
-                        {contact.tags && contact.tags.length > 0 ? (
-                          contact.tags.map((tag) => {
-                            const tagInfo = tags.find(
-                              (t) => t.id === tag.id || t.id === tag
-                            ) || {
-                              name: tag.name || tag,
-                              color: tag.color || "#5D3FD3",
-                            };
-
-                            return (
-                              <Chip
-                                key={tagInfo.id || tag}
-                                label={tagInfo.name || tag}
-                                size="small"
-                                style={{
-                                  margin: 2,
-                                  backgroundColor: tagInfo.color,
-                                  color: "#fff",
-                                  fontWeight: "bold",
-                                  textShadow: "0px 1px 1px rgba(0,0,0,0.5)",
-                                }}
-                                onClick={() => handleTagsFilter([tagInfo])}
-                              />
-                            );
-                          })
-                        ) : (
-                          <Typography variant="body2" color="textSecondary">
-                            Sem tags
-                          </Typography>
-                        )}
-                      </div>
                     </TableCell>
                     <TableCell align="center">
                       <IconButton
@@ -1348,13 +1243,13 @@ const Contacts = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-                {loading && <TableRowSkeleton avatar columns={6} />}
+                {loading && <TableRowSkeleton avatar columns={5} />}
               </TableBody>
             </Table>
           </div>
         )}
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

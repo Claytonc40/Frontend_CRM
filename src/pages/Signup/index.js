@@ -1,10 +1,7 @@
-import qs from 'query-string';
+import qs from "query-string";
 import React, { useEffect, useState } from "react";
 
-import {
-	CircularProgress,
-	Divider
-} from "@material-ui/core";
+import { CircularProgress, Divider } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
@@ -28,7 +25,7 @@ import EmailIcon from "@material-ui/icons/Email";
 import LockIcon from "@material-ui/icons/Lock";
 import PhoneIcon from "@material-ui/icons/Phone";
 import { Field, Form, Formik } from "formik";
-import InputMask from 'react-input-mask';
+import InputMask from "react-input-mask";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import { toast } from "sonner";
 import * as Yup from "yup";

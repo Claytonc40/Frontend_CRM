@@ -26,7 +26,7 @@ const App = () => {
 
   const preferredTheme = window.localStorage.getItem("preferredTheme");
   const [mode, setMode] = useState(
-    preferredTheme ? preferredTheme : prefersDarkMode ? "dark" : "light"
+    preferredTheme ? preferredTheme : prefersDarkMode ? "dark" : "light",
   );
 
   const colorMode = React.useMemo(
@@ -35,7 +35,7 @@ const App = () => {
         setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
       },
     }),
-    []
+    [],
   );
 
   const theme = createTheme(
@@ -101,7 +101,7 @@ const App = () => {
         mediainput: mode === "light" ? "#ededed" : "#1c1c1c",
       },
     },
-    locale
+    locale,
   );
 
   useEffect(() => {

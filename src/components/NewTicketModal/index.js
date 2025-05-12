@@ -270,31 +270,49 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
     try {
       const queueId = selectedQueue !== "" ? selectedQueue : null;
       const whatsappId = selectedWhatsapp !== "" ? selectedWhatsapp : null;
+
+      if (!whatsappId) {
+        toast.error("Selecione um WhatsApp");
+        setLoading(false);
+        return;
+      }
+
       const { data: ticket } = await api.post("/tickets", {
         contactId: contactId,
         queueId,
         whatsappId,
         userId: user.id,
         status: "open",
+        companyId: user.companyId,
       });
 
       onClose(ticket);
     } catch (err) {
-      const ticket = JSON.parse(err.response.data.error);
-
-      if (ticket.userId !== user?.id) {
-        setOpenAlert(true);
-        setUserTicketOpen(ticket.user.name);
-        setQueueTicketOpen(ticket.queue.name);
+      if (err.response?.data?.error) {
+        try {
+          const ticket = JSON.parse(err.response.data.error);
+          if (ticket.userId !== user?.id) {
+            setOpenAlert(true);
+            setUserTicketOpen(ticket.user.name);
+            setQueueTicketOpen(ticket.queue.name);
+          } else {
+            setOpenAlert(false);
+            setUserTicketOpen("");
+            setQueueTicketOpen("");
+            setLoading(false);
+            onClose(ticket);
+          }
+        } catch (parseError) {
+          toast.error(
+            "Erro ao criar ticket. Verifique se o contato já não possui um ticket aberto.",
+          );
+          setLoading(false);
+        }
       } else {
-        setOpenAlert(false);
-        setUserTicketOpen("");
-        setQueueTicketOpen("");
+        toast.error(err.message || "Erro ao criar ticket");
         setLoading(false);
-        onClose(ticket);
       }
     }
-    setLoading(false);
   };
 
   const handleSelectOption = (e, newValue) => {
@@ -496,7 +514,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
                     return "Selecione uma Conexão";
                   }
                   const whatsapp = whatsapps.find(
-                    (w) => w.id === selectedWhatsapp
+                    (w) => w.id === selectedWhatsapp,
                   );
                   return whatsapp.name;
                 }}

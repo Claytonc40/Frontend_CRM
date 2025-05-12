@@ -82,7 +82,7 @@ const SettingsCustom = () => {
 
         if (Array.isArray(settingList)) {
           const scheduleType = settingList.find(
-            (d) => d.key === "scheduleType"
+            (d) => d.key === "scheduleType",
           );
           if (scheduleType) {
             setSchedulesEnabled(scheduleType.value === "company");
@@ -113,7 +113,7 @@ const SettingsCustom = () => {
 
         if (Array.isArray(settingList)) {
           const scheduleType = settingList.find(
-            (d) => d.key === "scheduleType"
+            (d) => d.key === "scheduleType",
           );
           if (scheduleType) {
             setSchedulesEnabled(scheduleType.value === "company");

@@ -23,7 +23,6 @@ import SearchIcon from "@material-ui/icons/Search";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
 
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import Title from "../../components/Title";
@@ -36,6 +35,8 @@ import { SocketContext } from "../../context/Socket/SocketContext";
 
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
+
+import Container from "@material-ui/core/Container";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_FILES") {
@@ -87,6 +88,16 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     overflowY: "scroll",
     ...theme.scrollbarStyles,
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
   },
 }));
 
@@ -199,7 +210,7 @@ const FileLists = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <ConfirmationModal
         title={
           deletingFileList && `${i18n.t("files.confirmationModal.deleteTitle")}`
@@ -288,7 +299,7 @@ const FileLists = () => {
           </TableBody>
         </Table>
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

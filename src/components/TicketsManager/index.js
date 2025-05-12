@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import { 
+import {
   Badge,
   Button,
   FormControlLabel,
@@ -8,7 +8,7 @@ import {
   Paper,
   Tab,
   Tabs,
-  Switch
+  Switch,
 } from "@material-ui/core";
 
 import {
@@ -16,7 +16,7 @@ import {
   PendingActionsRounded,
   MarkChatReadRounded,
   SearchRounded,
-  AddRounded
+  AddRounded,
 } from "@material-ui/icons";
 
 import NewTicketModal from "../NewTicketModal";
@@ -66,11 +66,11 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 17,
     color: "#888",
     borderRadius: 12,
-    margin: '0 4px',
-    transition: 'background 0.2s',
-    '&.Mui-selected': {
+    margin: "0 4px",
+    transition: "background 0.2s",
+    "&.Mui-selected": {
       color: "#5D3FD3",
-      background: '#f3f0fa',
+      background: "#f3f0fa",
     },
   },
 
@@ -84,8 +84,8 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(2, 2, 2, 2),
     boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
     gap: 16,
-    [theme.breakpoints.down('xs')]: {
-      flexDirection: 'column',
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
       gap: 10,
       padding: theme.spacing(2, 1, 2, 1),
     },
@@ -108,9 +108,9 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     boxShadow: "0 1.5px 6px rgba(93,63,211,0.10)",
     border: "1.5px solid #5D3FD3",
-    transition: 'box-shadow 0.2s',
-    '&:focus-within': {
-      boxShadow: '0 2px 12px rgba(93,63,211,0.15)',
+    transition: "box-shadow 0.2s",
+    "&:focus-within": {
+      boxShadow: "0 2px 12px rgba(93,63,211,0.15)",
     },
   },
 
@@ -141,7 +141,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 14,
     padding: "0 8px",
     borderRadius: 10,
-    boxShadow: '0 2px 8px rgba(93,63,211,0.10)',
+    boxShadow: "0 2px 8px rgba(93,63,211,0.10)",
   },
   show: {
     display: "block",
@@ -173,11 +173,10 @@ const TicketsManager = () => {
       setShowAllTickets(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const handleSearch = (e) => {
     const searchedTerm = e.target.value.toLowerCase();
-
 
     setSearchParam(searchedTerm);
     if (searchedTerm === "") {
@@ -185,13 +184,12 @@ const TicketsManager = () => {
     } else if (tab !== "search") {
       setTab("search");
     }
-
   };
 
   const handleSelectedTags = (selecteds) => {
-    const tags = selecteds.map(t => t.id);
+    const tags = selecteds.map((t) => t.id);
     setSelectedTags(tags);
-  }
+  };
 
   const handleChangeTab = (e, newValue) => {
     setTab(newValue);
@@ -272,7 +270,16 @@ const TicketsManager = () => {
       <Paper square elevation={0} className={classes.ticketOptionsBox}>
         <Button
           variant="contained"
-          style={{ background: "#5D3FD3", color: "#fff", fontWeight: 700, borderRadius: 12, padding: '12px 28px', fontSize: 17, boxShadow: '0 2px 8px rgba(93,63,211,0.12)', transition: 'all 0.2s' }}
+          style={{
+            background: "#5D3FD3",
+            color: "#fff",
+            fontWeight: 700,
+            borderRadius: 12,
+            padding: "12px 28px",
+            fontSize: 17,
+            boxShadow: "0 2px 8px rgba(93,63,211,0.12)",
+            transition: "all 0.2s",
+          }}
           startIcon={<AddRounded />}
           onClick={() => setNewTicketModalOpen(true)}
         >
@@ -289,9 +296,7 @@ const TicketsManager = () => {
                 <Switch
                   size="small"
                   checked={showAllTickets}
-                  onChange={() =>
-                    setShowAllTickets((prevState) => !prevState)
-                  }
+                  onChange={() => setShowAllTickets((prevState) => !prevState)}
                   name="showAllTickets"
                   color="primary"
                 />
@@ -307,7 +312,7 @@ const TicketsManager = () => {
         />
       </Paper>
       <TabPanel value={tab} name="open" className={classes.ticketsWrapper}>
-      <TagsFilter onFiltered={handleSelectedTags} />
+        <TagsFilter onFiltered={handleSelectedTags} />
         <Paper className={classes.ticketsWrapper}>
           <TicketsList
             status="open"
@@ -326,7 +331,7 @@ const TicketsManager = () => {
       </TabPanel>
 
       <TabPanel value={tab} name="pending" className={classes.ticketsWrapper}>
-      <TagsFilter onFiltered={handleSelectedTags} />
+        <TagsFilter onFiltered={handleSelectedTags} />
         <TicketsList
           status="pending"
           showAll={true}
@@ -335,10 +340,8 @@ const TicketsManager = () => {
         />
       </TabPanel>
 
-
-
       <TabPanel value={tab} name="closed" className={classes.ticketsWrapper}>
-      <TagsFilter onFiltered={handleSelectedTags} />
+        <TagsFilter onFiltered={handleSelectedTags} />
         <TicketsList
           status="closed"
           showAll={true}
@@ -346,7 +349,7 @@ const TicketsManager = () => {
         />
       </TabPanel>
       <TabPanel value={tab} name="search" className={classes.ticketsWrapper}>
-      <TagsFilter onFiltered={handleSelectedTags} />
+        <TagsFilter onFiltered={handleSelectedTags} />
         <TicketsList
           searchParam={searchParam}
           tags={selectedTags}

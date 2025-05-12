@@ -22,7 +22,6 @@ import Skeleton from "@material-ui/lab/Skeleton";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
 
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 
@@ -33,6 +32,7 @@ import QuickMessageDialog from "../../components/QuickMessageDialog";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
+import Container from "@material-ui/core/Container";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
@@ -246,6 +246,16 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
   },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
+  },
 }));
 
 const Quickemessages = () => {
@@ -389,7 +399,7 @@ const Quickemessages = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <ConfirmationModal
         title={
           deletingQuickemessage &&
@@ -569,7 +579,7 @@ const Quickemessages = () => {
           </Grid>
         )}
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

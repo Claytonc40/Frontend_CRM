@@ -38,7 +38,7 @@ class ManagedSocket {
 
   off(event, callback) {
     const i = this.callbacks.findIndex(
-      (c) => c.event === event && c.callback === callback
+      (c) => c.event === event && c.callback === callback,
     );
     this.callbacks.splice(i, 1);
     return this.rawSocket.off(event, callback);

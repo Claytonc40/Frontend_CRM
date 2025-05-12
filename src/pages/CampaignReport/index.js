@@ -1,26 +1,26 @@
-import React, { useEffect, useRef, useState, useContext } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { makeStyles } from "@material-ui/core/styles";
+import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
 
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
 
 import { Grid, LinearProgress, Typography } from "@material-ui/core";
-import api from "../../services/api";
-import { has, get, isNull } from "lodash";
-import CardCounter from "../../components/Dashboard/CardCounter";
-import GroupIcon from "@material-ui/icons/Group";
-import ScheduleIcon from "@material-ui/icons/Schedule";
-import EventAvailableIcon from "@material-ui/icons/EventAvailable";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import DoneIcon from "@material-ui/icons/Done";
 import DoneAllIcon from "@material-ui/icons/DoneAll";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import WhatsAppIcon from "@material-ui/icons/WhatsApp";
+import EventAvailableIcon from "@material-ui/icons/EventAvailable";
+import GroupIcon from "@material-ui/icons/Group";
 import ListAltIcon from "@material-ui/icons/ListAlt";
+import ScheduleIcon from "@material-ui/icons/Schedule";
+import WhatsAppIcon from "@material-ui/icons/WhatsApp";
+import { get, has, isNull } from "lodash";
+import CardCounter from "../../components/Dashboard/CardCounter";
 import { useDate } from "../../hooks/useDate";
+import api from "../../services/api";
 
 import { SocketContext } from "../../context/Socket/SocketContext";
 
@@ -36,6 +36,16 @@ const useStyles = makeStyles((theme) => ({
   },
   tabPanelsContainer: {
     padding: theme.spacing(2),
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
   },
 }));
 
@@ -102,7 +112,6 @@ const CampaignReport = () => {
     const socket = socketManager.getSocket(companyId);
 
     socket.on(`company-${companyId}-campaign`, (data) => {
-     
       if (data.record.id === +campaignId) {
         setCampaign(data.record);
 
@@ -145,7 +154,7 @@ const CampaignReport = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <MainHeader>
         <Grid style={{ width: "99.6%" }} container>
           <Grid xs={12} item>
@@ -239,7 +248,7 @@ const CampaignReport = () => {
           </Grid>
         </Grid>
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

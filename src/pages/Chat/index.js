@@ -1,41 +1,41 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { useParams, useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 import {
   Button,
+  Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Grid,
   makeStyles,
-  Paper,
   Tab,
   Tabs,
   TextField,
 } from "@material-ui/core";
+import { UsersFilter } from "../../components/UsersFilter";
+import { SocketContext } from "../../context/Socket/SocketContext";
+import api from "../../services/api";
 import ChatList from "./ChatList";
 import ChatMessages from "./ChatMessages";
-import { UsersFilter } from "../../components/UsersFilter";
-import api from "../../services/api";
-import { SocketContext } from "../../context/Socket/SocketContext";
 
 import { has, isObject } from "lodash";
 
-import { AuthContext } from "../../context/Auth/AuthContext";
 import withWidth, { isWidthUp } from "@material-ui/core/withWidth";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
-  mainContainer: {
-    display: "flex",
-    flexDirection: "column",
-    position: "relative",
-    flex: 1,
-    padding: theme.spacing(2),
-    height: `calc(100% - 48px)`,
-    overflowY: "hidden",
-    border: "1px solid rgba(0, 0, 0, 0.12)",
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
   },
   gridContainer: {
     flex: 1,
@@ -105,7 +105,7 @@ export function ChatModal({
       }
       handleClose();
     } catch (err) {}
-  };  
+  };
 
   return (
     <Dialog
@@ -334,20 +334,19 @@ function Chat(props) {
     return (
       <Grid className={classes.gridContainer} container>
         <Grid className={classes.gridItem} md={3} item>
-          
-            <div className={classes.btnContainer}>
-              <Button
-                onClick={() => {
-                  setDialogType("new");
-                  setShowDialog(true);
-                }}
-                color="primary"
-                variant="contained"
-              >
-                Nova
-              </Button>
-            </div>
-          
+          <div className={classes.btnContainer}>
+            <Button
+              onClick={() => {
+                setDialogType("new");
+                setShowDialog(true);
+              }}
+              color="primary"
+              variant="contained"
+            >
+              Nova
+            </Button>
+          </div>
+
           <ChatList
             chats={chats}
             pageInfo={chatsPageInfo}
@@ -445,9 +444,9 @@ function Chat(props) {
         }}
         handleClose={() => setShowDialog(false)}
       />
-      <Paper className={classes.mainContainer}>
+      <Container maxWidth="xl" className={classes.container}>
         {isWidthUp("md", props.width) ? renderGrid() : renderTab()}
-      </Paper>
+      </Container>
     </>
   );
 }

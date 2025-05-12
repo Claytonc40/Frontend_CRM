@@ -157,7 +157,7 @@ export function ContactNotes({ ticket }) {
                   rows={3}
                   label={i18n.t("ticketOptionsMenu.appointmentsModal.textarea")}
                   placeholder={i18n.t(
-                    "ticketOptionsMenu.appointmentsModal.placeholder"
+                    "ticketOptionsMenu.appointmentsModal.placeholder",
                   )}
                   multiline={true}
                   error={touched.note && Boolean(errors.note)}

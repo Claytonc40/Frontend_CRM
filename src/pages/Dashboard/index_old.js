@@ -81,7 +81,7 @@ const Dashboard = () => {
   const [period, setPeriod] = useState(0);
   const [companyDueDate, setCompanyDueDate] = useState();
   const [dateFrom, setDateFrom] = useState(
-    moment("1", "D").format("YYYY-MM-DD")
+    moment("1", "D").format("YYYY-MM-DD"),
   );
   const [dateTo, setDateTo] = useState(moment().format("YYYY-MM-DD"));
   const [loading, setLoading] = useState(false);

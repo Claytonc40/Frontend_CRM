@@ -3,26 +3,26 @@ import React, { useCallback, useContext, useState } from "react";
 import { toast } from "sonner";
 
 import {
-	Box,
-	Button,
-	Card,
-	CircularProgress,
-	Fade,
-	Paper,
-	Tooltip,
-	Typography,
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Fade,
+  Paper,
+  Tooltip,
+  Typography,
 } from "@material-ui/core";
 import { green } from "@material-ui/core/colors";
 import { makeStyles } from "@material-ui/core/styles";
 import {
-	CheckCircle2,
-	MessageSquare,
-	Pencil,
-	Plus as PlusIcon,
-	QrCode,
-	RefreshCw,
-	Trash2,
-	WifiOff,
+  CheckCircle2,
+  MessageSquare,
+  Pencil,
+  Plus as PlusIcon,
+  QrCode,
+  RefreshCw,
+  Trash2,
+  WifiOff,
 } from "lucide-react";
 
 import MainContainer from "../../components/MainContainer";
@@ -319,7 +319,7 @@ const Connections = () => {
     open: false,
   };
   const [confirmModalInfo, setConfirmModalInfo] = useState(
-    confirmationModalInitialState
+    confirmationModalInitialState,
   );
 
   const handleStartWhatsAppSession = async (whatsAppId) => {
@@ -494,7 +494,7 @@ const Connections = () => {
                             Atualizado em:{" "}
                             {format(
                               parseISO(whatsApp.updatedAt),
-                              "dd/MM/yy HH:mm"
+                              "dd/MM/yy HH:mm",
                             )}
                           </span>
                         </div>

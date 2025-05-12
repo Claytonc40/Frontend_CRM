@@ -8,9 +8,9 @@ import {
   makeStyles,
   Paper,
   Typography,
-  CircularProgress
+  CircularProgress,
 } from "@material-ui/core";
-import { Send } from 'lucide-react';
+import { Send } from "lucide-react";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { useDate } from "../../hooks/useDate";
 import api from "../../services/api";
@@ -34,30 +34,30 @@ const useStyles = makeStyles((theme) => ({
     ...theme.scrollbarStyles,
     backgroundColor: theme.palette.chatlist,
     padding: theme.spacing(2, 1, 2, 1),
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
   },
   inputArea: {
     position: "relative",
     height: "auto",
-    background: '#fff',
-    borderTop: '1px solid #eee',
+    background: "#fff",
+    borderTop: "1px solid #eee",
     padding: theme.spacing(1, 2),
   },
   input: {
     padding: "16px",
     fontSize: 15,
     borderRadius: 8,
-    background: '#f7f8fa',
+    background: "#f7f8fa",
   },
   buttonSend: {
     margin: theme.spacing(1),
-    color: '#5D3FD3',
-    background: 'rgba(93,63,211,0.07)',
+    color: "#5D3FD3",
+    background: "rgba(93,63,211,0.07)",
     borderRadius: 8,
-    '&:hover': {
-      background: '#5D3FD3',
-      color: '#fff',
+    "&:hover": {
+      background: "#5D3FD3",
+      color: "#fff",
     },
   },
   boxLeft: {
@@ -69,51 +69,51 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 16,
     borderBottomLeftRadius: 4,
     border: "1px solid #e0e0e0",
-    alignSelf: 'flex-start',
-    boxShadow: '0 1px 4px rgba(93,63,211,0.04)',
+    alignSelf: "flex-start",
+    boxShadow: "0 1px 4px rgba(93,63,211,0.04)",
   },
   boxRight: {
     padding: "12px 16px 8px 16px",
     margin: "8px 8px 8px 0",
     position: "relative",
     backgroundColor: "#5D3FD3",
-    color: '#fff',
+    color: "#fff",
     textAlign: "right",
     maxWidth: 340,
     borderRadius: 16,
     borderBottomRightRadius: 4,
     border: "1px solid #e0e0e0",
-    alignSelf: 'flex-end',
-    boxShadow: '0 1.5px 6px rgba(93,63,211,0.08)',
+    alignSelf: "flex-end",
+    boxShadow: "0 1.5px 6px rgba(93,63,211,0.08)",
   },
   senderName: {
     fontWeight: 600,
     fontSize: 14,
     marginBottom: 2,
-    color: '#5D3FD3',
+    color: "#5D3FD3",
   },
   senderNameRight: {
     fontWeight: 600,
     fontSize: 14,
     marginBottom: 2,
-    color: '#fff',
+    color: "#fff",
   },
   messageText: {
     fontSize: 15,
     marginBottom: 4,
-    wordBreak: 'break-word',
+    wordBreak: "break-word",
   },
   messageTime: {
     fontSize: 11,
-    color: '#888',
+    color: "#888",
     marginTop: 2,
-    textAlign: 'right',
+    textAlign: "right",
   },
   messageTimeRight: {
     fontSize: 11,
-    color: '#e0e0e0',
+    color: "#e0e0e0",
     marginTop: 2,
-    textAlign: 'right',
+    textAlign: "right",
   },
 }));
 
@@ -176,7 +176,10 @@ export default function ChatMessages({
                     {item.sender.name}
                   </Typography>
                   <div className={classes.messageText}>{item.message}</div>
-                  <Typography className={classes.messageTimeRight} display="block">
+                  <Typography
+                    className={classes.messageTimeRight}
+                    display="block"
+                  >
                     {datetimeToClient(item.createdAt)}
                   </Typography>
                 </Box>

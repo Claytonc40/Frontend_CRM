@@ -247,7 +247,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
         notes,
       });
       toast.success(
-        i18n.t("contactModal.success") || "Notas salvas com sucesso"
+        i18n.t("contactModal.success") || "Notas salvas com sucesso",
       );
       setEditingNotes(false);
     } catch (err) {
@@ -333,13 +333,13 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
       if (countryCode === "55" && nationalNumber.length === 11) {
         return `+${countryCode} ${nationalNumber.substring(
           0,
-          2
+          2,
         )} ${nationalNumber.substring(2, 7)}-${nationalNumber.substring(7)}`;
       }
       // Outros países, apenas agrupe em blocos de 3-4
       return `+${countryCode} ${nationalNumber.replace(
         /(\d{3})(\d{3})(\d{4})/,
-        "$1 $2 $3"
+        "$1 $2 $3",
       )}`;
     }
 

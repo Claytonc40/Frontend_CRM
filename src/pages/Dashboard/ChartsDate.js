@@ -69,7 +69,7 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 export const options = {
@@ -126,7 +126,7 @@ export const ChartsDate = ({ ticketsData }) => {
       0,
       chartArea.bottom,
       0,
-      chartArea.top
+      chartArea.top,
     );
     gradient.addColorStop(0, "#8F6FE6");
     gradient.addColorStop(1, "#5D3FD3");
@@ -142,7 +142,7 @@ export const ChartsDate = ({ ticketsData }) => {
     ) {
       backgroundColor = getGradient(
         chartRef.current.ctx,
-        chartRef.current.chartArea
+        chartRef.current.chartArea,
       );
     }
     return {
@@ -152,7 +152,7 @@ export const ChartsDate = ({ ticketsData }) => {
         ticketsData?.data.map((item) =>
           item.hasOwnProperty("horario")
             ? `Das ${item.horario}:00 as ${item.horario}:59`
-            : item.data
+            : item.data,
         ),
       datasets: [
         {

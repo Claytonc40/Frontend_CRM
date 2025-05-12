@@ -62,7 +62,7 @@ const toastError = (err) => {
       },
       bodyStyle: { padding: 0, margin: 0 },
       icon: false,
-    }
+    },
   );
 };
 

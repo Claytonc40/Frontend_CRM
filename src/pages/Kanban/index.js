@@ -222,7 +222,7 @@ const Kanban = () => {
 
   const popularCards = (jsonString) => {
     const filteredTickets = tickets.filter(
-      (ticket) => ticket.tags.length === 0
+      (ticket) => ticket.tags.length === 0,
     );
     const lanes = [
       {

@@ -470,44 +470,44 @@ export function PlansManagerGrid(props) {
               {renderFeature(
                 plan.users > 0,
                 <Users size={18} />,
-                `${plan.users} Usuários`
+                `${plan.users} Usuários`,
               )}
               {renderFeature(
                 plan.connections > 0,
                 <Link size={18} />,
-                `${plan.connections} Conexões`
+                `${plan.connections} Conexões`,
               )}
               {renderFeature(
                 plan.queues > 0,
                 <List size={18} />,
-                `${plan.queues} Filas`
+                `${plan.queues} Filas`,
               )}
               {renderFeature(
                 plan.useCampaigns,
                 <Megaphone size={18} />,
-                "Campanhas"
+                "Campanhas",
               )}
               {renderFeature(
                 plan.useSchedules,
                 <Calendar size={18} />,
-                "Agendamentos"
+                "Agendamentos",
               )}
               {renderFeature(
                 plan.useInternalChat,
                 <MessageSquare size={18} />,
-                "Chat Interno"
+                "Chat Interno",
               )}
               {renderFeature(
                 plan.useExternalApi,
                 <Code size={18} />,
-                "API Externa"
+                "API Externa",
               )}
               {renderFeature(plan.useKanban, <Trello size={18} />, "Kanban")}
               {renderFeature(plan.useOpenAi, <Brain size={18} />, "Open.Ai")}
               {renderFeature(
                 plan.useIntegrations,
                 <GitBranch size={18} />,
-                "Integrações"
+                "Integrações",
               )}
             </div>
           </Paper>
@@ -572,7 +572,7 @@ export default function PlansManager() {
       toast.success("Operação realizada com sucesso!");
     } catch (e) {
       toast.error(
-        "Não foi possível realizar a operação. Verifique se já existe uma plano com o mesmo nome ou se os campos foram preenchidos corretamente"
+        "Não foi possível realizar a operação. Verifique se já existe uma plano com o mesmo nome ou se os campos foram preenchidos corretamente",
       );
     }
     setLoading(false);

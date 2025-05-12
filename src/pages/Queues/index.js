@@ -7,6 +7,7 @@ import {
   CardActions,
   CardContent,
   Chip,
+  Container,
   Fade,
   Grid,
   IconButton,
@@ -27,7 +28,6 @@ import {
 } from "@material-ui/icons";
 import { toast } from "sonner";
 import ConfirmationModal from "../../components/ConfirmationModal";
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import QueueModal from "../../components/QueueModal";
@@ -36,6 +36,16 @@ import { SocketContext } from "../../context/Socket/SocketContext";
 import api from "../../services/api";
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
+  },
   mainPaper: {
     flex: 1,
     padding: theme.spacing(2),
@@ -329,7 +339,7 @@ const Queues = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <ConfirmationModal
         title={selectedQueue && `Excluir fila ${selectedQueue.name}?`}
         open={confirmModalOpen}
@@ -485,7 +495,7 @@ const Queues = () => {
           </Grid>
         )}
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

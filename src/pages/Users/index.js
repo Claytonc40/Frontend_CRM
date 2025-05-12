@@ -9,6 +9,7 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core";
+import Container from "@material-ui/core/Container";
 import { makeStyles } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/Search";
 import { Edit, Plus, Trash2, Users as UsersIcon } from "lucide-react";
@@ -16,7 +17,6 @@ import React, { useContext, useEffect, useReducer, useState } from "react";
 import { toast } from "sonner";
 
 import ConfirmationModal from "../../components/ConfirmationModal";
-import MainContainer from "../../components/MainContainer";
 import UserModal from "../../components/UserModal";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
@@ -24,6 +24,16 @@ import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
+  },
   mainPaper: {
     flex: 1,
     padding: theme.spacing(3),
@@ -356,7 +366,7 @@ const Users = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <Paper className={classes.mainPaper} elevation={0}>
         <IconButton
           className={classes.addButton}
@@ -508,7 +518,7 @@ const Users = () => {
           </Grid>
         )}
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

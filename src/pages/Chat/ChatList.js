@@ -8,12 +8,12 @@ import {
   ListItemText,
   makeStyles,
   Tooltip,
-  Box
+  Box,
 } from "@material-ui/core";
 import { useHistory, useParams } from "react-router-dom";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { useDate } from "../../hooks/useDate";
-import { Edit3, Trash2 } from 'lucide-react';
+import { Edit3, Trash2 } from "lucide-react";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import api from "../../services/api";
 
@@ -40,46 +40,46 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
     borderRadius: 10,
     margin: theme.spacing(0.5, 1),
-    transition: 'background 0.2s, box-shadow 0.2s',
-    '&:hover': {
-      background: 'rgba(93,63,211,0.07)',
-      boxShadow: '0 2px 8px rgba(93,63,211,0.08)',
+    transition: "background 0.2s, box-shadow 0.2s",
+    "&:hover": {
+      background: "rgba(93,63,211,0.07)",
+      boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
     },
   },
   selectedItem: {
-    borderLeft: '6px solid #5D3FD3',
-    background: 'rgba(93,63,211,0.04)',
+    borderLeft: "6px solid #5D3FD3",
+    background: "rgba(93,63,211,0.04)",
   },
   chip: {
     marginLeft: 5,
     fontWeight: 600,
-    background: '#5D3FD3',
-    color: '#fff',
+    background: "#5D3FD3",
+    color: "#fff",
   },
   actionButton: {
-    color: '#5D3FD3',
-    '&:hover': {
-      color: '#4930A8',
-      background: 'rgba(93,63,211,0.08)',
+    color: "#5D3FD3",
+    "&:hover": {
+      color: "#4930A8",
+      background: "rgba(93,63,211,0.08)",
     },
     marginRight: 5,
   },
   deleteButton: {
-    color: '#F44336',
-    '&:hover': {
-      color: '#D32F2F',
-      background: 'rgba(244,67,54,0.08)',
+    color: "#F44336",
+    "&:hover": {
+      color: "#D32F2F",
+      background: "rgba(244,67,54,0.08)",
     },
   },
   primaryText: {
     fontWeight: 600,
-    color: '#222',
+    color: "#222",
     fontSize: 15,
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
   },
   secondaryText: {
-    color: '#666',
+    color: "#666",
     fontSize: 13,
     marginTop: 2,
   },
@@ -129,27 +129,24 @@ export default function ChatList({
       <span className={classes.primaryText}>
         {mainText}
         {unreads > 0 && (
-          <Chip
-            size="small"
-            label={unreads}
-            className={classes.chip}
-          />
+          <Chip size="small" label={unreads} className={classes.chip} />
         )}
       </span>
     );
   };
 
   const getSecondaryText = (chat) => {
-    return chat.lastMessage !== ""
-      ? (
-        <span className={classes.secondaryText}>
-          {datetimeToClient(chat.updatedAt)}: {chat.lastMessage}
-        </span>
-      ) : "";
+    return chat.lastMessage !== "" ? (
+      <span className={classes.secondaryText}>
+        {datetimeToClient(chat.updatedAt)}: {chat.lastMessage}
+      </span>
+    ) : (
+      ""
+    );
   };
 
   const getItemStyle = (chat) => {
-    return chat.uuid === id ? classes.selectedItem : '';
+    return chat.uuid === id ? classes.selectedItem : "";
   };
 
   return (

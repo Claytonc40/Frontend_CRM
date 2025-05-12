@@ -25,7 +25,7 @@ function CheckoutSuccess(props) {
     socket.on(`company-${companyId}-payment`, (data) => {
       if (data.action === "CONCLUIDA") {
         toast.success(
-          `Sua licença foi renovada até ${dateToClient(data.company.dueDate)}!`
+          `Sua licença foi renovada até ${dateToClient(data.company.dueDate)}!`,
         );
         setTimeout(() => {
           history.push("/");

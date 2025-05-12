@@ -264,7 +264,7 @@ const ContactSchema = Yup.object().shape({
       // Números de telefone internacionais válidos começam com + seguido pelo código do país
       // E devem ter pelo menos 8 dígitos após o código do país
       return /^\+?[1-9]\d{1,3}[-\s]?\d{4,14}$/.test(value);
-    }
+    },
   ),
   email: Yup.string().email("Email inválido"),
 });

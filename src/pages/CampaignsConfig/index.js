@@ -4,8 +4,8 @@ import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import { toast } from "sonner";
 
+import Container from "@material-ui/core/Container";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
 import api from "../../services/api";
@@ -42,6 +42,16 @@ const useStyles = makeStyles((theme) => ({
   },
   tabPanelsContainer: {
     padding: theme.spacing(2),
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
   },
 }));
 
@@ -113,7 +123,7 @@ const CampaignsConfig = () => {
   };
 
   return (
-    <MainContainer>
+    <Container maxWidth="xl" className={classes.container}>
       <ConfirmationModal
         title={i18n.t("campaigns.confirmationModal.deleteTitle")}
         open={confirmationOpen}
@@ -316,7 +326,7 @@ const CampaignsConfig = () => {
           </Grid>
         </Box>
       </Paper>
-    </MainContainer>
+    </Container>
   );
 };
 

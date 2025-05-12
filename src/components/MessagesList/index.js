@@ -483,7 +483,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
       //console.log(obj[0].number);
       return <VCardPreview contact={contact} numbers={obj[0].number} />;
     } else if (message.mediaType === "image") {
-    /* else if (message.mediaType === "vcard") {
+      /* else if (message.mediaType === "vcard") {
       let array = message.body.split("\n");
       let obj = [];
       let contact = "";
@@ -501,7 +501,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
       }
       return <VcardPreview contact={contact} numbers={obj[0].number} />
     } */
-    /*else if (message.mediaType === "multi_vcard") {
+      /*else if (message.mediaType === "multi_vcard") {
       console.log("multi_vcard")
       console.log(message)
       
@@ -654,7 +654,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
               Conversa encerrada:{" "}
               {format(
                 parseISO(messagesList[index - 1].createdAt),
-                "dd/MM/yyyy HH:mm:ss"
+                "dd/MM/yyyy HH:mm:ss",
               )}
             </div>
 

@@ -178,7 +178,7 @@ const ContactListItems = () => {
         if (data.action === "reload") {
           dispatch({ type: "LOAD_CONTACTS", payload: data.records });
         }
-      }
+      },
     );
 
     return () => {
