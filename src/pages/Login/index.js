@@ -1,5 +1,6 @@
-import React, { useContext, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Link as RouterLink, useHistory } from "react-router-dom";
+import { toast } from "sonner";
 
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
@@ -96,23 +97,49 @@ const useStyles = makeStyles((theme) => ({
 
 const Login = () => {
   const classes = useStyles();
-
+  const history = useHistory();
+  const [isMounted, setIsMounted] = useState(true);
   const [user, setUser] = useState({ email: "", password: "" });
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { handleLogin } = useContext(AuthContext);
 
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   const handleChangeInput = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    if (isMounted) {
+      setUser({ ...user, [e.target.name]: e.target.value });
+    }
   };
 
   const handleRememberMeChange = (e) => {
-    setRememberMe(e.target.checked);
+    if (isMounted) {
+      setRememberMe(e.target.checked);
+    }
   };
 
-  const handlSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    handleLogin(user);
+    if (!isMounted) return;
+
+    try {
+      setLoading(true);
+      await handleLogin(user);
+    } catch (err) {
+      if (isMounted) {
+        toast.error(err.response?.data?.error || "Erro ao fazer login");
+      }
+    } finally {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -127,7 +154,7 @@ const Login = () => {
             {i18n.t("login.title")}
           </Typography>
 
-          <form className={classes.form} noValidate onSubmit={handlSubmit}>
+          <form className={classes.form} onSubmit={handleSubmit}>
             <TextField
               className={classes.textField}
               variant="outlined"
@@ -142,6 +169,7 @@ const Login = () => {
               onChange={handleChangeInput}
               autoComplete="email"
               autoFocus
+              disabled={loading}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -164,6 +192,7 @@ const Login = () => {
               value={user.password}
               onChange={handleChangeInput}
               autoComplete="current-password"
+              disabled={loading}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -173,7 +202,7 @@ const Login = () => {
               }}
             />
 
-            <Grid container alignItems="center" justifyContent="space-between">
+            <Grid container justify="space-between" alignItems="center">
               <Grid item>
                 <FormControlLabel
                   control={
@@ -182,6 +211,7 @@ const Login = () => {
                       onChange={handleRememberMeChange}
                       color="primary"
                       size="small"
+                      disabled={loading}
                     />
                   }
                   label={
@@ -208,8 +238,9 @@ const Login = () => {
               variant="contained"
               color="primary"
               className={classes.submit}
+              disabled={loading}
             >
-              {i18n.t("login.buttons.submit")}
+              {loading ? "Entrando..." : i18n.t("login.buttons.submit")}
             </Button>
             <Grid container>
               <Grid item>

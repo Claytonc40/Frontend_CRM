@@ -96,7 +96,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function HelpModal({ open, onClose, onSubmit, initialValue, loading }) {
-  const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["Informações Básicas", "Conteúdo do Vídeo"];
   const [record, setRecord] = useState({

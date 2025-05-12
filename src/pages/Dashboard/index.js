@@ -63,12 +63,13 @@ const useStyles = makeStyles((theme) => ({
     marginRight: "auto",
   },
 }));
-
 const Dashboard = () => {
   const classes = useStyles();
   const [counters, setCounters] = useState({});
   const [attendants, setAttendants] = useState([]);
+// eslint-disable-next-line
   const [period, setPeriod] = useState(0);
+// eslint-disable-next-line
   const [filterType, setFilterType] = useState(1);
   const [dateFrom, setDateFrom] = useState(
     moment().subtract(7, "days").format("YYYY-MM-DD")

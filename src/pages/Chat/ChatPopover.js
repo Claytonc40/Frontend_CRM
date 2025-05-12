@@ -13,13 +13,8 @@ import Popover from "@material-ui/core/Popover";
 import { makeStyles } from "@material-ui/core/styles";
 import { isArray } from "lodash";
 import { MessageSquare } from "lucide-react";
-import React, {
-  useContext,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
+import { useHistory } from "react-router-dom";
 import { toast } from "sonner";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
@@ -186,9 +181,9 @@ const reducer = (state, action) => {
 
 export default function ChatPopover() {
   const classes = useStyles();
-
   const { user } = useContext(AuthContext);
-
+  const { socketConnection } = useContext(SocketContext);
+  const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
@@ -198,60 +193,58 @@ export default function ChatPopover() {
   const [invisible, setInvisible] = useState(true);
   const { datetimeToClient } = useDate();
   const [play] = useSound(notifySound);
-  const soundAlertRef = useRef();
-
-  const socketManager = useContext(SocketContext);
+  const [isMounted, setIsMounted] = useState(true);
 
   useEffect(() => {
-    soundAlertRef.current = play;
-
-    if (!("Notification" in window)) {
-      console.log("This browser doesn't support notifications");
-    } else {
-      Notification.requestPermission();
-    }
-  }, [play]);
-
-  useEffect(() => {
-    dispatch({ type: "RESET" });
-    setPageNumber(1);
-  }, [searchParam]);
-
-  useEffect(() => {
-    setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      fetchChats();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParam, pageNumber]);
-
-  useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketManager.getSocket(companyId);
-    if (!socket) {
-      return () => {};
-    }
-
-    socket.on(`company-${companyId}-chat`, (data) => {
-      if (data.action === "new-message") {
-        dispatch({ type: "CHANGE_CHAT", payload: data });
-        const userIds = data.newMessage.chat.users.map(
-          (userObj) => userObj.userId
-        );
-
-        if (userIds.includes(user.id) && data.newMessage.senderId !== user.id) {
-          soundAlertRef.current();
-        }
-      }
-      if (data.action === "update") {
-        dispatch({ type: "CHANGE_CHAT", payload: data });
-      }
-    });
+    setIsMounted(true);
     return () => {
-      socket.disconnect();
+      setIsMounted(false);
     };
-  }, [socketManager, user.id]);
+  }, []);
+
+  useEffect(() => {
+    if (!socketConnection) return;
+
+    const companyId = localStorage.getItem("companyId");
+    if (!companyId) return;
+
+    const socket = socketConnection.getSocket(companyId);
+    if (!socket) return;
+
+    const handleNewMessage = (data) => {
+      if (!isMounted) return;
+
+      try {
+        if (data.action === "new-message") {
+          dispatch({ type: "CHANGE_CHAT", payload: data });
+          play();
+        }
+        if (data.action === "update") {
+          dispatch({ type: "CHANGE_CHAT", payload: data });
+        }
+      } catch (err) {
+        console.error("Erro ao processar mensagem:", err);
+      }
+    };
+
+    socket.on(`company-${companyId}-chat`, handleNewMessage);
+
+    return () => {
+      if (socket) {
+        socket.off(`company-${companyId}-chat`, handleNewMessage);
+      }
+    };
+  }, [socketConnection, isMounted, play]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (isMounted) {
+        fetchChats();
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchParam, pageNumber, isMounted]);
 
   useEffect(() => {
     let unreadsCount = 0;
@@ -273,32 +266,44 @@ export default function ChatPopover() {
 
   const fetchChats = async () => {
     try {
+      setLoading(true);
       const { data } = await api.get("/chats/", {
         params: { searchParam, pageNumber },
       });
-      dispatch({ type: "LOAD_CHATS", payload: data.records });
-      setHasMore(data.hasMore);
-      setLoading(false);
+      if (isMounted) {
+        dispatch({ type: "LOAD_CHATS", payload: data.records });
+        setHasMore(data.records.length > 0);
+      }
     } catch (err) {
-      toast.error(err.message);
+      if (isMounted) {
+        if (err.response?.status === 401) {
+          // Redirecionar para login se não estiver autenticado
+          history.push("/login");
+        } else {
+          toast.error(err.response?.data?.error || "Erro ao carregar chats");
+        }
+      }
+    } finally {
+      if (isMounted) {
+        setLoading(false);
+      }
     }
   };
 
   const loadMore = () => {
-    setPageNumber((prevState) => prevState + 1);
+    if (!loading && hasMore && isMounted) {
+      setPageNumber((prev) => prev + 1);
+    }
   };
 
   const handleScroll = (e) => {
-    if (!hasMore || loading) return;
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    if (scrollHeight - (scrollTop + 100) < clientHeight) {
+    if (e.target.scrollTop === 0) {
       loadMore();
     }
   };
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
-    setInvisible(true);
   };
 
   const handleClose = () => {
@@ -306,7 +311,8 @@ export default function ChatPopover() {
   };
 
   const goToMessages = (chat) => {
-    window.location.href = `/chats/${chat.uuid}`;
+    handleClose();
+    history.push(`/chats/${chat.id}`);
   };
 
   const open = Boolean(anchorEl);

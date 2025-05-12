@@ -32,16 +32,6 @@ const useStyles = makeStyles((theme) => ({
 			boxShadow: "0 2px 8px rgba(93,63,211,0.10)",
 		},
 	},
-	badge: {
-		background: "#fff",
-		color: "#5D3FD3",
-		fontWeight: 600,
-		fontSize: 12,
-		padding: "0 6px",
-		borderRadius: 6,
-		boxShadow: '0 1px 4px rgba(93,63,211,0.10)',
-		marginLeft: 6,
-	},
 	badgeSelected: {
 		background: "#fff",
 		color: "#5D3FD3",

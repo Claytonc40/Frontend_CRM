@@ -8,7 +8,7 @@ import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import logo from "../../assets/logo.png"; //PLW DESIGN LOGO//
+import logo from "../../assets/logo.png";
 import Ticket from "../../components/Ticket/";
 import TicketAdvancedLayout from "../../components/TicketAdvancedLayout";
 import TicketsManagerTabs from "../../components/TicketsManagerTabs/";
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     height: "100%",
-    backgroundColor: theme.palette.boxticket, //DARK MODE PLW DESIGN//
+    backgroundColor: theme.palette.boxticket,
   },
   placeholderItem: {},
 }));
@@ -63,7 +63,7 @@ const TicketAdvanced = (props) => {
         <div className={classes.placeholderItem}>
           {i18n.t("chat.noTicketMessage")}
         </div>
-        //Verity CRM//
+        {/* Verity CRM */}
         <div>
           <center>
             <img
@@ -73,7 +73,7 @@ const TicketAdvanced = (props) => {
             />
           </center>
         </div>
-        //Verity CRM//
+        {/* Verity CRM */}
         <br />
         <Button
           onClick={() => setOption(1)}

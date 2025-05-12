@@ -217,7 +217,6 @@ const useStyles = makeStyles((theme) => ({
 
 const QuickeMessageSchema = Yup.object().shape({
   shortcode: Yup.string().required("Obrigatório"),
-  //   message: Yup.string().required("Obrigatório"),
 });
 
 const VARIABLES = [
@@ -230,6 +229,7 @@ const VARIABLES = [
 const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
   const classes = useStyles();
   const { user } = useContext(AuthContext);
+  // eslint-disable-next-line
   const { profile } = user;
   const messageInputRef = useRef();
 

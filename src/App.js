@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from "react";
-
-import { QueryClient, QueryClientProvider } from "react-query";
-import { Toaster } from "sonner";
-
 import { useMediaQuery } from "@material-ui/core";
+import CssBaseline from "@material-ui/core/CssBaseline";
 import { ptBR } from "@material-ui/core/locale";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
-import { SocketContext, SocketManager } from "./context/Socket/SocketContext";
+import React, { useEffect, useState } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { BrowserRouter } from "react-router-dom";
+import ErrorBoundary from "./components/ErrorBoundary";
+import ToastErrorBoundary from "./components/ToastErrorBoundary";
+import { AuthProvider } from "./context/Auth/AuthContext";
+import {
+  SocketContext,
+  SocketManager,
+  SocketProvider,
+} from "./context/Socket/SocketContext";
+import { WhatsAppsProvider } from "./context/WhatsApp/WhatsAppsContext";
 import ColorModeContext from "./layout/themeContext";
-
 import Routes from "./routes";
 
 const queryClient = new QueryClient();
@@ -113,23 +119,27 @@ const App = () => {
   }, [mode]);
 
   return (
-    <ColorModeContext.Provider value={{ colorMode }}>
-      <ThemeProvider theme={theme}>
-        <QueryClientProvider client={queryClient}>
-          <SocketContext.Provider value={SocketManager}>
-            <Routes />
-          </SocketContext.Provider>
-          <Toaster
-            position="top-center"
-            richColors
-            closeButton
-            expand={true}
-            duration={4000}
-            style={{ zIndex: 99999 }}
-          />
-        </QueryClientProvider>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+    <ErrorBoundary>
+      <ColorModeContext.Provider value={{ colorMode }}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <QueryClientProvider client={queryClient}>
+            <SocketProvider>
+              <AuthProvider>
+                <WhatsAppsProvider>
+                  <SocketContext.Provider value={SocketManager}>
+                    <BrowserRouter>
+                      <Routes />
+                    </BrowserRouter>
+                  </SocketContext.Provider>
+                </WhatsAppsProvider>
+              </AuthProvider>
+            </SocketProvider>
+            <ToastErrorBoundary />
+          </QueryClientProvider>
+        </ThemeProvider>
+      </ColorModeContext.Provider>
+    </ErrorBoundary>
   );
 };
 

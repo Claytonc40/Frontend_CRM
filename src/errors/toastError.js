@@ -66,4 +66,4 @@ const toastError = (err) => {
   );
 };
 
-export default       toast.error;
+export default toastError;

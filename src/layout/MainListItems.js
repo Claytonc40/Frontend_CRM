@@ -1,6 +1,3 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
-import { Link as RouterLink, useHistory, useLocation } from "react-router-dom";
-import { toast } from "sonner";
 import {
   Avatar,
   Badge,
@@ -43,6 +40,9 @@ import {
   Users as UsersIcon,
   Zap,
 } from "lucide-react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
+import { Link as RouterLink, useHistory, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 import { Can } from "../components/Can";
 import { AuthContext } from "../context/Auth/AuthContext";
 import { SocketContext } from "../context/Socket/SocketContext";
@@ -335,59 +335,100 @@ function ListItemLink(props) {
   );
 }
 
+const initialState = {
+  chats: [],
+  version: null,
+  ticketsUnread: 0,
+  chatsUnread: 0,
+};
+
 const reducer = (state, action) => {
-  if (action.type === "LOAD_CHATS") {
-    const chats = action.payload;
-    const newChats = [];
+  switch (action.type) {
+    case "LOAD_CHATS":
+      const chats = action.payload;
+      const newChats = [];
 
-    if (isArray(chats)) {
-      chats.forEach((chat) => {
-        const chatIndex = state.findIndex((u) => u.id === chat.id);
-        if (chatIndex !== -1) {
-          state[chatIndex] = chat;
-        } else {
-          newChats.push(chat);
-        }
-      });
-    }
-
-    return [...state, ...newChats];
-  }
-
-  if (action.type === "UPDATE_CHATS") {
-    const chat = action.payload;
-    const chatIndex = state.findIndex((u) => u.id === chat.id);
-
-    if (chatIndex !== -1) {
-      state[chatIndex] = chat;
-      return [...state];
-    } else {
-      return [chat, ...state];
-    }
-  }
-
-  if (action.type === "DELETE_CHAT") {
-    const chatId = action.payload;
-
-    const chatIndex = state.findIndex((u) => u.id === chatId);
-    if (chatIndex !== -1) {
-      state.splice(chatIndex, 1);
-    }
-    return [...state];
-  }
-
-  if (action.type === "RESET") {
-    return [];
-  }
-
-  if (action.type === "CHANGE_CHAT") {
-    const changedChats = state.map((chat) => {
-      if (chat.id === action.payload.chat.id) {
-        return action.payload.chat;
+      if (isArray(chats)) {
+        chats.forEach((chat) => {
+          const chatIndex = state.chats.findIndex((u) => u.id === chat.id);
+          if (chatIndex !== -1) {
+            state.chats[chatIndex] = chat;
+          } else {
+            newChats.push(chat);
+          }
+        });
       }
-      return chat;
-    });
-    return changedChats;
+
+      return {
+        ...state,
+        chats: [...state.chats, ...newChats],
+      };
+
+    case "UPDATE_CHATS":
+      const chat = action.payload;
+      const chatIndex = state.chats.findIndex((u) => u.id === chat.id);
+
+      if (chatIndex !== -1) {
+        state.chats[chatIndex] = chat;
+        return {
+          ...state,
+          chats: [...state.chats],
+        };
+      } else {
+        return {
+          ...state,
+          chats: [chat, ...state.chats],
+        };
+      }
+
+    case "DELETE_CHAT":
+      const chatId = action.payload;
+      const deleteIndex = state.chats.findIndex((u) => u.id === chatId);
+
+      if (deleteIndex !== -1) {
+        state.chats.splice(deleteIndex, 1);
+      }
+
+      return {
+        ...state,
+        chats: [...state.chats],
+      };
+
+    case "RESET":
+      return initialState;
+
+    case "CHANGE_CHAT":
+      const changedChats = state.chats.map((chat) => {
+        if (chat.id === action.payload.chat.id) {
+          return action.payload.chat;
+        }
+        return chat;
+      });
+      return {
+        ...state,
+        chats: changedChats,
+      };
+
+    case "SET_VERSION":
+      return {
+        ...state,
+        version: action.payload,
+      };
+
+    case "SET_TICKETS_UNREAD":
+      return {
+        ...state,
+        ticketsUnread: action.payload,
+      };
+
+    case "SET_CHATS_UNREAD":
+      return {
+        ...state,
+        chatsUnread: action.payload,
+      };
+
+    default:
+      return state;
   }
 };
 
@@ -412,28 +453,35 @@ const MainListItems = (props) => {
   const [invisible, setInvisible] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);
   const [searchParam] = useState("");
-  const [chats, dispatch] = useReducer(reducer, []);
+  const [chats, dispatch] = useReducer(reducer, initialState);
   const { getPlanCompany } = usePlans();
-
-  const [version, setVersion] = useState(false);
 
   const { getVersion } = useVersion();
 
-  const socketManager = useContext(SocketContext);
+  const { socketConnection } = useContext(SocketContext);
+
+  const [isMounted, setIsMounted] = useState(true);
 
   useEffect(() => {
-    async function fetchVersion() {
-      const _version = await getVersion();
-      setVersion(_version.version);
-    }
-    fetchVersion();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
   }, []);
 
   useEffect(() => {
-    dispatch({ type: "RESET" });
-    setPageNumber(1);
-  }, [searchParam]);
+    async function fetchVersion() {
+      try {
+        const { data } = await api.get("/version");
+        if (isMounted) {
+          dispatch({ type: "SET_VERSION", payload: data.version });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchVersion();
+  }, [isMounted]);
 
   useEffect(() => {
     async function fetchData() {
@@ -461,26 +509,74 @@ const MainListItems = (props) => {
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketManager.getSocket(companyId);
+    if (!socketConnection) return;
 
-    socket.on(`company-${companyId}-chat`, (data) => {
-      if (data.action === "new-message") {
-        dispatch({ type: "CHANGE_CHAT", payload: data });
+    const companyId = localStorage.getItem("companyId");
+    if (!companyId) return;
+
+    const socket = socketConnection.getSocket(companyId);
+    if (!socket) return;
+
+    const handleChatUpdate = (data) => {
+      try {
+        if (data.action === "new-message") {
+          dispatch({ type: "CHANGE_CHAT", payload: data });
+        }
+        if (data.action === "update") {
+          dispatch({ type: "CHANGE_CHAT", payload: data });
+        }
+      } catch (err) {
+        console.error("Erro ao processar atualização do chat:", err);
       }
-      if (data.action === "update") {
-        dispatch({ type: "CHANGE_CHAT", payload: data });
-      }
-    });
-    return () => {
-      socket.disconnect();
     };
-  }, [socketManager]);
+
+    socket.on(`company-${companyId}-chat`, handleChatUpdate);
+
+    return () => {
+      if (socket) {
+        socket.off(`company-${companyId}-chat`, handleChatUpdate);
+      }
+    };
+  }, [socketConnection]);
+
+  useEffect(() => {
+    if (!socketConnection) return;
+
+    const handleTicketUpdate = (data) => {
+      try {
+        if (isMounted) {
+          dispatch({ type: "SET_TICKETS_UNREAD", payload: data });
+        }
+      } catch (err) {
+        console.error("Erro ao processar atualização do ticket:", err);
+      }
+    };
+
+    const handleChatUpdate = (data) => {
+      try {
+        if (isMounted) {
+          dispatch({ type: "SET_CHATS_UNREAD", payload: data });
+        }
+      } catch (err) {
+        console.error("Erro ao processar atualização do chat:", err);
+      }
+    };
+
+    socketConnection.on("ticket:update", handleTicketUpdate);
+    socketConnection.on("chat:update", handleChatUpdate);
+
+    return () => {
+      if (socketConnection) {
+        socketConnection.off("ticket:update", handleTicketUpdate);
+        socketConnection.off("chat:update", handleChatUpdate);
+      }
+    };
+  }, [socketConnection, isMounted]);
 
   useEffect(() => {
     let unreadsCount = 0;
-    if (chats.length > 0) {
-      for (let chat of chats) {
+    if (chats.chats.length > 0) {
+      for (let chat of chats.chats) {
         for (let chatUser of chat.users) {
           if (chatUser.userId === user.id) {
             unreadsCount += chatUser.unreads;
@@ -493,7 +589,7 @@ const MainListItems = (props) => {
     } else {
       setInvisible(true);
     }
-  }, [chats, user.id]);
+  }, [chats.chats, user.id]);
 
   useEffect(() => {
     if (localStorage.getItem("cshow")) {
@@ -528,9 +624,18 @@ const MainListItems = (props) => {
       const { data } = await api.get("/chats/", {
         params: { searchParam, pageNumber },
       });
-      dispatch({ type: "LOAD_CHATS", payload: data.records });
+      if (isMounted) {
+        dispatch({ type: "LOAD_CHATS", payload: data.records });
+      }
     } catch (err) {
-      toast.error(err.message);
+      if (isMounted) {
+        if (err.response?.status === 401) {
+          // Redirecionar para login se não estiver autenticado
+          history.push("/login");
+        } else {
+          toast.error(err.response?.data?.error || "Erro ao carregar chats");
+        }
+      }
     }
   };
 
@@ -920,7 +1025,7 @@ const MainListItems = (props) => {
               <>
                 <Divider style={{ margin: "16px 0 8px 0" }} />
                 <Typography className={classes.versionText}>
-                  {`${version}`}
+                  {`${chats.version}`}
                 </Typography>
               </>
             )}
