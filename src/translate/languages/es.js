@@ -631,9 +631,7 @@ const messages = {
           confirmationModal: {
             deleteTitle: "Eliminar",
             deleteMessage: "Esta acción no se puede deshacer.",
-            importMessage:
-              "¿Desea importar los contactos de esta hoja de cálculo?",
-            importTitlte: "Importar",
+            importTitle: "Importar",
           },
           toasts: {
             deleted: "Registro eliminado",
@@ -980,3 +978,4 @@ const messages = {
 };
 
 export { messages };
+

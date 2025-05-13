@@ -675,8 +675,8 @@ const messages = {
         confirmationModal: {
           deleteTitle: "Excluir",
           deleteMessage: "Esta ação não pode ser revertida.",
+          importTitle: "Importar",
           importMessage: "Deseja importar os contatos desta planilha? ",
-          importTitlte: "Importar",
         },
         toasts: {
           deleted: "Registro excluído",
@@ -1048,3 +1048,4 @@ const messages = {
 };
 
 export { messages };
+

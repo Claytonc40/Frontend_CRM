@@ -83,9 +83,6 @@ const Chart = ({ queueTicket }) => {
 
   return (
     <div className={classes.chartCard}>
-      <Title
-        className={classes.title}
-      >{`Atendimentos Criados: ${count}`}</Title>
       <ResponsiveContainer width="100%" height={250}>
         <LineChart
           data={chartData}

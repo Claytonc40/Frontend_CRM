@@ -637,7 +637,7 @@ const ContactCard = ({
             ? `${i18n.t("contacts.confirmationModal.deleteTitle")} ${
                 deletingContact.name
               }?`
-            : `${i18n.t("contacts.confirmationModal.importTitlte")}`
+            : `${i18n.t("contacts.confirmationModal.importTitle")}`
         }
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -839,6 +839,19 @@ const Contacts = () => {
     setPageNumber(1);
   };
 
+  const handleScroll = (e) => {
+    if (!hasMore || loading) return;
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    if (scrollHeight - (scrollTop + window.innerHeight) < 200) {
+      loadMore();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loading]);
+
   const handleimportContact = async () => {
     try {
       if (!!fileUploadRef.current.files[0]) {
@@ -849,12 +862,14 @@ const Contacts = () => {
           method: "POST",
           data: formData,
         });
+        toast.success("Contatos importados com sucesso!");
       } else {
         await api.post("/contacts/import");
+        toast.success("Contatos do WhatsApp importados com sucesso!");
       }
       history.go(0);
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Erro ao importar contatos");
     }
   };
 
@@ -870,14 +885,6 @@ const Contacts = () => {
 
   const loadMore = () => {
     setPageNumber((prevState) => prevState + 1);
-  };
-
-  const handleScroll = (e) => {
-    if (!hasMore || loading) return;
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    if (scrollHeight - (scrollTop + 100) < clientHeight) {
-      loadMore();
-    }
   };
 
   const getStatusColor = (status) => {
@@ -920,7 +927,7 @@ const Contacts = () => {
             ? `${i18n.t("contacts.confirmationModal.deleteTitle")} ${
                 deletingContact.name
               }?`
-            : `${i18n.t("contacts.confirmationModal.importTitlte")}`
+            : `${i18n.t("contacts.confirmationModal.importTitle")}`
         }
         open={confirmOpen}
         onClose={setConfirmOpen}
@@ -1048,11 +1055,7 @@ const Contacts = () => {
         </div>
       </MainHeader>
 
-      <Paper
-        className={classes.mainPaper}
-        variant="outlined"
-        onScroll={handleScroll}
-      >
+      <Paper className={classes.mainPaper} variant="outlined">
         <>
           <input
             style={{ display: "none" }}

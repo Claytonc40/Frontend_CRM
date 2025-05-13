@@ -115,7 +115,7 @@ const messages = {
         searchPlaceholder: "Search ...",
         confirmationModal: {
           deleteTitle: "Delete",
-          importTitlte: "Import contacts",
+          importTitle: "Import contacts",
           deleteMessage:
             "Are you sure you want to delete this contact? All related tickets will be lost.",
           importMessage: "Do you want to import all contacts from the phone?",
@@ -410,3 +410,4 @@ const messages = {
 };
 
 export { messages };
+
