@@ -57,12 +57,22 @@ const useAuth = () => {
         try {
           const { data } = await api.post("/auth/refresh_token");
           if (data?.token) {
-            localStorage.setItem("token", JSON.stringify(data.token));
+            const tokenString = JSON.stringify(data.token);
+            localStorage.setItem("token", tokenString);
             api.defaults.headers.Authorization = `Bearer ${data.token}`;
+            originalRequest.headers.Authorization = `Bearer ${data.token}`;
             return api(originalRequest);
           }
         } catch (refreshError) {
           console.error("Erro ao atualizar token:", refreshError);
+          localStorage.removeItem("token");
+          localStorage.removeItem("companyId");
+          localStorage.removeItem("userId");
+          api.defaults.headers.Authorization = undefined;
+          setIsAuth(false);
+          if (isMounted) {
+            history.push("/login");
+          }
         }
       }
 
