@@ -19,6 +19,7 @@ import {
   Edit as EditIcon,
   FileText,
   Plus,
+  Trash2,
   Youtube,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -204,7 +205,7 @@ function HelpModal({ open, onClose, onSubmit, initialValue, loading }) {
   );
 }
 
-function HelpsManagerGrid({ records, onSelect }) {
+function HelpsManagerGrid({ records, onSelect, onDelete }) {
   const classes = useStyles();
   return (
     <Grid container spacing={3}>
@@ -214,9 +215,18 @@ function HelpsManagerGrid({ records, onSelect }) {
             <div className={classes.cardHeader}>
               <BookOpen size={22} />
               <span className={classes.cardTitle}>{row.title || "-"}</span>
-              <IconButton onClick={() => onSelect(row)} aria-label="edit">
-                <EditIcon />
-              </IconButton>
+              <div style={{ marginLeft: "auto", display: "flex", gap: "8px" }}>
+                <IconButton onClick={() => onSelect(row)} aria-label="edit">
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => onDelete(row)}
+                  aria-label="delete"
+                  style={{ color: "#c62828" }}
+                >
+                  <Trash2 size={20} />
+                </IconButton>
+              </div>
             </div>
             <div className={classes.cardDesc}>
               <FileText size={16} style={{ marginRight: 4 }} />{" "}
@@ -278,7 +288,7 @@ export default function HelpsManager() {
       toast.success("Operação realizada com sucesso!");
     } catch (e) {
       toast.error(
-        "Não foi possível realizar a operação. Verifique se já existe uma ajuda com o mesmo nome ou se os campos foram preenchidos corretamente",
+        "Não foi possível realizar a operação. Verifique se já existe uma ajuda com o mesmo nome ou se os campos foram preenchidos corretamente"
       );
     }
     setLoading(false);
@@ -341,7 +351,14 @@ export default function HelpsManager() {
       />
       <Grid spacing={2} container>
         <Grid xs={12} item>
-          <HelpsManagerGrid records={records} onSelect={handleSelect} />
+          <HelpsManagerGrid
+            records={records}
+            onSelect={handleSelect}
+            onDelete={(data) => {
+              setRecord(data);
+              handleOpenDeleteDialog();
+            }}
+          />
         </Grid>
       </Grid>
       <ConfirmationModal

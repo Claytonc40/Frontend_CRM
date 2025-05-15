@@ -11,9 +11,13 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import InputAdornment from "@material-ui/core/InputAdornment";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
+import EmailIcon from "@material-ui/icons/Email";
+import PersonIcon from "@material-ui/icons/Person";
+import PhoneIcon from "@material-ui/icons/Phone";
 
 import { i18n } from "../../translate/i18n";
 
@@ -30,18 +34,24 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     marginRight: theme.spacing(1),
     flex: 1,
+    marginBottom: theme.spacing(2),
+    background: "#f7f8fa",
+    borderRadius: 10,
   },
-
   extraAttr: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
   },
-
   btnWrapper: {
     position: "relative",
+    borderRadius: 12,
+    minWidth: 120,
+    fontWeight: 600,
+    fontSize: 16,
+    textTransform: "none",
+    boxShadow: "0 2px 8px rgba(93,63,211,0.10)",
   },
-
   buttonProgress: {
     color: green[500],
     position: "absolute",
@@ -49,6 +59,31 @@ const useStyles = makeStyles((theme) => ({
     left: "50%",
     marginTop: -12,
     marginLeft: -12,
+  },
+  dialogPaper: {
+    borderRadius: 18,
+    boxShadow: "0 8px 32px rgba(93,63,211,0.18)",
+    background: "#fff",
+    padding: theme.spacing(1, 0),
+  },
+  dialogTitle: {
+    fontWeight: 700,
+    fontSize: 22,
+    color: "#5D3FD3",
+    textAlign: "center",
+    padding: theme.spacing(3, 2, 1, 2),
+    letterSpacing: 0.2,
+  },
+  dialogContent: {
+    padding: theme.spacing(3, 3, 2, 3),
+    background: "#f7f8fa",
+    borderRadius: 14,
+  },
+  dialogActions: {
+    padding: theme.spacing(3, 3, 2, 3),
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: theme.spacing(2),
   },
 }));
 
@@ -146,8 +181,15 @@ const ContactListItemModal = ({
 
   return (
     <div className={classes.root}>
-      <Dialog open={open} onClose={handleClose} maxWidth="lg" scroll="paper">
-        <DialogTitle id="form-dialog-title">
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="sm"
+        fullWidth
+        scroll="paper"
+        classes={{ paper: classes.dialogPaper }}
+      >
+        <DialogTitle id="form-dialog-title" className={classes.dialogTitle}>
           {contactId
             ? `${i18n.t("contactModal.title.edit")}`
             : `${i18n.t("contactModal.title.add")}`}
@@ -165,7 +207,7 @@ const ContactListItemModal = ({
         >
           {({ values, errors, touched, isSubmitting }) => (
             <Form>
-              <DialogContent dividers>
+              <DialogContent dividers className={classes.dialogContent}>
                 <Typography variant="subtitle1" gutterBottom>
                   {i18n.t("contactModal.form.mainInfo")}
                 </Typography>
@@ -179,6 +221,14 @@ const ContactListItemModal = ({
                   variant="outlined"
                   margin="dense"
                   className={classes.textField}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon style={{ color: "#5D3FD3" }} />
+                      </InputAdornment>
+                    ),
+                    style: { borderRadius: 10, background: "#fff" },
+                  }}
                 />
                 <Field
                   as={TextField}
@@ -189,27 +239,44 @@ const ContactListItemModal = ({
                   placeholder="5513912344321"
                   variant="outlined"
                   margin="dense"
+                  className={classes.textField}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PhoneIcon style={{ color: "#5D3FD3" }} />
+                      </InputAdornment>
+                    ),
+                    style: { borderRadius: 10, background: "#fff" },
+                  }}
                 />
-                <div>
-                  <Field
-                    as={TextField}
-                    label={i18n.t("contactModal.form.email")}
-                    name="email"
-                    error={touched.email && Boolean(errors.email)}
-                    helperText={touched.email && errors.email}
-                    placeholder="Email address"
-                    fullWidth
-                    margin="dense"
-                    variant="outlined"
-                  />
-                </div>
+                <Field
+                  as={TextField}
+                  label={i18n.t("contactModal.form.email")}
+                  name="email"
+                  error={touched.email && Boolean(errors.email)}
+                  helperText={touched.email && errors.email}
+                  placeholder="Email address"
+                  fullWidth
+                  margin="dense"
+                  variant="outlined"
+                  className={classes.textField}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailIcon style={{ color: "#5D3FD3" }} />
+                      </InputAdornment>
+                    ),
+                    style: { borderRadius: 10, background: "#fff" },
+                  }}
+                />
               </DialogContent>
-              <DialogActions>
+              <DialogActions className={classes.dialogActions}>
                 <Button
                   onClick={handleClose}
                   color="secondary"
                   disabled={isSubmitting}
                   variant="outlined"
+                  className={classes.btnWrapper}
                 >
                   {i18n.t("contactModal.buttons.cancel")}
                 </Button>

@@ -1,9 +1,9 @@
 import React, {
-  useContext,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
+	useContext,
+	useEffect,
+	useReducer,
+	useRef,
+	useState,
 } from "react";
 
 import Avatar from "@material-ui/core/Avatar";
@@ -1087,7 +1087,7 @@ const Contacts = () => {
               <Grid item xs={12}>
                 <Table>
                   <TableBody>
-                    <TableRowSkeleton avatar columns={3} />
+                <TableRowSkeleton avatar columns={3} />
                   </TableBody>
                 </Table>
               </Grid>

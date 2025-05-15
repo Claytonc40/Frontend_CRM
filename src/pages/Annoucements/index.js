@@ -19,9 +19,7 @@ import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
 
 import MainHeader from "../../components/MainHeader";
-import Title from "../../components/Title";
 
-import { Grid } from "@material-ui/core";
 import { isArray } from "lodash";
 import AnnouncementModal from "../../components/AnnouncementModal";
 import ConfirmationModal from "../../components/ConfirmationModal";
@@ -30,6 +28,8 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
 import Container from "@material-ui/core/Container";
+import AddIcon from "@material-ui/icons/Add";
+import SpeakerIcon from "@material-ui/icons/Speaker";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
@@ -84,10 +84,13 @@ const reducer = (state, action) => {
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    // padding: theme.spacing(1),
-    padding: theme.padding,
+    padding: theme.spacing(3),
     overflowY: "scroll",
+    background: "linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)",
+    borderRadius: 16,
+    boxShadow: "0 4px 20px rgba(93,63,211,0.10)",
     ...theme.scrollbarStyles,
+    marginTop: theme.spacing(4),
   },
   container: {
     paddingTop: theme.spacing(4),
@@ -98,6 +101,79 @@ const useStyles = makeStyles((theme) => ({
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
     },
+  },
+  headerContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(3),
+    padding: theme.spacing(2.5, 3),
+    background: "#fff",
+    borderRadius: 18,
+    boxShadow: "0 4px 24px rgba(93,63,211,0.13)",
+    minHeight: 64,
+  },
+  headerIcon: {
+    color: "#5D3FD3",
+    fontSize: 32,
+  },
+  headerTitle: {
+    fontWeight: 700,
+    fontSize: 24,
+    color: "#5D3FD3",
+    letterSpacing: 0.2,
+  },
+  searchContainer: {
+    flex: 1,
+    maxWidth: 480,
+    display: "flex",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      maxWidth: "100%",
+      marginBottom: theme.spacing(1),
+    },
+  },
+  searchInput: {
+    flex: 1,
+    background: "#f7f8fa",
+    borderRadius: 12,
+    marginRight: theme.spacing(2),
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 12,
+    },
+  },
+  addButton: {
+    borderRadius: 12,
+    fontWeight: 600,
+    minWidth: 120,
+    boxShadow: "0 2px 8px rgba(93,63,211,0.10)",
+    textTransform: "none",
+    fontSize: 15,
+    background: "#5D3FD3",
+    color: "#fff",
+    marginLeft: theme.spacing(2),
+    height: 40,
+    "&:hover": {
+      background: "#4930A8",
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      marginLeft: 0,
+      marginTop: theme.spacing(1),
+    },
+  },
+  table: {
+    background: "#f7f8fa",
+    borderRadius: 12,
+    marginTop: theme.spacing(2),
+  },
+  tableHead: {
+    background: "#e5e0fa",
+  },
+  tableCell: {
+    fontWeight: 600,
+    color: "#5D3FD3",
+    fontSize: 15,
   },
 }));
 
@@ -187,6 +263,7 @@ const Announcements = () => {
   const handleCloseAnnouncementModal = () => {
     setSelectedAnnouncement(null);
     setAnnouncementModalOpen(false);
+    fetchAnnouncements();
   };
 
   const handleSearch = (event) => {
@@ -200,18 +277,23 @@ const Announcements = () => {
 
   const handleDeleteAnnouncement = async (announcement) => {
     try {
-      if (announcement.mediaName)
+      if (announcement.mediaName) {
         await api.delete(`/announcements/${announcement.id}/media-upload`);
+      }
 
       await api.delete(`/announcements/${announcement.id}`);
 
+      dispatch({ type: "DELETE_ANNOUNCEMENT", payload: announcement.id });
+
       toast.success(i18n.t("announcements.toasts.deleted"));
+      setDeletingAnnouncement(null);
+      setConfirmModalOpen(false);
+
+      setPageNumber(1);
+      fetchAnnouncements();
     } catch (err) {
       toast.error(err.message);
     }
-    setDeletingAnnouncement(null);
-    setSearchParam("");
-    setPageNumber(1);
   };
 
   const loadMore = () => {
@@ -248,81 +330,74 @@ const Announcements = () => {
           }?`
         }
         open={confirmModalOpen}
-        onClose={setConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
         onConfirm={() => handleDeleteAnnouncement(deletingAnnouncement)}
       >
         {i18n.t("announcements.confirmationModal.deleteMessage")}
       </ConfirmationModal>
       <AnnouncementModal
-        resetPagination={() => {
-          setPageNumber(1);
-          fetchAnnouncements();
-        }}
         open={announcementModalOpen}
         onClose={handleCloseAnnouncementModal}
         aria-labelledby="form-dialog-title"
         announcementId={selectedAnnouncement && selectedAnnouncement.id}
+        reload={fetchAnnouncements}
       />
       <MainHeader>
-        <Grid style={{ width: "99.6%" }} container>
-          <Grid xs={12} sm={8} item>
-            <Title>
-              {i18n.t("announcements.title")} ({announcements.length})
-            </Title>
-          </Grid>
-          <Grid xs={12} sm={4} item>
-            <Grid spacing={2} container>
-              <Grid xs={6} sm={6} item>
-                <TextField
-                  fullWidth
-                  placeholder={i18n.t("announcements.searchPlaceholder")}
-                  type="search"
-                  value={searchParam}
-                  onChange={handleSearch}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon style={{ color: "gray" }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid xs={6} sm={6} item>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  onClick={handleOpenAnnouncementModal}
-                  color="primary"
-                >
-                  {i18n.t("announcements.buttons.add")}
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+        <div className={classes.headerContainer}>
+          <SpeakerIcon className={classes.headerIcon} />
+          <span className={classes.headerTitle}>
+            {i18n.t("announcements.title")} ({announcements.length})
+          </span>
+          <div className={classes.searchContainer}>
+            <TextField
+              placeholder={i18n.t("announcements.searchPlaceholder")}
+              type="search"
+              value={searchParam}
+              onChange={handleSearch}
+              className={classes.searchInput}
+              variant="outlined"
+              size="small"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon style={{ color: "gray" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.addButton}
+              onClick={handleOpenAnnouncementModal}
+              startIcon={<AddIcon />}
+            >
+              {i18n.t("announcements.buttons.add")}
+            </Button>
+          </div>
+        </div>
       </MainHeader>
       <Paper
         className={classes.mainPaper}
         variant="outlined"
         onScroll={handleScroll}
       >
-        <Table size="small">
-          <TableHead>
+        <Table size="small" className={classes.table}>
+          <TableHead className={classes.tableHead}>
             <TableRow>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 {i18n.t("announcements.table.title")}
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 {i18n.t("announcements.table.priority")}
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 {i18n.t("announcements.table.mediaName")}
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 {i18n.t("announcements.table.status")}
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 {i18n.t("announcements.table.actions")}
               </TableCell>
             </TableRow>
@@ -374,3 +449,4 @@ const Announcements = () => {
 };
 
 export default Announcements;
+

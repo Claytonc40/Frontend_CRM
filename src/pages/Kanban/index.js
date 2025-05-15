@@ -27,6 +27,21 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(1),
     },
+    "&::-webkit-scrollbar": {
+      width: "8px",
+      height: "8px",
+    },
+    "&::-webkit-scrollbar-track": {
+      background: "#f1f1f1",
+      borderRadius: "4px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: "#5D3FD3",
+      borderRadius: "4px",
+      "&:hover": {
+        background: "#4930A8",
+      },
+    },
   },
   kanbanColumn: {
     background: "#fff",
@@ -38,6 +53,21 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     display: "flex",
     flexDirection: "column",
+    "&::-webkit-scrollbar": {
+      width: "8px",
+      height: "8px",
+    },
+    "&::-webkit-scrollbar-track": {
+      background: "#f1f1f1",
+      borderRadius: "4px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: "#5D3FD3",
+      borderRadius: "4px",
+      "&:hover": {
+        background: "#4930A8",
+      },
+    },
   },
   kanbanHeader: {
     display: "flex",

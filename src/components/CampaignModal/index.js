@@ -5,6 +5,7 @@ import { head } from "lodash";
 import { toast } from "sonner";
 import * as Yup from "yup";
 
+import { Typography } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Dialog from "@material-ui/core/Dialog";
@@ -42,26 +43,64 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: "wrap",
     backgroundColor: "#fff",
   },
-
-  tabmsg: {
-    backgroundColor: theme.palette.campaigntab,
+  dialogTitle: {
+    background: "linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)",
+    padding: theme.spacing(3),
+    borderBottom: "1px solid rgba(93,63,211,0.1)",
   },
-
+  dialogContent: {
+    padding: theme.spacing(3),
+    background: "#fff",
+  },
+  dialogActions: {
+    padding: theme.spacing(2, 3),
+    background: "#f8f7ff",
+    borderTop: "1px solid rgba(93,63,211,0.1)",
+  },
   textField: {
     marginRight: theme.spacing(1),
     flex: 1,
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 12,
+      "&:hover fieldset": {
+        borderColor: "#5D3FD3",
+      },
+    },
   },
-
-  extraAttr: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+  formControl: {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 12,
+      "&:hover fieldset": {
+        borderColor: "#5D3FD3",
+      },
+    },
   },
-
+  tabRoot: {
+    backgroundColor: "#f8f7ff",
+    borderRadius: "12px 12px 0 0",
+    minHeight: 48,
+    "& .MuiTab-root": {
+      minHeight: 48,
+      color: "#666",
+      "&.Mui-selected": {
+        color: "#5D3FD3",
+        fontWeight: 600,
+      },
+    },
+    "& .MuiTabs-indicator": {
+      backgroundColor: "#5D3FD3",
+      height: 3,
+    },
+  },
+  messageBox: {
+    padding: theme.spacing(3),
+    background: "#f8f7ff",
+    borderRadius: "0 0 12px 12px",
+    marginTop: -1,
+  },
   btnWrapper: {
     position: "relative",
   },
-
   buttonProgress: {
     color: green[500],
     position: "absolute",
@@ -69,6 +108,30 @@ const useStyles = makeStyles((theme) => ({
     left: "50%",
     marginTop: -12,
     marginLeft: -12,
+  },
+  actionButton: {
+    borderRadius: 8,
+    textTransform: "none",
+    fontWeight: 600,
+    padding: "8px 24px",
+  },
+  attachButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: theme.spacing(1, 2),
+    borderRadius: 8,
+    background: "#f8f7ff",
+    color: "#5D3FD3",
+    "&:hover": {
+      background: "#e5e0fa",
+    },
+  },
+  deleteButton: {
+    color: "#ff4d4f",
+    "&:hover": {
+      background: "rgba(255,77,79,0.1)",
+    },
   },
 }));
 
@@ -345,18 +408,26 @@ const CampaignModal = ({
         fullWidth
         maxWidth="md"
         scroll="paper"
+        PaperProps={{
+          style: {
+            borderRadius: 16,
+            boxShadow: "0 8px 32px rgba(93,63,211,0.1)",
+          },
+        }}
       >
-        <DialogTitle id="form-dialog-title">
-          {campaignEditable ? (
-            <>
-              {campaignId
+        <DialogTitle className={classes.dialogTitle}>
+          <Typography
+            variant="h6"
+            style={{ color: "#5D3FD3", fontWeight: 600 }}
+          >
+            {campaignEditable
+              ? campaignId
                 ? `${i18n.t("campaigns.dialog.update")}`
-                : `${i18n.t("campaigns.dialog.new")}`}
-            </>
-          ) : (
-            <>{`${i18n.t("campaigns.dialog.readonly")}`}</>
-          )}
+                : `${i18n.t("campaigns.dialog.new")}`
+              : `${i18n.t("campaigns.dialog.readonly")}`}
+          </Typography>
         </DialogTitle>
+
         <div style={{ display: "none" }}>
           <input
             type="file"
@@ -364,6 +435,7 @@ const CampaignModal = ({
             onChange={(e) => handleAttachmentFile(e)}
           />
         </div>
+
         <Formik
           initialValues={campaign}
           enableReinitialize={true}
@@ -377,8 +449,8 @@ const CampaignModal = ({
         >
           {({ values, errors, touched, isSubmitting }) => (
             <Form>
-              <DialogContent dividers>
-                <Grid spacing={2} container>
+              <DialogContent className={classes.dialogContent}>
+                <Grid spacing={3} container>
                   <Grid xs={12} item>
                     <Field
                       as={TextField}
@@ -393,35 +465,6 @@ const CampaignModal = ({
                       disabled={!campaignEditable}
                     />
                   </Grid>
-                  {/* <Grid xs={12} md={3} item>
-                    <FormControl
-                      variant="outlined"
-                      margin="dense"
-                      fullWidth
-                      className={classes.formControl}
-                    >
-                      <InputLabel id="confirmation-selection-label">
-                        {i18n.t("campaigns.dialog.form.confirmation")}
-                      </InputLabel>
-                      <Field
-                        as={Select}
-                        label={i18n.t("campaigns.dialog.form.confirmation")}
-                        placeholder={i18n.t(
-                          "campaigns.dialog.form.confirmation"
-                        )}
-                        labelId="confirmation-selection-label"
-                        id="confirmation"
-                        name="confirmation"
-                        error={
-                          touched.confirmation && Boolean(errors.confirmation)
-                        }
-                        disabled={!campaignEditable}
-                      >
-                        <MenuItem value={false}>Desabilitada</MenuItem>
-                        <MenuItem value={true}>Habilitada</MenuItem>
-                      </Field>
-                    </FormControl>
-                  </Grid> */}
                   <Grid xs={12} md={4} item>
                     <FormControl
                       variant="outlined"
@@ -436,7 +479,7 @@ const CampaignModal = ({
                         as={Select}
                         label={i18n.t("campaigns.dialog.form.contactList")}
                         placeholder={i18n.t(
-                          "campaigns.dialog.form.contactList",
+                          "campaigns.dialog.form.contactList"
                         )}
                         labelId="contactList-selection-label"
                         id="contactListId"
@@ -570,21 +613,18 @@ const CampaignModal = ({
                       value={messageTab}
                       indicatorColor="primary"
                       textColor="primary"
-                      className={classes.tabmsg}
+                      className={classes.tabRoot}
                       onChange={(e, v) => setMessageTab(v)}
                       variant="fullWidth"
                       centered
-                      style={{
-                        borderRadius: 2,
-                      }}
                     >
-                      <Tab label="Msg. 1" index={0} />
-                      <Tab label="Msg. 2" index={1} />
-                      <Tab label="Msg. 3" index={2} />
-                      <Tab label="Msg. 4" index={3} />
-                      <Tab label="Msg. 5" index={4} />
+                      <Tab label="Msg. 1" />
+                      <Tab label="Msg. 2" />
+                      <Tab label="Msg. 3" />
+                      <Tab label="Msg. 4" />
+                      <Tab label="Msg. 5" />
                     </Tabs>
-                    <Box style={{ paddingTop: 20, border: "none" }}>
+                    <Box className={classes.messageBox}>
                       {messageTab === 0 && (
                         <>
                           {values.confirmation ? (
@@ -595,7 +635,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage1",
+                                    "confirmationMessage1"
                                   )}
                                 </>
                               </Grid>
@@ -615,7 +655,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage2",
+                                    "confirmationMessage2"
                                   )}
                                 </>
                               </Grid>
@@ -635,7 +675,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage3",
+                                    "confirmationMessage3"
                                   )}
                                 </>
                               </Grid>
@@ -655,7 +695,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage4",
+                                    "confirmationMessage4"
                                   )}
                                 </>
                               </Grid>
@@ -675,7 +715,7 @@ const CampaignModal = ({
                               <Grid xs={12} md={4} item>
                                 <>
                                   {renderConfirmationMessageField(
-                                    "confirmationMessage5",
+                                    "confirmationMessage5"
                                   )}
                                 </>
                               </Grid>
@@ -689,29 +729,36 @@ const CampaignModal = ({
                   </Grid>
                   {(campaign.mediaPath || attachment) && (
                     <Grid xs={12} item>
-                      <Button startIcon={<AttachFileIcon />}>
-                        {attachment != null
-                          ? attachment.name
-                          : campaign.mediaName}
-                      </Button>
-                      {campaignEditable && (
-                        <IconButton
-                          onClick={() => setConfirmationOpen(true)}
-                          color="secondary"
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <Button
+                          startIcon={<AttachFileIcon />}
+                          className={classes.attachButton}
                         >
-                          <DeleteOutlineIcon />
-                        </IconButton>
-                      )}
+                          {attachment != null
+                            ? attachment.name
+                            : campaign.mediaName}
+                        </Button>
+                        {campaignEditable && (
+                          <IconButton
+                            onClick={() => setConfirmationOpen(true)}
+                            className={classes.deleteButton}
+                          >
+                            <DeleteOutlineIcon />
+                          </IconButton>
+                        )}
+                      </Box>
                     </Grid>
                   )}
                 </Grid>
               </DialogContent>
-              <DialogActions>
+
+              <DialogActions className={classes.dialogActions}>
                 {campaign.status === "CANCELADA" && (
                   <Button
                     color="primary"
                     onClick={() => restartCampaign()}
                     variant="outlined"
+                    className={classes.actionButton}
                   >
                     {i18n.t("campaigns.dialog.buttons.restart")}
                   </Button>
@@ -721,6 +768,7 @@ const CampaignModal = ({
                     color="primary"
                     onClick={() => cancelCampaign()}
                     variant="outlined"
+                    className={classes.actionButton}
                   >
                     {i18n.t("campaigns.dialog.buttons.cancel")}
                   </Button>
@@ -731,6 +779,7 @@ const CampaignModal = ({
                     onClick={() => attachmentFile.current.click()}
                     disabled={isSubmitting}
                     variant="outlined"
+                    className={classes.actionButton}
                   >
                     {i18n.t("campaigns.dialog.buttons.attach")}
                   </Button>
@@ -740,6 +789,7 @@ const CampaignModal = ({
                   color="secondary"
                   disabled={isSubmitting}
                   variant="outlined"
+                  className={classes.actionButton}
                 >
                   {i18n.t("campaigns.dialog.buttons.close")}
                 </Button>
@@ -749,7 +799,7 @@ const CampaignModal = ({
                     color="primary"
                     disabled={isSubmitting}
                     variant="contained"
-                    className={classes.btnWrapper}
+                    className={`${classes.actionButton} ${classes.btnWrapper}`}
                   >
                     {campaignId
                       ? `${i18n.t("campaigns.dialog.buttons.edit")}`

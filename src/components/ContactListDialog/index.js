@@ -23,17 +23,34 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexWrap: "wrap",
   },
+  dialogPaper: {
+    borderRadius: 18,
+    boxShadow: "0 4px 24px rgba(93,63,211,0.13)",
+    background: "#fff",
+    padding: theme.spacing(1, 0),
+  },
+  dialogTitle: {
+    fontWeight: 700,
+    fontSize: 22,
+    color: "#5D3FD3",
+    textAlign: "center",
+    padding: theme.spacing(3, 2, 1, 2),
+    letterSpacing: 0.2,
+  },
+  dialogContent: {
+    padding: theme.spacing(3, 3, 2, 3),
+    background: "#f7f8fa",
+    borderRadius: 14,
+  },
   multFieldLine: {
     display: "flex",
     "& > *:not(:last-child)": {
       marginRight: theme.spacing(1),
     },
   },
-
   btnWrapper: {
     position: "relative",
   },
-
   buttonProgress: {
     color: green[500],
     position: "absolute",
@@ -45,6 +62,31 @@ const useStyles = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(1),
     minWidth: 120,
+  },
+  actionButton: {
+    borderRadius: 12,
+    textTransform: "none",
+    fontWeight: 600,
+    padding: "10px 24px",
+    boxShadow: "0 4px 12px rgba(93,63,211,0.10)",
+    transition: "all 0.2s",
+    "&:hover": {
+      boxShadow: "0 6px 16px rgba(93,63,211,0.18)",
+    },
+  },
+  cancelButton: {
+    borderRadius: 12,
+    textTransform: "none",
+    fontWeight: 600,
+    padding: "10px 24px",
+    border: "1px solid #e0e0e0",
+    background: "#fff",
+    color: "#5D3FD3",
+    marginRight: theme.spacing(1),
+    "&:hover": {
+      background: "#f7f8fa",
+      color: "#4930A8",
+    },
   },
 }));
 
@@ -108,8 +150,9 @@ const ContactListModal = ({ open, onClose, contactListId }) => {
         maxWidth="xs"
         fullWidth
         scroll="paper"
+        classes={{ paper: classes.dialogPaper }}
       >
-        <DialogTitle id="form-dialog-title">
+        <DialogTitle id="form-dialog-title" className={classes.dialogTitle}>
           {contactListId
             ? `${i18n.t("contactLists.dialog.edit")}`
             : `${i18n.t("contactLists.dialog.add")}`}
@@ -127,7 +170,7 @@ const ContactListModal = ({ open, onClose, contactListId }) => {
         >
           {({ touched, errors, isSubmitting }) => (
             <Form>
-              <DialogContent dividers>
+              <DialogContent dividers className={classes.dialogContent}>
                 <div className={classes.multFieldLine}>
                   <Field
                     as={TextField}
@@ -139,15 +182,19 @@ const ContactListModal = ({ open, onClose, contactListId }) => {
                     variant="outlined"
                     margin="dense"
                     fullWidth
+                    InputProps={{
+                      style: { borderRadius: 10, background: "#fff" },
+                    }}
                   />
                 </div>
               </DialogContent>
-              <DialogActions>
+              <DialogActions style={{ padding: 24, paddingTop: 8 }}>
                 <Button
                   onClick={handleClose}
                   color="secondary"
                   disabled={isSubmitting}
                   variant="outlined"
+                  className={classes.cancelButton}
                 >
                   {i18n.t("contactLists.dialog.cancel")}
                 </Button>
@@ -156,7 +203,7 @@ const ContactListModal = ({ open, onClose, contactListId }) => {
                   color="primary"
                   disabled={isSubmitting}
                   variant="contained"
-                  className={classes.btnWrapper}
+                  className={classes.actionButton}
                 >
                   {contactListId
                     ? `${i18n.t("contactLists.dialog.okEdit")}`

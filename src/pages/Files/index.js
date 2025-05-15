@@ -24,7 +24,6 @@ import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
 
 import MainHeader from "../../components/MainHeader";
-import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import Title from "../../components/Title";
 
 import ConfirmationModal from "../../components/ConfirmationModal";
@@ -85,9 +84,14 @@ const reducer = (state, action) => {
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
+    padding: theme.spacing(3),
+    overflowY: "auto",
     ...theme.scrollbarStyles,
+    marginTop: theme.spacing(4),
+    background: "#faf9fd",
+    borderRadius: 16,
+    boxShadow: "0 2px 12px rgba(93,63,211,0.07)",
+    minHeight: 400,
   },
   container: {
     paddingTop: theme.spacing(4),
@@ -97,6 +101,71 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
+    },
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing(2),
+    flexWrap: "wrap",
+    gap: theme.spacing(2),
+  },
+  searchInput: {
+    minWidth: 240,
+    background: "#fff",
+    borderRadius: 10,
+    boxShadow: "0 1px 4px rgba(93,63,211,0.04)",
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 10,
+    },
+  },
+  addButton: {
+    marginLeft: theme.spacing(2),
+    height: 40,
+    whiteSpace: "nowrap",
+    backgroundColor: "#5D3FD3",
+    color: "#fff",
+    fontWeight: 600,
+    borderRadius: 10,
+    boxShadow: "0 2px 8px rgba(93,63,211,0.08)",
+    transition: "background 0.2s, box-shadow 0.2s",
+    "&:hover": {
+      backgroundColor: "#4b32a8",
+      boxShadow: "0 4px 16px rgba(93,63,211,0.12)",
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      marginLeft: 0,
+    },
+  },
+  tableHead: {
+    background: "#f3f0fa",
+    position: "sticky",
+    top: 0,
+    zIndex: 1,
+  },
+  tableRow: {
+    "&:nth-of-type(odd)": {
+      backgroundColor: "#f8f6fc",
+    },
+    "&:hover": {
+      backgroundColor: "#ede7fa",
+    },
+  },
+  actionCell: {
+    display: "flex",
+    justifyContent: "center",
+    gap: theme.spacing(1),
+  },
+  iconButton: {
+    color: "#5D3FD3",
+    background: "#f3f0fa",
+    borderRadius: 8,
+    transition: "background 0.2s, color 0.2s",
+    "&:hover": {
+      background: "#e0d7fa",
+      color: "#4b32a8",
     },
   },
 }));
@@ -216,7 +285,7 @@ const FileLists = () => {
           deletingFileList && `${i18n.t("files.confirmationModal.deleteTitle")}`
         }
         open={confirmModalOpen}
-        onClose={setConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
         onConfirm={() => handleDeleteFileList(deletingFileList.id)}
       >
         {i18n.t("files.confirmationModal.deleteMessage")}
@@ -228,32 +297,40 @@ const FileLists = () => {
         aria-labelledby="form-dialog-title"
         fileListId={selectedFileList && selectedFileList.id}
       />
+      
       <MainHeader>
-        <Title>
-          {i18n.t("files.title")} ({files.length})
-        </Title>
-        <MainHeaderButtonsWrapper>
-          <TextField
-            placeholder={i18n.t("contacts.searchPlaceholder")}
-            type="search"
-            value={searchParam}
-            onChange={handleSearch}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon style={{ color: "gray" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenFileListModal}
-          >
-            {i18n.t("files.buttons.add")}
-          </Button>
-        </MainHeaderButtonsWrapper>
+        <div className={classes.header}>
+          <Title>
+            {i18n.t("files.title")} ({files.length})
+          </Title>
+          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <TextField
+              placeholder={i18n.t("contacts.searchPlaceholder")}
+              type="search"
+              value={searchParam}
+              onChange={handleSearch}
+              className={classes.searchInput}
+              variant="outlined"
+              size="small"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon style={{ color: "gray" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.addButton}
+              onClick={handleOpenFileListModal}
+              startIcon={<EditIcon />}
+            >
+              {i18n.t("files.buttons.add")}
+            </Button>
+          </div>
+        </div>
       </MainHeader>
       <Paper
         className={classes.mainPaper}
@@ -261,7 +338,7 @@ const FileLists = () => {
         onScroll={handleScroll}
       >
         <Table size="small">
-          <TableHead>
+          <TableHead className={classes.tableHead}>
             <TableRow>
               <TableCell align="center">{i18n.t("files.table.name")}</TableCell>
               <TableCell align="center">
@@ -272,19 +349,20 @@ const FileLists = () => {
           <TableBody>
             <>
               {files.map((fileList) => (
-                <TableRow key={fileList.id}>
+                <TableRow key={fileList.id} className={classes.tableRow}>
                   <TableCell align="center">{fileList.name}</TableCell>
-                  <TableCell align="center">
+                  <TableCell align="center" className={classes.actionCell}>
                     <IconButton
                       size="small"
+                      className={classes.iconButton}
                       onClick={() => handleEditFileList(fileList)}
                     >
                       <EditIcon />
                     </IconButton>
-
                     <IconButton
                       size="small"
-                      onClick={(e) => {
+                      className={classes.iconButton}
+                      onClick={() => {
                         setConfirmModalOpen(true);
                         setDeletingFileList(fileList);
                       }}

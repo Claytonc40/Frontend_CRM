@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,6 +11,7 @@ import {
   Grid,
   IconButton,
   InputLabel,
+  makeStyles,
   MenuItem,
   Paper,
   Select,
@@ -17,7 +19,7 @@ import {
   StepLabel,
   Stepper,
   TextField,
-  makeStyles,
+  Typography,
 } from "@material-ui/core";
 import { has, isArray } from "lodash";
 import {
@@ -29,7 +31,9 @@ import {
   Mail,
   Phone,
   Plus,
+  Trash2,
   User,
+  Users,
   XCircle,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -352,14 +356,131 @@ function CompanyModal({
   );
 }
 
+function CompanyUsersModal({ open, onClose, company }) {
+  const classes = useStyles();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open && company?.id) {
+      loadUsers();
+    }
+  }, [open, company]);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      // Aqui você deve implementar a chamada à API para buscar os usuários da empresa
+      // const response = await api.get(`/companies/${company.id}/users`);
+      // setUsers(response.data);
+      setLoading(false);
+    } catch (err) {
+      toast.error("Erro ao carregar usuários");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <Users size={28} style={{ color: "#5D3FD3" }} />
+        Gerenciar Usuários - {company?.name}
+      </DialogTitle>
+      <DialogContent style={{ padding: 32 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
+              <Typography variant="h6">Lista de Usuários</Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<Plus size={20} />}
+                onClick={() => {
+                  // Implementar adição de usuário
+                }}
+              >
+                Adicionar Usuário
+              </Button>
+            </Box>
+          </Grid>
+          <Grid item xs={12}>
+            {loading ? (
+              <Box display="flex" justifyContent="center" p={3}>
+                <CircularProgress />
+              </Box>
+            ) : users.length === 0 ? (
+              <Box display="flex" justifyContent="center" p={3}>
+                <Typography color="textSecondary">
+                  Nenhum usuário encontrado
+                </Typography>
+              </Box>
+            ) : (
+              <Grid container spacing={2}>
+                {users.map((user) => (
+                  <Grid item xs={12} sm={6} md={4} key={user.id}>
+                    <Paper className={classes.companyCard}>
+                      <div className={classes.cardHeader}>
+                        <div className={classes.companyName}>
+                          <User size={22} /> {user.name}
+                        </div>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <IconButton
+                            onClick={() => {
+                              // Implementar edição de usuário
+                            }}
+                            aria-label="edit"
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => {
+                              // Implementar exclusão de usuário
+                            }}
+                            aria-label="delete"
+                            style={{ color: "#c62828" }}
+                          >
+                            <Trash2 size={20} />
+                          </IconButton>
+                        </div>
+                      </div>
+                      <div className={classes.infoList}>
+                        <div className={classes.infoItem}>
+                          <Mail size={16} /> {user.email}
+                        </div>
+                        <div className={classes.infoItem}>
+                          <Phone size={16} /> {user.phone || "-"}
+                        </div>
+                      </div>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Fechar</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export function CompaniesManagerGrid(props) {
-  const { records, onSelect } = props;
+  const { records, onSelect, onDelete, onManageUsers } = props;
   const classes = useStyles();
   const { dateToClient } = useDate();
 
   const renderStatus = (row) => (
     <span
-      className={`${classes.badge} ${row.status ? classes.badgeAtivo : classes.badgeInativo}`}
+      className={`${classes.badge} ${
+        row.status ? classes.badgeAtivo : classes.badgeInativo
+      }`}
     >
       {row.status ? <CheckCircle size={15} /> : <XCircle size={15} />}{" "}
       {row.status ? "Ativo" : "Inativo"}
@@ -384,7 +505,9 @@ export function CompaniesManagerGrid(props) {
     }
     return (
       <span
-        className={`${classes.badge} ${enabled ? classes.badgeCampanha : classes.badgeCampanhaOff}`}
+        className={`${classes.badge} ${
+          enabled ? classes.badgeCampanha : classes.badgeCampanhaOff
+        }`}
       >
         {enabled ? <CheckCircle size={14} /> : <XCircle size={14} />} Campanhas{" "}
         {enabled ? "Habilitadas" : "Desabilitadas"}
@@ -396,14 +519,36 @@ export function CompaniesManagerGrid(props) {
     <Grid container spacing={3}>
       {records.map((row, key) => (
         <Grid item xs={12} sm={6} md={4} key={key}>
-          <Paper className={classes.companyCard}>
+          <Paper
+            className={classes.companyCard}
+            onClick={() => onManageUsers(row)}
+            style={{ cursor: "pointer" }}
+          >
             <div className={classes.cardHeader}>
               <div className={classes.companyName}>
                 <User size={22} /> {row.name || "-"}
               </div>
-              <IconButton onClick={() => onSelect(row)} aria-label="edit">
-                <EditIcon />
-              </IconButton>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(row);
+                  }}
+                  aria-label="edit"
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(row);
+                  }}
+                  aria-label="delete"
+                  style={{ color: "#c62828" }}
+                >
+                  <Trash2 size={20} />
+                </IconButton>
+              </div>
             </div>
             <div className={classes.infoList}>
               <div className={classes.infoItem}>
@@ -452,6 +597,8 @@ export default function CompaniesManager() {
   });
   const [modalOpen, setModalOpen] = useState(false);
   const [plans, setPlans] = useState([]);
+  const [usersModalOpen, setUsersModalOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -478,7 +625,7 @@ export default function CompaniesManager() {
       toast.success("Operação realizada com sucesso!");
     } catch (e) {
       toast.error(
-        "Não foi possível realizar a operação. Verifique se já existe uma empresa com o mesmo nome ou se os campos foram preenchidos corretamente",
+        "Não foi possível realizar a operação. Verifique se já existe uma empresa com o mesmo nome ou se os campos foram preenchidos corretamente"
       );
     }
     setLoading(false);
@@ -520,7 +667,7 @@ export default function CompaniesManager() {
   const handleSelect = (data) => {
     let campaignsEnabled = false;
     const setting = data.settings?.find(
-      (s) => s.key.indexOf("campaignsEnabled") > -1,
+      (s) => s.key.indexOf("campaignsEnabled") > -1
     );
     if (setting) {
       campaignsEnabled =
@@ -560,9 +707,28 @@ export default function CompaniesManager() {
         plans={plans}
         loading={loading}
       />
+      <CompanyUsersModal
+        open={usersModalOpen}
+        onClose={() => {
+          setUsersModalOpen(false);
+          setSelectedCompany(null);
+        }}
+        company={selectedCompany}
+      />
       <Grid spacing={2} container>
         <Grid xs={12} item>
-          <CompaniesManagerGrid records={records} onSelect={handleSelect} />
+          <CompaniesManagerGrid
+            records={records}
+            onSelect={handleSelect}
+            onDelete={(data) => {
+              setRecord(data);
+              handleOpenDeleteDialog();
+            }}
+            onManageUsers={(company) => {
+              setSelectedCompany(company);
+              setUsersModalOpen(true);
+            }}
+          />
         </Grid>
       </Grid>
       <ConfirmationModal

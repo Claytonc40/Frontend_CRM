@@ -13,11 +13,6 @@ import Button from "@material-ui/core/Button";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
 import TextField from "@material-ui/core/TextField";
 import SearchIcon from "@material-ui/icons/Search";
 
@@ -36,12 +31,13 @@ import { Grid } from "@material-ui/core";
 import { Can } from "../../components/Can";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
-import Title from "../../components/Title";
 import { AuthContext } from "../../context/Auth/AuthContext";
 
 import useContactLists from "../../hooks/useContactLists";
 import { i18n } from "../../translate/i18n";
 
+import EventIcon from "@material-ui/icons/Event";
+import LabelIcon from "@material-ui/icons/Label";
 import planilhaExemplo from "../../assets/planilha.xlsx";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
@@ -92,9 +88,163 @@ const reducer = (state, action) => {
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(1),
+    padding: theme.spacing(3),
     overflowY: "scroll",
+    background: "linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)",
+    borderRadius: 16,
+    boxShadow: "0 4px 20px rgba(93,63,211,0.10)",
     ...theme.scrollbarStyles,
+  },
+  cardGrid: {
+    marginTop: theme.spacing(2),
+  },
+  contactCard: {
+    background: "#fff",
+    borderRadius: 16,
+    boxShadow: "0 4px 20px rgba(93,63,211,0.10)",
+    padding: theme.spacing(2),
+    margin: "0 auto",
+    transition: "all 0.3s ease",
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    minHeight: 120,
+    cursor: "pointer",
+    "&:hover": {
+      transform: "translateY(-4px)",
+      boxShadow: "0 8px 30px rgba(93,63,211,0.15)",
+    },
+  },
+  cardHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: theme.spacing(1),
+    justifyContent: "space-between",
+  },
+  cardTitle: {
+    fontWeight: 700,
+    fontSize: 18,
+    color: "#5D3FD3",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  },
+  cardStatus: {
+    display: "flex",
+    alignItems: "center",
+    gap: 4,
+    fontWeight: 600,
+    fontSize: 14,
+    borderRadius: 12,
+    padding: "2px 10px",
+    background: "#f7f8fa",
+  },
+  cardInfo: {
+    marginBottom: theme.spacing(1),
+    color: "#444",
+    fontSize: 15,
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+  },
+  cardActions: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 8,
+    marginTop: theme.spacing(1),
+    paddingTop: theme.spacing(1),
+    borderTop: "1px solid rgba(0,0,0,0.05)",
+  },
+  actionButton: {
+    color: "#666",
+    "&:hover": {
+      background: "rgba(93,63,211,0.1)",
+      color: "#5D3FD3",
+    },
+  },
+  deleteButton: {
+    color: "#ff4d4f",
+    "&:hover": {
+      background: "rgba(255,77,79,0.1)",
+    },
+  },
+  headerContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing(3),
+    padding: theme.spacing(2.5, 3),
+    background: "#fff",
+    borderRadius: 18,
+    boxShadow: "0 4px 24px rgba(93,63,211,0.13)",
+    minHeight: 64,
+    gap: theme.spacing(2),
+  },
+  headerTitleBlock: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(2),
+  },
+  headerTitle: {
+    fontWeight: 700,
+    fontSize: 22,
+    color: "#5D3FD3",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  },
+  headerTag: {
+    display: "flex",
+    alignItems: "center",
+    background: "#f7f8fa",
+    color: "#5D3FD3",
+    borderRadius: 10,
+    fontWeight: 600,
+    fontSize: 15,
+    padding: "2px 10px",
+    marginLeft: 8,
+    gap: 4,
+  },
+  headerDate: {
+    display: "flex",
+    alignItems: "center",
+    color: "#888",
+    fontWeight: 500,
+    fontSize: 14,
+    marginLeft: 12,
+    gap: 4,
+  },
+  headerActions: {
+    display: "flex",
+    gap: theme.spacing(2),
+    alignItems: "center",
+  },
+  searchField: {
+    minWidth: 220,
+    maxWidth: 320,
+    background: "#f7f8fa",
+    borderRadius: 12,
+    marginRight: theme.spacing(2),
+  },
+  headerButton: {
+    borderRadius: 12,
+    fontWeight: 600,
+    minWidth: 100,
+    boxShadow: "0 2px 8px rgba(93,63,211,0.10)",
+    textTransform: "none",
+    fontSize: 15,
+  },
+  emptyState: {
+    textAlign: "center",
+    padding: theme.spacing(4),
+    color: "#666",
+  },
+  emptyStateIcon: {
+    fontSize: 64,
+    color: "#5D3FD3",
+    marginBottom: theme.spacing(2),
   },
 }));
 
@@ -178,7 +328,7 @@ const ContactListItems = () => {
         if (data.action === "reload") {
           dispatch({ type: "LOAD_CONTACTS", payload: data.records });
         }
-      },
+      }
     );
 
     return () => {
@@ -254,7 +404,7 @@ const ContactListItems = () => {
         onClose={handleCloseContactListItemModal}
         aria-labelledby="form-dialog-title"
         contactId={selectedContactId}
-      ></ContactListItemModal>
+      />
       <ConfirmationModal
         title={
           deletingContact
@@ -283,127 +433,134 @@ const ContactListItems = () => {
         )}
       </ConfirmationModal>
       <MainHeader>
-        <Grid style={{ width: "99.6%" }} container>
-          <Grid xs={12} sm={5} item>
-            <Title>{contactList.name}</Title>
-          </Grid>
-          <Grid xs={12} sm={7} item>
-            <Grid spacing={2} container>
-              <Grid xs={12} sm={6} item>
-                <TextField
-                  fullWidth
-                  placeholder={i18n.t("contactListItems.searchPlaceholder")}
-                  type="search"
-                  value={searchParam}
-                  onChange={handleSearch}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon style={{ color: "gray" }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid xs={4} sm={2} item>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  onClick={goToContactLists}
-                >
-                  {i18n.t("contactListItems.buttons.lists")}
-                </Button>
-              </Grid>
-              <Grid xs={4} sm={2} item>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  onClick={() => {
-                    fileUploadRef.current.value = null;
-                    fileUploadRef.current.click();
-                  }}
-                >
-                  {i18n.t("contactListItems.buttons.import")}
-                </Button>
-              </Grid>
-              <Grid xs={4} sm={2} item>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  onClick={handleOpenContactListItemModal}
-                >
-                  {i18n.t("contactListItems.buttons.add")}
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+        <div className={classes.headerContainer}>
+          <div className={classes.headerTitleBlock}>
+            <CheckCircleIcon className={classes.headerIcon} />
+            <span className={classes.headerTitle}>{contactList.name}</span>
+            {contactList.tag && (
+              <span className={classes.headerTag}>
+                <LabelIcon style={{ fontSize: 18 }} /> TAG: {contactList.tag}
+              </span>
+            )}
+            {contactList.createdAt && (
+              <span className={classes.headerDate}>
+                <EventIcon style={{ fontSize: 18 }} />
+                {new Date(contactList.createdAt).toLocaleString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            )}
+          </div>
+          <div className={classes.headerActions}>
+            <TextField
+              placeholder={i18n.t("contactListItems.searchPlaceholder")}
+              type="search"
+              value={searchParam}
+              onChange={handleSearch}
+              className={classes.searchField}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon style={{ color: "gray" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={goToContactLists}
+              className={classes.headerButton}
+            >
+              {i18n.t("contactListItems.buttons.lists")}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                fileUploadRef.current.value = null;
+                fileUploadRef.current.click();
+              }}
+              className={classes.headerButton}
+            >
+              {i18n.t("contactListItems.buttons.import")}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleOpenContactListItemModal}
+              className={classes.headerButton}
+            >
+              {i18n.t("contactListItems.buttons.add")}
+            </Button>
+          </div>
+        </div>
       </MainHeader>
       <Paper
         className={classes.mainPaper}
         variant="outlined"
         onScroll={handleScroll}
       >
-        <>
-          <input
-            style={{ display: "none" }}
-            id="upload"
-            name="file"
-            type="file"
-            accept=".xls,.xlsx"
-            onChange={() => {
-              setConfirmOpen(true);
-            }}
-            ref={fileUploadRef}
-          />
-        </>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell align="center" style={{ width: "0%" }}>
-                #
-              </TableCell>
-              <TableCell>{i18n.t("contactListItems.table.name")}</TableCell>
-              <TableCell align="center">
-                {i18n.t("contactListItems.table.number")}
-              </TableCell>
-              <TableCell align="center">
-                {i18n.t("contactListItems.table.email")}
-              </TableCell>
-              <TableCell align="center">
-                {i18n.t("contactListItems.table.actions")}
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <>
-              {contacts.map((contact) => (
-                <TableRow key={contact.id}>
-                  <TableCell align="center" style={{ width: "0%" }}>
-                    <IconButton>
+        <input
+          style={{ display: "none" }}
+          id="upload"
+          name="file"
+          type="file"
+          accept=".xls,.xlsx"
+          onChange={() => {
+            setConfirmOpen(true);
+          }}
+          ref={fileUploadRef}
+        />
+        <Grid container spacing={3} className={classes.cardGrid}>
+          {contacts.length === 0 && !loading ? (
+            <Grid item xs={12}>
+              <div className={classes.emptyState}>
+                <CheckCircleIcon className={classes.emptyStateIcon} />
+                <span style={{ fontSize: 18 }}>
+                  {i18n.t("contactListItems.emptyState")}
+                </span>
+                <div style={{ marginTop: 8 }}>
+                  {i18n.t("contactListItems.emptyStateSubtitle")}
+                </div>
+              </div>
+            </Grid>
+          ) : (
+            contacts.map((contact) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={contact.id}>
+                <div className={classes.contactCard}>
+                  <div className={classes.cardHeader}>
+                    <span className={classes.cardTitle}>{contact.name}</span>
+                    <span className={classes.cardStatus}>
                       {contact.isWhatsappValid ? (
                         <CheckCircleIcon
-                          titleAccess="Whatsapp Válido"
-                          htmlColor="green"
+                          style={{ color: "green" }}
+                          fontSize="small"
                         />
                       ) : (
-                        <BlockIcon
-                          titleAccess="Whatsapp Inválido"
-                          htmlColor="grey"
-                        />
+                        <BlockIcon style={{ color: "grey" }} fontSize="small" />
                       )}
-                    </IconButton>
-                  </TableCell>
-                  <TableCell>{contact.name}</TableCell>
-                  <TableCell align="center">{contact.number}</TableCell>
-                  <TableCell align="center">{contact.email}</TableCell>
-                  <TableCell align="center">
+                      {contact.isWhatsappValid ? "WhatsApp válido" : "Inválido"}
+                    </span>
+                  </div>
+                  <div className={classes.cardInfo}>
+                    <span>
+                      <b>Número:</b> {contact.number}
+                    </span>
+                    <span>
+                      <b>Email:</b> {contact.email}
+                    </span>
+                  </div>
+                  <div className={classes.cardActions}>
                     <IconButton
                       size="small"
                       onClick={() => hadleEditContact(contact.id)}
+                      className={classes.actionButton}
+                      title="Editar Contato"
                     >
                       <EditIcon />
                     </IconButton>
@@ -417,18 +574,24 @@ const ContactListItems = () => {
                             setConfirmOpen(true);
                             setDeletingContact(contact);
                           }}
+                          className={classes.deleteButton}
+                          title="Excluir Contato"
                         >
                           <DeleteOutlineIcon />
                         </IconButton>
                       )}
                     />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {loading && <TableRowSkeleton columns={4} />}
-            </>
-          </TableBody>
-        </Table>
+                  </div>
+                </div>
+              </Grid>
+            ))
+          )}
+          {loading && (
+            <Grid item xs={12}>
+              <TableRowSkeleton columns={3} />
+            </Grid>
+          )}
+        </Grid>
       </Paper>
     </MainContainer>
   );

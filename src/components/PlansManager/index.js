@@ -33,6 +33,7 @@ import {
   Megaphone,
   MessageSquare,
   Plus,
+  Trash2,
   Trello,
   Users,
   XCircle,
@@ -52,6 +53,21 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     padding: theme.spacing(3),
     background: "linear-gradient(135deg, #f7f8fa 60%, #e5e0fa 100%)",
+    "&::-webkit-scrollbar": {
+      width: "8px",
+      height: "8px",
+    },
+    "&::-webkit-scrollbar-track": {
+      background: "#f1f1f1",
+      borderRadius: "4px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: "#5D3FD3",
+      borderRadius: "4px",
+      "&:hover": {
+        background: "#4930A8",
+      },
+    },
   },
   fullWidth: {
     width: "100%",
@@ -424,7 +440,7 @@ export function PlanManagerForm(props) {
 }
 
 export function PlansManagerGrid(props) {
-  const { records, onSelect } = props;
+  const { records, onSelect, onDelete } = props;
   const classes = useStyles();
 
   const renderFeature = (enabled, icon, label) => (
@@ -459,9 +475,17 @@ export function PlansManagerGrid(props) {
                   })}
                 </div>
               </div>
-              <IconButton onClick={() => onSelect(plan)}>
-                <EditIcon />
-              </IconButton>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <IconButton onClick={() => onSelect(plan)}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => onDelete(plan)}
+                  style={{ color: "#c62828" }}
+                >
+                  <Trash2 size={20} />
+                </IconButton>
+              </div>
             </div>
 
             <Divider />
@@ -470,44 +494,44 @@ export function PlansManagerGrid(props) {
               {renderFeature(
                 plan.users > 0,
                 <Users size={18} />,
-                `${plan.users} Usuários`,
+                `${plan.users} Usuários`
               )}
               {renderFeature(
                 plan.connections > 0,
                 <Link size={18} />,
-                `${plan.connections} Conexões`,
+                `${plan.connections} Conexões`
               )}
               {renderFeature(
                 plan.queues > 0,
                 <List size={18} />,
-                `${plan.queues} Filas`,
+                `${plan.queues} Filas`
               )}
               {renderFeature(
                 plan.useCampaigns,
                 <Megaphone size={18} />,
-                "Campanhas",
+                "Campanhas"
               )}
               {renderFeature(
                 plan.useSchedules,
                 <Calendar size={18} />,
-                "Agendamentos",
+                "Agendamentos"
               )}
               {renderFeature(
                 plan.useInternalChat,
                 <MessageSquare size={18} />,
-                "Chat Interno",
+                "Chat Interno"
               )}
               {renderFeature(
                 plan.useExternalApi,
                 <Code size={18} />,
-                "API Externa",
+                "API Externa"
               )}
               {renderFeature(plan.useKanban, <Trello size={18} />, "Kanban")}
               {renderFeature(plan.useOpenAi, <Brain size={18} />, "Open.Ai")}
               {renderFeature(
                 plan.useIntegrations,
                 <GitBranch size={18} />,
-                "Integrações",
+                "Integrações"
               )}
             </div>
           </Paper>
@@ -572,7 +596,7 @@ export default function PlansManager() {
       toast.success("Operação realizada com sucesso!");
     } catch (e) {
       toast.error(
-        "Não foi possível realizar a operação. Verifique se já existe uma plano com o mesmo nome ou se os campos foram preenchidos corretamente",
+        "Não foi possível realizar a operação. Verifique se já existe uma plano com o mesmo nome ou se os campos foram preenchidos corretamente"
       );
     }
     setLoading(false);
@@ -653,7 +677,14 @@ export default function PlansManager() {
           />
         </Grid>
         <Grid xs={12} item>
-          <PlansManagerGrid records={records} onSelect={handleSelect} />
+          <PlansManagerGrid
+            records={records}
+            onSelect={handleSelect}
+            onDelete={(data) => {
+              setRecord(data);
+              handleOpenDeleteDialog();
+            }}
+          />
         </Grid>
       </Grid>
       <ConfirmationModal
