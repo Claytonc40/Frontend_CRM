@@ -1,9 +1,9 @@
 import React, {
-	useContext,
-	useEffect,
-	useReducer,
-	useRef,
-	useState,
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
 } from "react";
 
 import Avatar from "@material-ui/core/Avatar";
@@ -758,6 +758,7 @@ const Contacts = () => {
             params: {
               searchParam,
               pageNumber,
+              pageSize: 20,
             },
           });
           dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
@@ -765,6 +766,7 @@ const Contacts = () => {
           setLoading(false);
         } catch (err) {
           toast.error(err.message);
+          setLoading(false);
         }
       };
       fetchContacts();
@@ -840,21 +842,44 @@ const Contacts = () => {
   };
 
   const handleScroll = (e) => {
+    const { target } = e;
     if (!hasMore || loading) return;
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    if (scrollHeight - (scrollTop + window.innerHeight) < 200) {
+
+    const { scrollTop, scrollHeight, clientHeight } = target;
+    if (scrollHeight - scrollTop - clientHeight <= 300) {
       loadMore();
     }
   };
 
+  const paperRef = useRef(null);
+
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [hasMore, loading]);
+    const paperElement = paperRef.current;
+    if (paperElement) {
+      paperElement.addEventListener("scroll", handleScroll);
+      return () => paperElement.removeEventListener("scroll", handleScroll);
+    }
+  }, [hasMore, loading, contacts]);
+
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      setPageNumber((prevState) => prevState + 1);
+    }
+  };
 
   const handleimportContact = async () => {
     try {
-      if (!!fileUploadRef.current.files[0]) {
+      await api.post("/contacts/import");
+      toast.success("Contatos do WhatsApp importados com sucesso!");
+      history.go(0);
+    } catch (err) {
+      toast.error(err.message || "Erro ao importar contatos do WhatsApp");
+    }
+  };
+
+  const handleImportExcel = async () => {
+    try {
+      if (fileUploadRef.current.files[0]) {
         const formData = new FormData();
         formData.append("file", fileUploadRef.current.files[0]);
         await api.request({
@@ -863,13 +888,12 @@ const Contacts = () => {
           data: formData,
         });
         toast.success("Contatos importados com sucesso!");
+        history.go(0);
       } else {
-        await api.post("/contacts/import");
-        toast.success("Contatos do WhatsApp importados com sucesso!");
+        toast.error("Por favor, selecione um arquivo Excel para importar");
       }
-      history.go(0);
     } catch (err) {
-      toast.error(err.message || "Erro ao importar contatos");
+      toast.error(err.message || "Erro ao importar contatos do Excel");
     }
   };
 
@@ -881,10 +905,6 @@ const Contacts = () => {
   const handleCloseMenu = () => {
     setAnchorEl(null);
     setContactTicket({});
-  };
-
-  const loadMore = () => {
-    setPageNumber((prevState) => prevState + 1);
   };
 
   const getStatusColor = (status) => {
@@ -1005,7 +1025,7 @@ const Contacts = () => {
                 variant="contained"
                 color="primary"
                 className={`${classes.actionButton} ${classes.importButton}`}
-                onClick={(e) => setConfirmOpen(true)}
+                onClick={handleimportContact}
                 startIcon={<SyncIcon className={classes.buttonIcon} />}
                 size="small"
               >
@@ -1055,7 +1075,7 @@ const Contacts = () => {
         </div>
       </MainHeader>
 
-      <Paper className={classes.mainPaper} variant="outlined">
+      <Paper className={classes.mainPaper} variant="outlined" ref={paperRef}>
         <>
           <input
             style={{ display: "none" }}
@@ -1063,9 +1083,7 @@ const Contacts = () => {
             name="file"
             type="file"
             accept=".xls,.xlsx"
-            onChange={() => {
-              setConfirmOpen(true);
-            }}
+            onChange={handleImportExcel}
             ref={fileUploadRef}
           />
         </>
@@ -1087,9 +1105,16 @@ const Contacts = () => {
               <Grid item xs={12}>
                 <Table>
                   <TableBody>
-                <TableRowSkeleton avatar columns={3} />
+                    <TableRowSkeleton avatar columns={3} />
                   </TableBody>
                 </Table>
+              </Grid>
+            )}
+            {!loading && hasMore && (
+              <Grid item xs={12} style={{ textAlign: "center", padding: 16 }}>
+                <Button variant="outlined" color="primary" onClick={loadMore}>
+                  Carregar mais contatos
+                </Button>
               </Grid>
             )}
           </Grid>
@@ -1247,6 +1272,22 @@ const Contacts = () => {
                   </TableRow>
                 ))}
                 {loading && <TableRowSkeleton avatar columns={5} />}
+                {!loading && hasMore && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      style={{ textAlign: "center", padding: 16 }}
+                    >
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={loadMore}
+                      >
+                        Carregar mais contatos
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

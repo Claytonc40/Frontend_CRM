@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -160,6 +160,7 @@ const filter = createFilterOptions({
 const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
   const classes = useStyles();
   const [options, setOptions] = useState([]);
+  const isMounted = useRef(true);
 
   const [loading, setLoading] = useState(false);
   const [searchParam, setSearchParam] = useState("");
@@ -173,6 +174,14 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
   const { companyId, whatsappId } = user;
 
   useEffect(() => {
+    isMounted.current = true;
+
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (initialContact?.id !== undefined) {
       setOptions([initialContact]);
       setSelectedContact(initialContact);
@@ -183,27 +192,42 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       const fetchContacts = async () => {
-        api
-          .get(`/whatsapp`, { params: { companyId, session: 0 } })
-          .then(({ data }) => setWhatsapps(data));
+        try {
+          const { data } = await api.get(`/whatsapp`, {
+            params: { companyId, session: 0 },
+          });
+          if (isMounted.current) {
+            setWhatsapps(data);
+          }
+        } catch (err) {
+          console.error(err);
+        }
       };
 
       if (whatsappId !== null && whatsappId !== undefined) {
-        setSelectedWhatsapp(whatsappId);
+        if (isMounted.current) {
+          setSelectedWhatsapp(whatsappId);
+        }
       }
 
       if (user.queues.length === 1) {
-        setSelectedQueue(user.queues[0].id);
+        if (isMounted.current) {
+          setSelectedQueue(user.queues[0].id);
+        }
       }
       fetchContacts();
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }, 500);
     return () => clearTimeout(delayDebounceFn);
   }, [companyId, user.queues, whatsappId]);
 
   useEffect(() => {
     if (!modalOpen || searchParam.length < 3) {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
       return;
     }
     setLoading(true);
@@ -213,11 +237,15 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
           const { data } = await api.get("contacts", {
             params: { searchParam },
           });
-          setOptions(data.contacts);
-          setLoading(false);
+          if (isMounted.current) {
+            setOptions(data.contacts);
+            setLoading(false);
+          }
         } catch (err) {
-          setLoading(false);
-          toast.error(err.message);
+          if (isMounted.current) {
+            setLoading(false);
+            toast.error(err.message);
+          }
         }
       };
       fetchContacts();
@@ -251,14 +279,19 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
       return;
     }
 
-    setLoading(true);
+    if (isMounted.current) {
+      setLoading(true);
+    }
+
     try {
       const queueId = selectedQueue !== "" ? selectedQueue : null;
       const whatsappId = selectedWhatsapp !== "" ? selectedWhatsapp : null;
 
       if (!whatsappId) {
         toast.error("Selecione um WhatsApp");
-        setLoading(false);
+        if (isMounted.current) {
+          setLoading(false);
+        }
         return;
       }
 
@@ -277,21 +310,29 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
         try {
           const ticket = JSON.parse(err.response.data.error);
           if (ticket.userId !== user?.id) {
-            setLoading(false);
+            if (isMounted.current) {
+              setLoading(false);
+            }
             onClose(ticket);
           } else {
-            setLoading(false);
+            if (isMounted.current) {
+              setLoading(false);
+            }
             onClose(ticket);
           }
         } catch (parseError) {
           toast.error(
             "Erro ao criar ticket. Verifique se o contato já não possui um ticket aberto."
           );
-          setLoading(false);
+          if (isMounted.current) {
+            setLoading(false);
+          }
         }
       } else {
         toast.error(err.message || "Erro ao criar ticket");
-        setLoading(false);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
     }
   };
@@ -495,7 +536,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
                     return "Selecione uma Conexão";
                   }
                   const whatsapp = whatsapps.find(
-                    (w) => w.id === selectedWhatsapp,
+                    (w) => w.id === selectedWhatsapp
                   );
                   return whatsapp.name;
                 }}
