@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 
+import { Menu } from "@material-ui/core";
 import MenuItem from "@material-ui/core/MenuItem";
 import { toast } from "sonner";
-import { Menu } from "@material-ui/core";
 import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
@@ -13,7 +13,6 @@ const MessageOptionsMenu = ({ message, menuOpen, handleClose, anchorEl }) => {
   const { setReplyingMessage } = useContext(ReplyMessageContext);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [confirmationEditOpen, setEditMessageOpenModal] = useState(false);
-  const [messageEdit, setMessageEdit] = useState(false);
 
   const handleDeleteMessage = async () => {
     try {
@@ -43,7 +42,6 @@ const MessageOptionsMenu = ({ message, menuOpen, handleClose, anchorEl }) => {
 
   const handleOpenEditMessageModal = (e) => {
     setEditMessageOpenModal(true);
-    setMessageEdit(message);
     handleClose();
   };
 

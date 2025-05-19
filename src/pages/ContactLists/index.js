@@ -469,7 +469,11 @@ const ContactLists = () => {
           )}
           {loading && (
             <Grid item xs={12}>
-              <TableRowSkeleton columns={3} />
+              <table>
+                <tbody>
+                  <TableRowSkeleton columns={3} />
+                </tbody>
+              </table>
             </Grid>
           )}
         </Grid>

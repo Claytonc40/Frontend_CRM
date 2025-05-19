@@ -156,7 +156,6 @@ export default function Options(props) {
   const [loadingScheduleType, setLoadingScheduleType] = useState(false);
   const [loadingCallType, setLoadingCallType] = useState(false);
   const [loadingChatbotType, setLoadingChatbotType] = useState(false);
-  const [loadingCheckMsgIsGroup, setCheckMsgIsGroup] = useState(false);
 
   const [ipixcType, setIpIxcType] = useState("");
   const [loadingIpIxcType, setLoadingIpIxcType] = useState(false);
@@ -174,6 +173,11 @@ export default function Options(props) {
 
   const [asaasType, setAsaasType] = useState("");
   const [loadingAsaasType, setLoadingAsaasType] = useState(false);
+
+  // Adicionar states para controlar os tabs
+  const [mainIntegrationTab, setMainIntegrationTab] = useState(0);
+  const [mkauthTab, setMkauthTab] = useState(0);
+  const [asaasTab, setAsaasTab] = useState(0);
 
   // recursos a mais da plw design
 
@@ -213,34 +217,26 @@ export default function Options(props) {
         setCheckMsgIsGroupType(CheckMsgIsGroup.value);
       }
 
-      {
-        /*PLW DESIGN SAUDAÇÃO*/
-      }
+      // PLW DESIGN SAUDAÇÃO
       const SendGreetingAccepted = settings.find(
-        (s) => s.key === "sendGreetingAccepted",
+        (s) => s.key === "sendGreetingAccepted"
       );
       if (SendGreetingAccepted) {
         setSendGreetingAccepted(SendGreetingAccepted.value);
       }
-      {
-        /*PLW DESIGN SAUDAÇÃO*/
-      }
+      // PLW DESIGN SAUDAÇÃO
 
-      {
-        /*TRANSFERIR TICKET*/
-      }
+      // TRANSFERIR TICKET
       const SettingsTransfTicket = settings.find(
-        (s) => s.key === "sendMsgTransfTicket",
+        (s) => s.key === "sendMsgTransfTicket"
       );
       if (SettingsTransfTicket) {
         setSettingsTransfTicket(SettingsTransfTicket.value);
       }
-      {
-        /*TRANSFERIR TICKET*/
-      }
+      // TRANSFERIR TICKET
 
       const sendGreetingMessageOneQueues = settings.find(
-        (s) => s.key === "sendGreetingMessageOneQueues",
+        (s) => s.key === "sendGreetingMessageOneQueues"
       );
       if (sendGreetingMessageOneQueues) {
         setSendGreetingMessageOneQueues(sendGreetingMessageOneQueues.value);
@@ -267,14 +263,14 @@ export default function Options(props) {
       }
 
       const clientidmkauthType = settings.find(
-        (s) => s.key === "clientidmkauth",
+        (s) => s.key === "clientidmkauth"
       );
       if (clientidmkauthType) {
         setClientIdMkauthType(clientidmkauthType.value);
       }
 
       const clientsecretmkauthType = settings.find(
-        (s) => s.key === "clientsecretmkauth",
+        (s) => s.key === "clientsecretmkauth"
       );
       if (clientsecretmkauthType) {
         setClientSecrectMkauthType(clientsecretmkauthType.value);
@@ -357,21 +353,14 @@ export default function Options(props) {
 
   async function handleGroupType(value) {
     setCheckMsgIsGroupType(value);
-    setCheckMsgIsGroup(true);
     await update({
       key: "CheckMsgIsGroup",
       value,
     });
     toast.success("Operação atualizada com sucesso.");
     setCheckMsgIsGroupType(false);
-    /*     if (typeof scheduleTypeChanged === "function") {
-          scheduleTypeChanged(value);
-        } */
   }
 
-  {
-    /*NOVO CÓDIGO*/
-  }
   async function handleSendGreetingAccepted(value) {
     setSendGreetingAccepted(value);
     setLoadingSendGreetingAccepted(true);
@@ -381,10 +370,6 @@ export default function Options(props) {
     });
     toast.success("Operação atualizada com sucesso.");
     setLoadingSendGreetingAccepted(false);
-  }
-
-  {
-    /*NOVO CÓDIGO*/
   }
 
   async function handleSettingsTransfTicket(value) {
@@ -670,6 +655,8 @@ export default function Options(props) {
           </div>
         </div>
         <Tabs
+          value={mainIntegrationTab}
+          onChange={(event, newValue) => setMainIntegrationTab(newValue)}
           indicatorColor="primary"
           textColor="primary"
           scrollButtons="on"
@@ -732,6 +719,8 @@ export default function Options(props) {
         </Box>
         {/* MK-AUTH */}
         <Tabs
+          value={mkauthTab}
+          onChange={(event, newValue) => setMkauthTab(newValue)}
           indicatorColor="primary"
           textColor="primary"
           scrollButtons="on"
@@ -812,6 +801,8 @@ export default function Options(props) {
         </Box>
         {/* ASAAS */}
         <Tabs
+          value={asaasTab}
+          onChange={(event, newValue) => setAsaasTab(newValue)}
           indicatorColor="primary"
           textColor="primary"
           scrollButtons="on"

@@ -1,4 +1,3 @@
-import React, { useContext, useState } from "react";
 import {
   Chip,
   IconButton,
@@ -8,13 +7,13 @@ import {
   ListItemText,
   makeStyles,
   Tooltip,
-  Box,
 } from "@material-ui/core";
+import { Edit3, Trash2 } from "lucide-react";
+import React, { useContext, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import ConfirmationModal from "../../components/ConfirmationModal";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { useDate } from "../../hooks/useDate";
-import { Edit3, Trash2 } from "lucide-react";
-import ConfirmationModal from "../../components/ConfirmationModal";
 import api from "../../services/api";
 
 const useStyles = makeStyles((theme) => ({

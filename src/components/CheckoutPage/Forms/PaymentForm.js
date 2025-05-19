@@ -1,20 +1,16 @@
-import React, { useState, useEffect, useReducer } from "react";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
 import Grid from "@material-ui/core/Grid";
-import StarIcon from "@material-ui/icons/StarBorder";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
+import StarIcon from "@material-ui/icons/StarBorder";
+import React, { useEffect } from "react";
 
-import IconButton from "@material-ui/core/IconButton";
-import MinimizeIcon from "@material-ui/icons/Minimize";
-import AddIcon from "@material-ui/icons/Add";
-
-import usePlans from "../../../hooks/usePlans";
 import useCompanies from "../../../hooks/useCompanies";
+import usePlans from "../../../hooks/usePlans";
 
 const useStyles = makeStyles((theme) => ({
   "@global": {
@@ -67,48 +63,14 @@ const useStyles = makeStyles((theme) => ({
 export default function Pricing(props) {
   const { setFieldValue, setActiveStep, activeStep } = props;
 
-  const handleChangeAdd = (event, newValue) => {
-    if (newValue < 3) return;
-
-    const newPrice = 11.0;
-
-    setUsersPlans(newValue);
-    setCustomValuePlans(customValuePlans + newPrice);
-  };
-
-  const handleChangeMin = (event, newValue) => {
-    if (newValue < 3) return;
-
-    const newPrice = 11;
-
-    setUsersPlans(newValue);
-    setCustomValuePlans(customValuePlans - newPrice);
-  };
-
-  const handleChangeConnectionsAdd = (event, newValue) => {
-    if (newValue < 3) return;
-    const newPrice = 20.0;
-    setConnectionsPlans(newValue);
-    setCustomValuePlans(customValuePlans + newPrice);
-  };
-
-  const handleChangeConnectionsMin = (event, newValue) => {
-    if (newValue < 3) return;
-    const newPrice = 20;
-    setConnectionsPlans(newValue);
-    setCustomValuePlans(customValuePlans - newPrice);
-  };
-
-  const { list, finder } = usePlans();
+  const { finder } = usePlans();
   const { find } = useCompanies();
 
   const classes = useStyles();
   const [usersPlans, setUsersPlans] = React.useState(3);
-  const [companiesPlans, setCompaniesPlans] = useState(0);
   const [connectionsPlans, setConnectionsPlans] = React.useState(3);
   const [storagePlans, setStoragePlans] = React.useState([]);
   const [customValuePlans, setCustomValuePlans] = React.useState(49.0);
-  const [loading, setLoading] = React.useState(false);
   const companyId = localStorage.getItem("companyId");
 
   useEffect(() => {
@@ -116,22 +78,20 @@ export default function Pricing(props) {
       await loadCompanies();
     }
     fetchData();
-  }, []);
+  }, [loadCompanies]);
 
   const loadCompanies = async () => {
-    setLoading(true);
     try {
       const companiesList = await find(companyId);
-      setCompaniesPlans(companiesList.planId);
-      await loadPlans(companiesList.planId);
+      const companiesPlans = companiesList.planId;
+      await loadPlans(companiesPlans);
     } catch (e) {
       console.log(e);
       // toast.error("Não foi possível carregar a lista de registros");
     }
-    setLoading(false);
   };
+
   const loadPlans = async (companiesPlans) => {
-    setLoading(true);
     try {
       const plansCompanies = await finder(companiesPlans);
       const plans = [];
@@ -160,7 +120,6 @@ export default function Pricing(props) {
       console.log(e);
       // toast.error("Não foi possível carregar a lista de registros");
     }
-    setLoading(false);
   };
 
   const tiers = storagePlans;
@@ -227,7 +186,7 @@ export default function Pricing(props) {
                           users: usersPlans,
                           connections: connectionsPlans,
                           price: customValuePlans,
-                        }),
+                        })
                       );
                     } else {
                       setFieldValue("plan", JSON.stringify(tier));

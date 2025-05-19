@@ -487,7 +487,11 @@ const Invoices = () => {
           <Grid container spacing={3} className={classes.gridContainer}>
             {[1, 2, 3].map((item) => (
               <Grid item xs={12} sm={6} md={4} key={item}>
-                <TableRowSkeleton columns={1} />
+                <table>
+                  <tbody>
+                    <TableRowSkeleton columns={1} />
+                  </tbody>
+                </table>
               </Grid>
             ))}
           </Grid>

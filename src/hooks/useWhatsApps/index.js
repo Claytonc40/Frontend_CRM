@@ -62,12 +62,27 @@ const useWhatsApps = () => {
     setLoading(true);
     const fetchSession = async () => {
       try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          toast.error(
+            "Token de autenticação não encontrado. Faça login novamente."
+          );
+          return;
+        }
+        
         const { data } = await api.get("/whatsapp/?session=0");
         dispatch({ type: "LOAD_WHATSAPPS", payload: data });
         setLoading(false);
       } catch (err) {
         setLoading(false);
-        toast.error(err);
+        if (err.response && err.response.status === 401) {
+          toast.error("Erro de autenticação. Faça login novamente.");
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+        } else {
+          toast.error(err.message || "Erro ao carregar sessões do WhatsApp");
+        }
       }
     };
     fetchSession();

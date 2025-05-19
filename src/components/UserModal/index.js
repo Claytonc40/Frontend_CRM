@@ -148,6 +148,7 @@ const UserSchema = Yup.object().shape({
 const UserModal = ({ open, onClose, userId }) => {
   const classes = useStyles();
   const { user: loggedInUser } = useContext(AuthContext);
+  const [isMounted, setIsMounted] = useState(true);
 
   const initialState = {
     name: "",
@@ -163,23 +164,34 @@ const UserModal = ({ open, onClose, userId }) => {
   const { loading, whatsApps } = useWhatsApps();
 
   useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchUser = async () => {
-      if (!userId) return;
+      if (!userId || !open || !isMounted) return;
       try {
         const { data } = await api.get(`/users/${userId}`);
-        setUser((prevState) => {
-          return { ...prevState, ...data };
-        });
-        const userQueueIds = data.queues?.map((queue) => queue.id);
-        setSelectedQueueIds(userQueueIds);
-        setWhatsappId(data.whatsappId ? data.whatsappId : "");
+        if (isMounted) {
+          setUser((prevState) => {
+            return { ...prevState, ...data };
+          });
+          const userQueueIds = data.queues?.map((queue) => queue.id);
+          setSelectedQueueIds(userQueueIds);
+          setWhatsappId(data.whatsappId ? data.whatsappId : "");
+        }
       } catch (err) {
-        toast.error(err.message);
+        if (isMounted) {
+          toast.error(err.message);
+        }
       }
     };
 
     fetchUser();
-  }, [userId, open]);
+  }, [userId, open, isMounted]);
 
   const handleClose = () => {
     onClose();

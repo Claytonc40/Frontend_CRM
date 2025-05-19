@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { toast } from "sonner";
 
 import Box from "@material-ui/core/Box";
@@ -97,7 +97,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Login = () => {
   const classes = useStyles();
-  const history = useHistory();
   const [isMounted, setIsMounted] = useState(true);
   const [user, setUser] = useState({ email: "", password: "" });
   const [rememberMe, setRememberMe] = useState(false);
@@ -202,7 +201,7 @@ const Login = () => {
               }}
             />
 
-            <Grid container justify="space-between" alignItems="center">
+            <Grid container justifyContent="space-between" alignItems="center">
               <Grid item>
                 <FormControlLabel
                   control={

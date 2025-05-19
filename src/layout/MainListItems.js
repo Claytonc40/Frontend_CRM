@@ -485,20 +485,36 @@ const MainListItems = (props) => {
 
   useEffect(() => {
     async function fetchData() {
-      const companyId = user.companyId;
-      const planConfigs = await getPlanCompany(undefined, companyId);
+      try {
+        if (!user || !user.companyId) {
+          console.error("ID da empresa não disponível");
+          return;
+        }
 
-      setShowCampaigns(planConfigs.plan.useCampaigns);
-      setShowKanban(planConfigs.plan.useKanban);
-      setShowOpenAi(planConfigs.plan.useOpenAi);
-      setShowIntegrations(planConfigs.plan.useIntegrations);
-      setShowSchedules(planConfigs.plan.useSchedules);
-      setShowInternalChat(planConfigs.plan.useInternalChat);
-      setShowExternalApi(planConfigs.plan.useExternalApi);
+        const companyId = user.companyId;
+        const planConfigs = await getPlanCompany(undefined, companyId);
+
+        if (planConfigs && planConfigs.plan) {
+          setShowCampaigns(planConfigs.plan.useCampaigns || false);
+          setShowKanban(planConfigs.plan.useKanban || false);
+          setShowOpenAi(planConfigs.plan.useOpenAi || false);
+          setShowIntegrations(planConfigs.plan.useIntegrations || false);
+          setShowSchedules(planConfigs.plan.useSchedules || false);
+          setShowInternalChat(planConfigs.plan.useInternalChat || false);
+          setShowExternalApi(planConfigs.plan.useExternalApi || false);
+        } else {
+          console.error("Configurações do plano não disponíveis");
+        }
+      } catch (err) {
+        console.error("Erro ao buscar configurações do plano:", err);
+      }
     }
-    fetchData();
+
+    if (user && user.companyId) {
+      fetchData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

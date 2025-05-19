@@ -17,15 +17,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
-import { Colorize, LocalOffer } from "@material-ui/icons";
+import { LocalOffer } from "@material-ui/icons";
 
 import { i18n } from "../../translate/i18n";
 
-import {
-  FormControlLabel,
-  IconButton,
-  InputAdornment,
-} from "@material-ui/core";
+import { FormControlLabel, InputAdornment } from "@material-ui/core";
 import Checkbox from "@material-ui/core/Checkbox";
 import { AuthContext } from "../../context/Auth/AuthContext";
 
@@ -212,7 +208,6 @@ const predefinedColors = [
 const TagModal = ({ open, onClose, tagId, reload }) => {
   const classes = useStyles();
   const { user } = useContext(AuthContext);
-  const [colorPickerModalOpen, setColorPickerModalOpen] = useState(false);
 
   const initialState = {
     name: "",
@@ -241,7 +236,6 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 
   const handleClose = () => {
     setTag(initialState);
-    setColorPickerModalOpen(false);
     onClose();
   };
 
@@ -373,16 +367,6 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
                               className={classes.colorAdorment}
                               style={{ backgroundColor: values.color }}
                             />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              size="small"
-                              onClick={() => setColorPickerModalOpen(true)}
-                            >
-                              <Colorize />
-                            </IconButton>
                           </InputAdornment>
                         ),
                       }}

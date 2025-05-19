@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useTheme, makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
+import { format, parseISO, startOfHour } from "date-fns";
+import React, { useEffect, useState } from "react";
 import {
   CartesianGrid,
+  Label,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Label,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  Tooltip,
-  Legend,
 } from "recharts";
-import { startOfHour, parseISO, format } from "date-fns";
 
-import Title from "./Title";
 import useTickets from "../../hooks/useTickets";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,10 +34,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Chart = ({ queueTicket }) => {
-  const theme = useTheme();
   const classes = useStyles();
 
-  const { tickets, count } = useTickets({
+  const { tickets } = useTickets({
     queueIds: queueTicket ? `[${queueTicket}]` : "[]",
   });
 

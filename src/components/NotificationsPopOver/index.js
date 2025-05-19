@@ -4,8 +4,6 @@ import { format } from "date-fns";
 import { useHistory } from "react-router-dom";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
-import useSound from "use-sound";
-import { toast } from "sonner";
 import Badge from "@material-ui/core/Badge";
 import Button from "@material-ui/core/Button";
 import Fade from "@material-ui/core/Fade";
@@ -17,6 +15,8 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 import ChatIcon from "@material-ui/icons/Chat";
 import NotificationsIcon from "@material-ui/icons/Notifications";
+import { toast } from "sonner";
+import useSound from "use-sound";
 
 import alertSound from "../../assets/sound.mp3";
 import { AuthContext } from "../../context/Auth/AuthContext";
@@ -223,7 +223,7 @@ const NotificationsPopOver = (volume) => {
         setNotifications(tickets);
       } else {
         const newNotifications = tickets.filter(
-          (ticket) => ticket.status !== "pending",
+          (ticket) => ticket.status !== "pending"
         );
 
         setNotifications(newNotifications);
@@ -231,7 +231,7 @@ const NotificationsPopOver = (volume) => {
     };
 
     processNotifications();
-  }, [tickets]);
+  }, [tickets, showPendingTickets]);
 
   useEffect(() => {
     ticketIdRef.current = ticketIdUrl;
@@ -246,7 +246,7 @@ const NotificationsPopOver = (volume) => {
       if (data.action === "updateUnread" || data.action === "delete") {
         setNotifications((prevState) => {
           const ticketIndex = prevState.findIndex(
-            (t) => t.id === data.ticketId,
+            (t) => t.id === data.ticketId
           );
           if (ticketIndex !== -1) {
             prevState.splice(ticketIndex, 1);
@@ -257,7 +257,7 @@ const NotificationsPopOver = (volume) => {
 
         setDesktopNotifications((prevState) => {
           const notfiticationIndex = prevState.findIndex(
-            (n) => n.tag === String(data.ticketId),
+            (n) => n.tag === String(data.ticketId)
           );
           if (notfiticationIndex !== -1) {
             prevState[notfiticationIndex].close();
@@ -281,7 +281,7 @@ const NotificationsPopOver = (volume) => {
       ) {
         setNotifications((prevState) => {
           const ticketIndex = prevState.findIndex(
-            (t) => t.id === data.ticket.id,
+            (t) => t.id === data.ticket.id
           );
           if (ticketIndex !== -1) {
             prevState[ticketIndex] = data.ticket;
@@ -305,7 +305,7 @@ const NotificationsPopOver = (volume) => {
     return () => {
       socket.disconnect();
     };
-  }, [user, showPendingTickets, socketManager]);
+  }, [user, showPendingTickets, socketManager, user.allTicket]);
 
   const handleNotifications = (data) => {
     const { message, contact, ticket } = data;

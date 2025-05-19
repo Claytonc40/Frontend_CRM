@@ -1,4 +1,3 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Box,
   FormControl,
@@ -8,9 +7,9 @@ import {
   makeStyles,
   Paper,
   Typography,
-  CircularProgress,
 } from "@material-ui/core";
 import { Send } from "lucide-react";
+import React, { useContext, useRef, useState } from "react";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { useDate } from "../../hooks/useDate";
 import api from "../../services/api";

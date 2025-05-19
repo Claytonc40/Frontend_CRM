@@ -172,10 +172,6 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
   const { user } = useContext(AuthContext);
   const { companyId, whatsappId } = user;
 
-  const [openAlert, setOpenAlert] = useState(false);
-  const [userTicketOpen, setUserTicketOpen] = useState("");
-  const [queueTicketOpen, setQueueTicketOpen] = useState("");
-
   useEffect(() => {
     if (initialContact?.id !== undefined) {
       setOptions([initialContact]);
@@ -203,7 +199,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
       setLoading(false);
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, []);
+  }, [companyId, user.queues, whatsappId]);
 
   useEffect(() => {
     if (!modalOpen || searchParam.length < 3) {
@@ -245,18 +241,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
   const handleClose = () => {
     onClose();
     setSearchParam("");
-    setOpenAlert(false);
-    setUserTicketOpen("");
-    setQueueTicketOpen("");
     setSelectedContact(null);
-  };
-
-  const handleCloseAlert = () => {
-    setOpenAlert(false);
-    setLoading(false);
-    setOpenAlert(false);
-    setUserTicketOpen("");
-    setQueueTicketOpen("");
   };
 
   const handleSaveTicket = async (contactId) => {
@@ -292,19 +277,15 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
         try {
           const ticket = JSON.parse(err.response.data.error);
           if (ticket.userId !== user?.id) {
-            setOpenAlert(true);
-            setUserTicketOpen(ticket.user.name);
-            setQueueTicketOpen(ticket.queue.name);
+            setLoading(false);
+            onClose(ticket);
           } else {
-            setOpenAlert(false);
-            setUserTicketOpen("");
-            setQueueTicketOpen("");
             setLoading(false);
             onClose(ticket);
           }
         } catch (parseError) {
           toast.error(
-            "Erro ao criar ticket. Verifique se o contato já não possui um ticket aberto.",
+            "Erro ao criar ticket. Verifique se o contato já não possui um ticket aberto."
           );
           setLoading(false);
         }

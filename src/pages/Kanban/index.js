@@ -207,8 +207,7 @@ const Kanban = () => {
   const history = useHistory();
 
   const [tags, setTags] = useState([]);
-  const [reloadData, setReloadData] = useState(false);
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
+  const [reloadData] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const [file, setFile] = useState({ lanes: [] });
@@ -252,7 +251,7 @@ const Kanban = () => {
 
   const popularCards = (jsonString) => {
     const filteredTickets = tickets.filter(
-      (ticket) => ticket.tags.length === 0,
+      (ticket) => ticket.tags.length === 0
     );
     const lanes = [
       {
@@ -320,7 +319,6 @@ const Kanban = () => {
         data={file}
         onCardMoveAcrossLanes={handleCardMove}
         style={{ backgroundColor: "rgba(252, 252, 252, 0.03)" }}
-        customCardLayout
         components={{
           LaneHeader: ({ title, label, id }) => (
             <div className={classes.kanbanHeader}>

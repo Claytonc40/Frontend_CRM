@@ -544,7 +544,11 @@ const Campaigns = () => {
           ))}
           {loading && (
             <Grid item xs={12}>
-              <TableRowSkeleton columns={8} />
+              <table>
+                <tbody>
+                  <TableRowSkeleton columns={8} />
+                </tbody>
+              </table>
             </Grid>
           )}
         </Grid>

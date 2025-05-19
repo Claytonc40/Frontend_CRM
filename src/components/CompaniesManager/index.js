@@ -155,7 +155,6 @@ function CompanyModal({
   plans,
   loading,
 }) {
-  const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["Dados da Empresa", "Configurações e Datas"];
 

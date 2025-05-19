@@ -19,7 +19,6 @@ import React, {
 } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useHistory } from "react-router-dom";
 import { toast } from "sonner";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import MainHeader from "../../components/MainHeader";
@@ -165,7 +164,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Schedules = () => {
   const classes = useStyles();
-  const history = useHistory();
 
   const { user } = useContext(AuthContext);
 
@@ -289,13 +287,6 @@ const Schedules = () => {
     if (scrollHeight - (scrollTop + 100) < clientHeight) {
       loadMore();
     }
-  };
-
-  const truncate = (str, len) => {
-    if (str.length > len) {
-      return str.substring(0, len) + "...";
-    }
-    return str;
   };
 
   return (

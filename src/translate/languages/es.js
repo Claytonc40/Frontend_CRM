@@ -142,7 +142,6 @@ const messages = {
             expiresInactiveMessage: "Mensaje de cierre por inactividad",
             greetingMessage: "Mensaje de saludo",
             complationMessage: "Mensaje de conclusión",
-            sendIdQueue: "Fila",
           },
           buttons: {
             okAdd: "Agregar",
@@ -917,12 +916,6 @@ const messages = {
           },
           buttons: {
             delete: "Eliminar",
-            cancel: "Cancelar",
-          },
-        },
-        confirmationModal: {
-          buttons: {
-            confirm: "Ok",
             cancel: "Cancelar",
           },
         },

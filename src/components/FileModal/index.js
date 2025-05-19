@@ -109,7 +109,6 @@ const FileListSchema = Yup.object().shape({
 const FilesModal = ({ open, onClose, fileListId, reload }) => {
   const classes = useStyles();
   const { user } = useContext(AuthContext);
-  const [files, setFiles] = useState([]);
   const [selectedFileNames, setSelectedFileNames] = useState([]);
 
   const initialState = {
@@ -135,7 +134,6 @@ const FilesModal = ({ open, onClose, fileListId, reload }) => {
 
   const handleClose = () => {
     setFileList(initialState);
-    setFiles([]);
     onClose();
   };
 
@@ -155,7 +153,6 @@ const FilesModal = ({ open, onClose, fileListId, reload }) => {
 
       try {
         const { data } = await api.post(`/files/uploadList/${id}`, formData);
-        setFiles([]);
         return data;
       } catch (err) {
         toast.error(err.message);
@@ -286,8 +283,6 @@ const FilesModal = ({ open, onClose, fileListId, reload }) => {
                                     const selectedFile = e.target.files[0];
                                     const updatedOptions = [...values.options];
                                     updatedOptions[index].file = selectedFile;
-
-                                    setFiles("options", updatedOptions);
 
                                     // Atualize a lista selectedFileNames para o campo específico
                                     const updatedFileNames = [

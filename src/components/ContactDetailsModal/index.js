@@ -210,9 +210,7 @@ const ContactDetailsModal = ({ open, onClose, contactId }) => {
   const classes = useStyles();
   const [contact, setContact] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [newTag, setNewTag] = useState("");
   const [notes, setNotes] = useState("");
-  const [addingTag, setAddingTag] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [selectedTagId, setSelectedTagId] = useState(null);

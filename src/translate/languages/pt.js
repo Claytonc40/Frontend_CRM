@@ -145,7 +145,6 @@ const messages = {
           expiresInactiveMessage: "Mensagem de encerramento por inatividade",
           greetingMessage: "Mensagem de saudação",
           complationMessage: "Mensagem de conclusão",
-          sendIdQueue: "Fila",
         },
         buttons: {
           okAdd: "Adicionar",

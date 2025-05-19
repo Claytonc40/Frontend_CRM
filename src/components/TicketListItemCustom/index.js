@@ -168,11 +168,6 @@ const useStyles = makeStyles((theme) => ({
     right: "108px",
   },
 
-  acceptButton: {
-    position: "absolute",
-    left: "50%",
-  },
-
   ticketQueueColor: {
     flex: "none",
     width: "8px",
@@ -234,38 +229,26 @@ const useStyles = makeStyles((theme) => ({
     gap: 6,
   },
 }));
-{
-  /*PLW DESIGN INSERIDO O dentro do const handleChangeTab*/
-}
+
 const TicketListItemCustom = ({ ticket }) => {
   const classes = useStyles();
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [ticketUser, setTicketUser] = useState(null);
-  const [ticketQueueName, setTicketQueueName] = useState(null);
-  const [ticketQueueColor, setTicketQueueColor] = useState(null);
   const [tag, setTag] = useState([]);
-  const [whatsAppName, setWhatsAppName] = useState(null);
   const [lastInteractionLabel, setLastInteractionLabel] = useState("");
   const [openTicketMessageDialog, setOpenTicketMessageDialog] = useState(false);
   const { ticketId } = useParams();
   const isMounted = useRef(true);
   const { setCurrentTicket } = useContext(TicketsContext);
   const { user } = useContext(AuthContext);
-  const [verpreview, setverpreview] = useState(false);
+  const [verpreview] = useState(false);
   const { profile } = user;
 
   useEffect(() => {
     if (ticket.userId && ticket.user) {
       setTicketUser(ticket.user?.name?.toUpperCase());
     }
-    setTicketQueueName(ticket.queue?.name?.toUpperCase());
-    setTicketQueueColor(ticket.queue?.color);
-
-    if (ticket.whatsappId && ticket.whatsapp) {
-      setWhatsAppName(ticket.whatsapp.name?.toUpperCase());
-    }
-
     setTag(ticket?.tags);
 
     return () => {
@@ -274,9 +257,6 @@ const TicketListItemCustom = ({ ticket }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  {
-    /*CÓDIGO NOVO SAUDAÇÃO*/
-  }
   const handleCloseTicket = async (id) => {
     setTag(ticket?.tags);
     setLoading(true);
@@ -340,7 +320,7 @@ const TicketListItemCustom = ({ ticket }) => {
             style={{ color: labelColor }}
           >
             {labelText}
-          </Badge>,
+          </Badge>
         );
         // Agendando a próxima atualização após 30 segundos
         timeoutId = setTimeout(updateLastInteractionLabel, 30 * 1000);
@@ -353,7 +333,7 @@ const TicketListItemCustom = ({ ticket }) => {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [ticket]);
+  }, [ticket, classes.lastInteractionLabel]);
 
   const handleReopenTicket = async (id) => {
     setLoading(true);
@@ -422,9 +402,6 @@ const TicketListItemCustom = ({ ticket }) => {
       toast.errorr(err.message);
     }
   };
-  {
-    /*CÓDIGO NOVO SAUDAÇÃO*/
-  }
 
   const handleSelectTicket = (ticket) => {
     const code = uuidv4();

@@ -15,7 +15,6 @@ import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import { Field, Form, Formik } from "formik";
-import moment from "moment";
 import qs from "query-string";
 import React, { useState } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
@@ -99,7 +98,6 @@ const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 const ForgetPassword = () => {
   const classes = useStyles();
   const history = useHistory();
-  let companyId = null;
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
   const [showResetPasswordButton, setShowResetPasswordButton] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -125,19 +123,14 @@ const ForgetPassword = () => {
 
   const params = qs.parse(window.location.search);
   if (params.companyId !== undefined) {
-    companyId = params.companyId;
+    // Remover variável não utilizada
   }
-
-  const initialState = { email: "" };
-
-  const [user] = useState(initialState);
-  const dueDate = moment().add(3, "day").format();
 
   const handleSendEmail = async (values) => {
     const email = values.email;
     try {
       const response = await api.post(
-        `${process.env.REACT_APP_BACKEND_URL}/forgetpassword/${email}`,
+        `${process.env.REACT_APP_BACKEND_URL}/forgetpassword/${email}`
       );
       console.log("API Response:", response.data);
 
@@ -161,7 +154,7 @@ const ForgetPassword = () => {
     if (newPassword === confirmPassword) {
       try {
         await api.post(
-          `${process.env.REACT_APP_BACKEND_URL}/resetpasswords/${email}/${token}/${newPassword}`,
+          `${process.env.REACT_APP_BACKEND_URL}/resetpasswords/${email}/${token}/${newPassword}`
         );
         setError(""); // Limpe o erro se não houver erro
         toast.success(i18n.t("Senha redefinida com sucesso."));
@@ -180,7 +173,7 @@ const ForgetPassword = () => {
           .required("Campo obrigatório")
           .matches(
             passwordRegex,
-            "Sua senha precisa ter no mínimo 8 caracteres, sendo uma letra maiúscula, uma minúscula e um número.",
+            "Sua senha precisa ter no mínimo 8 caracteres, sendo uma letra maiúscula, uma minúscula e um número."
           )
       : Yup.string(), // Sem validação se não for redefinição de senha
     confirmPassword: Yup.string().when("newPassword", {

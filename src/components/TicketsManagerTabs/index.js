@@ -1,26 +1,26 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import InputBase from "@material-ui/core/InputBase";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
 import Badge from "@material-ui/core/Badge";
-import { Inbox, CheckSquare, Search, Plus } from "lucide-react";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import InputBase from "@material-ui/core/InputBase";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
 import Switch from "@material-ui/core/Switch";
+import Tab from "@material-ui/core/Tab";
+import Tabs from "@material-ui/core/Tabs";
+import { CheckSquare, Inbox, Search } from "lucide-react";
 
 import NewTicketModal from "../NewTicketModal";
-import TicketsList from "../TicketsListCustom";
 import TabPanel from "../TabPanel";
+import TicketsList from "../TicketsListCustom";
 
-import { i18n } from "../../translate/i18n";
-import { AuthContext } from "../../context/Auth/AuthContext";
-import { Can } from "../Can";
-import TicketsQueueSelect from "../TicketsQueueSelect";
 import { Button } from "@material-ui/core";
+import { AuthContext } from "../../context/Auth/AuthContext";
+import { i18n } from "../../translate/i18n";
+import { Can } from "../Can";
 import { TagsFilter } from "../TagsFilter";
+import TicketsQueueSelect from "../TicketsQueueSelect";
 import { UsersFilter } from "../UsersFilter";
 
 const useStyles = makeStyles((theme) => ({
