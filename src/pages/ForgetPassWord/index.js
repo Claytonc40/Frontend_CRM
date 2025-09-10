@@ -191,7 +191,7 @@ const ForgetPassword = () => {
         <CssBaseline />
         <div className={classes.paper}>
           <Typography className={classes.title} component="h1" variant="h5">
-            Verity<span style={{ color: "#4C3FD9" }}>CRM</span>
+            Conecta Atende<span style={{ color: "#4C3FD9" }}>CRM</span>
           </Typography>
           <Typography className={classes.subtitle} component="p">
             {i18n.t("Redefinir senha")}

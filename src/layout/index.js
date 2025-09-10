@@ -542,7 +542,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
           {drawerOpen ? (
             <>
               <Typography variant="h6" className={classes.logoText}>
-                Verity CRM
+                Conecta Atende
               </Typography>
               <IconButton
                 size="small"

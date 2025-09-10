@@ -35,6 +35,7 @@ import { i18n } from "../../translate/i18n";
 import moment from "moment";
 
 import { openApi } from "../../services/api";
+import logoFull from "../../assets/logo_full.png";
 
 const Copyright = () => {
   return (
@@ -65,6 +66,11 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
     width: "800px",
     maxWidth: "95%",
+  },
+  logo: {
+    width: "250px",
+    height: "auto",
+    marginBottom: "20px",
   },
   title: {
     color: "#6151FF",
@@ -664,9 +670,10 @@ const SignUp = () => {
       <Container component="main" maxWidth="md">
         <CssBaseline />
         <div className={classes.paper}>
-          <Typography className={classes.title} component="h1" variant="h5">
-            Verity<span style={{ color: "#4C3FD9" }}>CRM</span>
-          </Typography>
+          <img src={logoFull} alt="Logo" className={classes.logo} />
+            {/* <Typography className={classes.title} component="h1" variant="h5">
+              Conecta Atende<span style={{ color: "#4C3FD9" }}>CRM</span>
+            </Typography> */}
           <Typography className={classes.subtitle} component="p">
             {i18n.t("signup.title")}
           </Typography>
