@@ -981,14 +981,14 @@ const MainListItems = (props) => {
               collapsed={collapsed}
             />
 
-            <ListItemLink
+            {/* <ListItemLink
               to="/files"
               primary="Lista de arquivos"
               icon={<File size={22} />}
               selected={selectedItem === "/files"}
               onClick={() => handleMenuItemClick("/files")}
               collapsed={collapsed}
-            />
+            /> */}
 
             <ListItemLink
               to="/queues"
