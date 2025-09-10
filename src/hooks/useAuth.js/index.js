@@ -52,11 +52,46 @@ const useAuth = () => {
     async (error) => {
       const originalRequest = error.config;
 
-      if (error?.response?.status === 403 && !originalRequest._retry) {
+      // Tenta refresh token para erros 401 (token expirado) ou 403 (sem permissão)
+      if ((error?.response?.status === 401 || error?.response?.status === 403) && !originalRequest._retry) {
         originalRequest._retry = true;
+        
+        // Não tenta refresh se a requisição original já era para refresh_token
+        if (originalRequest.url?.includes('/auth/refresh_token')) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("companyId");
+          localStorage.removeItem("userId");
+          api.defaults.headers.Authorization = undefined;
+          setIsAuth(false);
+          if (isMounted) {
+            history.push("/login");
+          }
+          return Promise.reject(error);
+        }
+
         try {
-          const { data } = await api.post("/auth/refresh_token");
+          console.log("Tentando refresh token...");
+          console.log("URL da API:", process.env.REACT_APP_BACKEND_URL);
+          console.log("Cookies disponíveis:", document.cookie);
+          
+          // Remove o header Authorization para a chamada de refresh token
+          // O refresh token deve vir do cookie, não do header
+          const refreshRequest = {
+            ...originalRequest,
+            headers: {
+              ...originalRequest.headers,
+              Authorization: undefined
+            }
+          };
+          
+          const { data } = await api.post("/auth/refresh_token", {}, {
+            headers: {
+              Authorization: undefined // Remove o token expirado do header
+            }
+          });
+          
           if (data?.token) {
+            console.log("Token renovado com sucesso");
             const tokenString = JSON.stringify(data.token);
             localStorage.setItem("token", tokenString);
             api.defaults.headers.Authorization = `Bearer ${data.token}`;
@@ -65,6 +100,8 @@ const useAuth = () => {
           }
         } catch (refreshError) {
           console.error("Erro ao atualizar token:", refreshError);
+          console.error("Status do erro:", refreshError.response?.status);
+          console.error("Dados do erro:", refreshError.response?.data);
           localStorage.removeItem("token");
           localStorage.removeItem("companyId");
           localStorage.removeItem("userId");
@@ -76,7 +113,8 @@ const useAuth = () => {
         }
       }
 
-      if (error?.response?.status === 401) {
+      // Se não conseguiu fazer refresh ou não é erro de autenticação
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
         localStorage.removeItem("token");
         localStorage.removeItem("companyId");
         localStorage.removeItem("userId");
