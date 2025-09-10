@@ -644,7 +644,7 @@ export default function Options(props) {
       </Paper>
 
       {/* Seção Integrações */}
-      <Paper className={classes.sectionCard} elevation={0}>
+      {/* <Paper className={classes.sectionCard} elevation={0}>
         <div className={classes.sectionHeader}>
           <Plug size={26} style={{ color: "#5D3FD3" }} />
           <div>
@@ -667,9 +667,9 @@ export default function Options(props) {
           <Tab label="IXC" />
           <Tab label="MK-AUTH" />
           <Tab label="ASAAS" />
-        </Tabs>
+        </Tabs> */}
         {/* IXC */}
-        <Box mb={2}>
+        {/* <Box mb={2}>
           <Grid spacing={3} container>
             <Grid xs={12} sm={6} md={6} item>
               <div className={classes.optionRow}>
@@ -716,9 +716,9 @@ export default function Options(props) {
               </div>
             </Grid>
           </Grid>
-        </Box>
+        </Box> */}
         {/* MK-AUTH */}
-        <Tabs
+        {/* <Tabs
           value={mkauthTab}
           onChange={(event, newValue) => setMkauthTab(newValue)}
           indicatorColor="primary"
@@ -728,8 +728,8 @@ export default function Options(props) {
           className={classes.tab}
         >
           <Tab label="MK-AUTH" />
-        </Tabs>
-        <Box mb={2}>
+        </Tabs> */}
+        {/* <Box mb={2}>
           <Grid spacing={3} container>
             <Grid xs={12} sm={12} md={4} item>
               <div className={classes.optionRow}>
@@ -798,9 +798,9 @@ export default function Options(props) {
               </div>
             </Grid>
           </Grid>
-        </Box>
+        </Box> */}
         {/* ASAAS */}
-        <Tabs
+        {/* <Tabs
           value={asaasTab}
           onChange={(event, newValue) => setAsaasTab(newValue)}
           indicatorColor="primary"
@@ -810,8 +810,8 @@ export default function Options(props) {
           className={classes.tab}
         >
           <Tab label="ASAAS" />
-        </Tabs>
-        <Box mb={2}>
+        </Tabs> */}
+        {/* <Box mb={2}>
           <Grid spacing={3} container>
             <Grid xs={12} sm={12} md={12} item>
               <div className={classes.optionRow}>
@@ -837,7 +837,7 @@ export default function Options(props) {
             </Grid>
           </Grid>
         </Box>
-      </Paper>
+      </Paper> */}
     </div>
   );
 }

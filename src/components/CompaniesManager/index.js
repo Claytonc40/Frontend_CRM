@@ -38,11 +38,14 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import * as Yup from "yup";
+import { Field, Form, Formik } from "formik";
 import useCompanies from "../../hooks/useCompanies";
 import { useDate } from "../../hooks/useDate";
 import usePlans from "../../hooks/usePlans";
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import ConfirmationModal from "../ConfirmationModal";
+import api from "../../services/api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -146,6 +149,179 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 10,
   },
 }));
+
+const UserSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(2, "Muito curto!")
+    .max(50, "Muito longo!")
+    .required("Obrigatório"),
+  password: Yup.string().min(5, "Mínimo 5 caracteres").max(50, "Máximo 50 caracteres"),
+  email: Yup.string().email("Email inválido").required("Obrigatório"),
+});
+
+function UserModal({ open, onClose, userId, companyId, onUserSaved }) {
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+    password: "",
+    profile: "user",
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open && userId) {
+      loadUser();
+    } else if (open && !userId) {
+      setUser({
+        name: "",
+        email: "",
+        password: "",
+        profile: "user",
+      });
+    }
+  }, [open, userId]);
+
+  const loadUser = async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get(`/users/${userId}`);
+      setUser(data);
+    } catch (err) {
+      toast.error("Erro ao carregar usuário");
+    }
+    setLoading(false);
+  };
+
+  const handleClose = () => {
+    setUser({
+      name: "",
+      email: "",
+      password: "",
+      profile: "user",
+    });
+    onClose();
+  };
+
+  const handleSaveUser = async (values) => {
+    setLoading(true);
+    try {
+      const userData = {
+        ...values,
+        companyId,
+      };
+      
+      if (userId) {
+        await api.put(`/users/${userId}`, userData);
+        toast.success("Usuário atualizado com sucesso!");
+      } else {
+        await api.post("/users", userData);
+        toast.success("Usuário criado com sucesso!");
+      }
+      
+      if (onUserSaved) {
+        onUserSaved();
+      }
+      handleClose();
+    } catch (err) {
+      toast.error("Erro ao salvar usuário");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <User size={28} style={{ color: "#5D3FD3" }} />
+        {userId ? "Editar Usuário" : "Novo Usuário"}
+      </DialogTitle>
+      <DialogContent style={{ padding: 32 }}>
+        <Formik
+          initialValues={user}
+          enableReinitialize={true}
+          validationSchema={UserSchema}
+          onSubmit={(values, actions) => {
+            setTimeout(() => {
+              handleSaveUser(values);
+              actions.setSubmitting(false);
+            }, 400);
+          }}
+        >
+          {({ touched, errors, isSubmitting }) => (
+            <Form>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <Field
+                    as={TextField}
+                    label="Nome"
+                    name="name"
+                    error={touched.name && Boolean(errors.name)}
+                    helperText={touched.name && errors.name}
+                    variant="outlined"
+                    fullWidth
+                    margin="dense"
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Field
+                    as={TextField}
+                    label="Email"
+                    name="email"
+                    type="email"
+                    error={touched.email && Boolean(errors.email)}
+                    helperText={touched.email && errors.email}
+                    variant="outlined"
+                    fullWidth
+                    margin="dense"
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Field
+                    as={TextField}
+                    label="Senha"
+                    name="password"
+                    type="password"
+                    error={touched.password && Boolean(errors.password)}
+                    helperText={touched.password && errors.password}
+                    variant="outlined"
+                    fullWidth
+                    margin="dense"
+                    required={!userId}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <FormControl variant="outlined" fullWidth margin="dense">
+                    <InputLabel>Perfil</InputLabel>
+                    <Field
+                      as={Select}
+                      name="profile"
+                      label="Perfil"
+                    >
+                      <MenuItem value="admin">Admin</MenuItem>
+                      <MenuItem value="user">Usuário</MenuItem>
+                    </Field>
+                  </FormControl>
+                </Grid>
+              </Grid>
+              <DialogActions style={{ marginTop: 24 }}>
+                <Button onClick={handleClose}>Cancelar</Button>
+                <ButtonWithSpinner
+                  loading={loading}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                >
+                  {userId ? "Atualizar" : "Criar"}
+                </ButtonWithSpinner>
+              </DialogActions>
+            </Form>
+          )}
+        </Formik>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function CompanyModal({
   open,
@@ -359,6 +535,10 @@ function CompanyUsersModal({ open, onClose, company }) {
   const classes = useStyles();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [userModalOpen, setUserModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
     if (open && company?.id) {
@@ -369,14 +549,50 @@ function CompanyUsersModal({ open, onClose, company }) {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      // Aqui você deve implementar a chamada à API para buscar os usuários da empresa
-      // const response = await api.get(`/companies/${company.id}/users`);
-      // setUsers(response.data);
+      const { data } = await api.get("/users/list", {
+        params: { companyId: company.id },
+      });
+      setUsers(data);
       setLoading(false);
     } catch (err) {
       toast.error("Erro ao carregar usuários");
       setLoading(false);
     }
+  };
+
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
+    setUserModalOpen(true);
+  };
+
+  const handleAddUser = () => {
+    setSelectedUser(null);
+    setUserModalOpen(true);
+  };
+
+  const handleDeleteUser = (user) => {
+    setUserToDelete(user);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    setLoading(true);
+    try {
+      await api.delete(`/users/${userToDelete.id}`);
+      toast.success("Usuário excluído com sucesso!");
+      loadUsers();
+      setShowDeleteDialog(false);
+      setUserToDelete(null);
+    } catch (err) {
+      toast.error("Erro ao excluir usuário");
+    }
+    setLoading(false);
+  };
+
+  const handleUserSaved = () => {
+    loadUsers();
   };
 
   return (
@@ -399,9 +615,7 @@ function CompanyUsersModal({ open, onClose, company }) {
                 variant="contained"
                 color="primary"
                 startIcon={<Plus size={20} />}
-                onClick={() => {
-                  // Implementar adição de usuário
-                }}
+                onClick={handleAddUser}
               >
                 Adicionar Usuário
               </Button>
@@ -429,16 +643,18 @@ function CompanyUsersModal({ open, onClose, company }) {
                         </div>
                         <div style={{ display: "flex", gap: "8px" }}>
                           <IconButton
-                            onClick={() => {
-                              // Implementar edição de usuário
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditUser(user);
                             }}
                             aria-label="edit"
                           >
                             <EditIcon />
                           </IconButton>
                           <IconButton
-                            onClick={() => {
-                              // Implementar exclusão de usuário
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteUser(user);
                             }}
                             aria-label="delete"
                             style={{ color: "#c62828" }}
@@ -466,6 +682,23 @@ function CompanyUsersModal({ open, onClose, company }) {
       <DialogActions>
         <Button onClick={onClose}>Fechar</Button>
       </DialogActions>
+      
+      <UserModal
+        open={userModalOpen}
+        onClose={() => setUserModalOpen(false)}
+        userId={selectedUser?.id}
+        companyId={company?.id}
+        onUserSaved={handleUserSaved}
+      />
+      
+      <ConfirmationModal
+        title="Exclusão de Usuário"
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDeleteUser}
+      >
+        Deseja realmente excluir o usuário {userToDelete?.name}?
+      </ConfirmationModal>
     </Dialog>
   );
 }

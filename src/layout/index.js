@@ -414,7 +414,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
       "/announcements": i18n.t("mainDrawer.listItems.annoucements"),
       "/chats": i18n.t("mainDrawer.listItems.chats"),
       "/financeiro": i18n.t("mainDrawer.listItems.financeiro"),
-      "/files": i18n.t("mainDrawer.listItems.files"),
+      // "/files": i18n.t("mainDrawer.listItems.files"),
       "/prompts": i18n.t("mainDrawer.listItems.prompts"),
       "/queue-integration": i18n.t("mainDrawer.listItems.queueIntegration"),
     };
